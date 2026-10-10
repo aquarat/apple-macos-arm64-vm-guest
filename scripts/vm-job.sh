@@ -30,7 +30,11 @@
 # job never changes the golden image, and its memory is returned to the host
 # when QEMU exits. Exit status: the command's status, or 124 for a job
 # timeout, 123 for an idle timeout (JOB_START_PATTERN never seen), 125 for a
-# guest that never reached SSH.
+# guest that never reached SSH, 120 when the out-of-process GPU backend
+# (GPU_BACKEND_BIN) was lost: QEMU stops the guest, the reason is logged here as
+# "job failed: GPU backend lost: ...", and the guest is discarded without
+# waiting for the job's timeout. A job already being stopped for a timeout
+# keeps its 123/124; a backend loss during that stop is only logged.
 set -uo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -64,7 +68,19 @@ qemu_alive() {
     kill -0 "$pid" 2>/dev/null
 }
 
+# The reason QEMU's apv-gpu-proxy device printed when its backend died, if it did.
+gpu_lost() {
+    grep -m1 -o 'apv-gpu-proxy: GPU backend lost: .*' "$run/logs/launcher.log" 2>/dev/null
+}
+gpu_lost_exit() {
+    local why="$1"
+    log "job failed: GPU backend lost: ${why#apv-gpu-proxy: GPU backend lost: }"
+    gpu_failed=1
+    exit 120
+}
+
 booted=0
+gpu_failed=0
 governor_pid=
 cleanup() {
     # Finish cleaning up even if more INT/TERM arrive (a service stop signals
@@ -75,7 +91,8 @@ cleanup() {
     fi
     # A guest that never reached SSH cannot be shut down over SSH; skip
     # straight to QMP quit instead of waiting out the SSH and power-off timeouts.
-    if qemu_alive && test "$booted" = 1; then
+    # A guest stopped by a lost GPU backend cannot shut down; quit QEMU.
+    if qemu_alive && test "$booted" = 1 && test "$gpu_failed" = 0; then
         log "shutting guest down"
         timeout 20 ssh -n "${ssh_opts[@]}" 'sudo -n shutdown -h now' >/dev/null 2>&1
         for _ in $(seq 1 60); do qemu_alive || break; sleep 2; done
@@ -107,6 +124,7 @@ boot() {
     t0=$(date +%s)
     log "booting (cpus=$CPUS ram=$RAM ssh=127.0.0.1:$SSH_PORT)"
     until timeout 10 ssh -n "${ssh_opts[@]}" true 2>/dev/null; do
+        why="$(gpu_lost)" && gpu_lost_exit "$why"
         qemu_alive || { log "QEMU exited during boot"; return 1; }
         if (( $(date +%s) - t0 > boot_timeout )); then
             log "no SSH after ${boot_timeout}s"; return 1
@@ -145,6 +163,16 @@ fi
 if test -z "$start_pattern"; then
     timeout "$job_timeout" ssh "${ssh_opts[@]}" "$@" <&0 &
     job_pid=$!
+    # Poll for a lost GPU backend while the job runs: QEMU stops the guest, so
+    # the job would otherwise sit out its whole timeout.
+    while kill -0 "$job_pid" 2>/dev/null; do
+        if why="$(gpu_lost)"; then
+            kill "$job_pid" 2>/dev/null; wait "$job_pid" 2>/dev/null
+            log "job exit 120 after $(( $(date +%s) - t1 ))s"
+            gpu_lost_exit "$why"
+        fi
+        sleep 2 & wait $!
+    done
     wait "$job_pid"
     status=$?
     log "job exit $status after $(( $(date +%s) - t1 ))s"
@@ -174,6 +202,8 @@ stop_job() {    # stop_job <status> <reason>
         timeout 20 ssh -n "${ssh_opts[@]}" "$STOP_COMMAND" >/dev/null 2>&1
         for ((i = 0; i < stop_grace; i += 2)); do
             kill -0 "$job_pid" 2>/dev/null || return
+            # A guest stopped by a lost GPU backend cannot stop its job.
+            gpu_lost >/dev/null && break
             sleep 2
         done
         log "the job did not stop within ${stop_grace}s; ending its session"
@@ -183,6 +213,11 @@ stop_job() {    # stop_job <status> <reason>
 ssh "${ssh_opts[@]}" "$@" <&0 2> >(watch_stderr) &
 job_pid=$!
 while kill -0 "$job_pid" 2>/dev/null; do
+    if why="$(gpu_lost)"; then
+        kill "$job_pid" 2>/dev/null; wait "$job_pid" 2>/dev/null
+        log "job exit 120 after $(( $(date +%s) - t1 ))s"
+        gpu_lost_exit "$why"
+    fi
     now=$(date +%s)
     if test -s "$started_file"; then
         limit="$job_timeout"
@@ -197,10 +232,16 @@ while kill -0 "$job_pid" 2>/dev/null; do
         test -e "$started_file" && forced=124
         break
     fi
-    sleep 5 & wait $!
+    sleep 2 & wait $!
 done
 wait "$job_pid"
 status=$?
 test -n "$forced" && status="$forced"
+# The status of a job stopped for a timeout stays the timeout's; a backend lost
+# while it was stopping is noted, and the frozen guest is quit, not shut down.
+if test -n "$forced" && why="$(gpu_lost)"; then
+    log "GPU backend lost while the job was being stopped: ${why#apv-gpu-proxy: GPU backend lost: }"
+    gpu_failed=1
+fi
 log "job exit $status after $(( $(date +%s) - t1 ))s ($(test -e "$started_file" && echo "work started $(( $(<"$started_file") - t1 ))s in" || echo "no work started"))"
 exit "$status"
