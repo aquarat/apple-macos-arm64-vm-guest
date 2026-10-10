@@ -17,6 +17,11 @@
 #   DISK_CACHE    [unsafe]; LOG_DIR [logs/]; SERIAL; QMP_SOCKET
 #   GDB_PORT, PAUSE_AT_START (on|off), CONSOLE (reims|none|gtk),
 #   REIMS_VGPU_WINDOW (0 = no host window), QEMU_EXTRA_ARGS
+#   GPU_BACKEND_BIN  run the GPU device model out of process: path to
+#                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
+#                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
+#                 GPU_BACKEND_LOSS stop | reset | shutdown [stop],
+#                 GPU_BACKEND_LOG [LOG_DIR/gpu-backend.log]
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -113,6 +118,7 @@ elif test "$pause_at_start" != off; then
     die "PAUSE_AT_START must be on or off"
 fi
 device_help="$({ "$qemu" -device reims-vgpu-mmio,help 2>&1 || true; })"
+proxy_help="$({ "$qemu" -device apv-gpu-proxy,help 2>&1 || true; })"
 # Guest RAM on a shared memfd (MEMFD=1; the default with the GPU or the
 # balloon, MEMFD=0 for anonymous RAM):
 # - Reims maps fragmented guest pages (textures, render targets) through a
@@ -134,7 +140,38 @@ if test "$gfx" = none; then
     # No paravirtual GPU (needs a QEMU with gfx-device=none): headless only.
     machine+=",gfx-device=none"
 fi
-if test "$gfx" = reims && grep -q '^reims-vgpu-mmio options:' <<<"$device_help"; then
+if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
+    # The GPU device model in its own process: QEMU's apv-gpu-proxy device
+    # connects to the backend's socket. The backend inherits this
+    # environment (VK_DRIVER_FILES, REIMS_VGPU_*, TMPDIR); when QEMU exits the
+    # backend sees the socket close and exits too.
+    grep -q '^apv-gpu-proxy options:' <<<"$proxy_help" ||
+        die "$qemu has no apv-gpu-proxy device (GPU_BACKEND_BIN set)"
+    test -x "$GPU_BACKEND_BIN" || die "GPU_BACKEND_BIN not executable: $GPU_BACKEND_BIN"
+    mkdir -p "$log_dir"
+    gpu_sock="${GPU_BACKEND_SOCKET:-$log_dir/gpu-backend.sock}"
+    rm -f "$gpu_sock"
+    gpu_log="${GPU_BACKEND_LOG:-$log_dir/gpu-backend.log}"
+    "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null &
+    gpu_backend_pid=$!
+    for _ in $(seq 1 100); do
+        test -S "$gpu_sock" && break
+        kill -0 "$gpu_backend_pid" 2>/dev/null || die "GPU backend exited at start (see $gpu_log)"
+        sleep 0.1
+    done
+    test -S "$gpu_sock" || die "GPU backend did not open $gpu_sock"
+    machine+=",gfx-device=apv-gpu-proxy"
+    extra_args+=(-global "apv-gpu-proxy.socket=$gpu_sock"
+                 -global "apv-gpu-proxy.on-backend-loss=${GPU_BACKEND_LOSS:-stop}")
+    case "$console" in
+        reims|none) ;;
+        gtk)
+            display_args=(-display gtk,zoom-to-fit=on)
+            export GDK_BACKEND=wayland
+            ;;
+        *) die "CONSOLE must be reims, none, or gtk" ;;
+    esac
+elif test "$gfx" = reims && grep -q '^reims-vgpu-mmio options:' <<<"$device_help"; then
     machine+=",gfx-device=reims-vgpu-mmio"
     if test "${REIMS_VGPU_WINDOW:-1}" = 0; then
         # The MMIO device always tries to open its host window and only
