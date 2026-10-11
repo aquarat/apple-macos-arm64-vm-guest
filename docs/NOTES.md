@@ -96,13 +96,27 @@ gnutls-devel nettle-devel gdb socat qemu-img`, plus cargo/rustc.
   compiler asserts (`Packing assertion failed: st_vary … value.size ==
   AGX_SIZE_32`). `patches/mesa/0001-asahi-widen-16-bit-varyings-before-st_vary.patch`
   widens them to 32 bits (the fragment side already reads them as 32-bit).
+  `patches/mesa/0002-asahi-narrow-16-bit-flat-fragment-inputs.patch` does
+  the reverse for flat inputs: a 16-bit flat fragment input (a Skia vertex
+  colour, `half4` with `[[flat]]`) read the 32-bit coefficient unconverted
+  and the backend aborted QEMU ("Packing assertion failed … unaligned
+  reg"). Apps that draw with Skia (Compose) reach it once Reims renders
+  their pipelines with no fragment function, so a Reims build with those
+  fixes needs a Mesa built with 0002 first.
   `scripts/build-mesa-honeykrisp.sh` builds the host's Mesa release with
-  that patch into `~/opt/mesa-honeykrisp`, without touching the system Mesa;
+  these patches into `~/opt/mesa-honeykrisp`, without touching the system Mesa;
   `scripts/host-gpu-setup.sh` runs it and prints the `VK_DRIVER_FILES` value.
   This is the renderer for GPU slots. llvmpipe
   (`/usr/share/vulkan/icd.d/lvp_icd.aarch64.json`, still the scripts' default
   `VK_DRIVER_FILES`) renders the desktop but cannot run the iOS simulator
   (see "Metal" below).
+- **Pipeline cache.** Reims saves its Vulkan pipeline cache (one file per
+  driver build, about 8 MB) and its driver quarantine list in `TMPDIR`. `/tmp`
+  is a tmpfs wiped at boot, so `scripts/vm-run.sh` starts QEMU with
+  `TMPDIR=~/.cache/reims-vgpu` (`REIMS_VGPU_TMPDIR` overrides it) and prunes
+  the translation scratch directories of QEMUs that have exited. To clear a
+  quarantine after a driver fix: `rm ~/.cache/reims-vgpu/reims-vgpu-driver-*`
+  with no GPU guest running.
 - **Headless polling.** The Reims MMIO shim only started its poll timer
   (`device_poll` + action delivery) when a host window opened. Headless
   (`-display none`), nothing polled the device and Tahoe could block in IOMFB
@@ -254,7 +268,7 @@ never answer SSH. Measured per-boot failure rates, GDB-free, retries off:
 | `avp,rtc`, image without RTC offset | 5/60 |
 | `avp,rtc`, image re-baked with RTC offset (v7) | 5/110 (~4.5 %) |
 | v7 on an M1 Ultra host | 0/30 |
-| v11, 8 vCPU / 12 GiB, `GFX=none`, virtio-sound, QEMU e753fed656 | 17/203 (8.4 %) |
+| v11, 8 vCPU / 12 GiB, `GFX=none`, virtio-sound, QEMU 8cce779f63 | 17/203 (8.4 %) |
 | same, QEMU with the used-ring fix (below) | 0/200 (a used ring relocated in 62 of them) |
 
 The remaining stall (after the RTC fix) is the virtio ring layout bug in

@@ -25,32 +25,32 @@
 <circle cx="469.3" cy="127.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="481.3" y="131.5" font-size="12" fill="#52514e" text-anchor="start">154.4–160 s, 2 runs</text>
 <text x="229.0" y="160.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
-<text x="229.0" y="173.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims f9904a35, e5c793b8</text>
+<text x="229.0" y="173.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
 <rect x="532.7" y="156.0" width="30.2" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
 <circle cx="551.4" cy="161.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="562.9" cy="161.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="555.6" cy="161.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="574.9" y="165.5" font-size="12" fill="#52514e" text-anchor="start">204–225 s</text>
 <text x="229.0" y="194.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker prototype</text>
-<text x="229.0" y="207.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims f9904a35, e5c793b8</text>
+<text x="229.0" y="207.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
 <path d="M239.0,188.0 H516.2 Q520.2,188.0 520.2,192.0 V198.0 Q520.2,202.0 516.2,202.0 H239.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
 <circle cx="566.6" cy="195.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="500.6" cy="195.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="493.5" cy="195.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="578.6" y="199.5" font-size="12" fill="#52514e" text-anchor="start">176.8–227.6 s, 3 runs</text>
 <text x="229.0" y="228.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + stamp fix</text>
-<text x="229.0" y="241.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims b624cf4f</text>
+<text x="229.0" y="241.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
 <path d="M239.0,222.0 H518.2 Q522.2,222.0 522.2,226.0 V232.0 Q522.2,236.0 518.2,236.0 H239.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
 <circle cx="522.2" cy="229.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="534.2" y="233.5" font-size="12" fill="#52514e" text-anchor="start">196.7 s</text>
 <text x="229.0" y="262.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, worker + stamp fix</text>
-<text x="229.0" y="275.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims b624cf4f</text>
+<text x="229.0" y="275.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
 <path d="M239.0,256.0 H456.0 Q460.0,256.0 460.0,260.0 V266.0 Q460.0,270.0 456.0,270.0 H239.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
 <circle cx="457.5" cy="263.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="462.4" cy="263.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="474.4" y="267.5" font-size="12" fill="#52514e" text-anchor="start">151.8–155.2 s, 2 runs</text>
 <text x="229.0" y="296.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, deployed build</text>
-<text x="229.0" y="309.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="229.0" y="309.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M239.0,290.0 H469.0 Q473.0,290.0 473.0,294.0 V300.0 Q473.0,304.0 469.0,304.0 H239.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="463.3" cy="297.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="504.2" cy="297.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -58,7 +58,7 @@
 <circle cx="465.0" cy="297.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="516.2" y="301.5" font-size="12" fill="#52514e" text-anchor="start">153.2–184.2 s, 4 runs</text>
 <text x="229.0" y="330.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path (not deployed)</text>
-<text x="229.0" y="343.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="229.0" y="343.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M239.0,324.0 H465.3 Q469.3,324.0 469.3,328.0 V334.0 Q469.3,338.0 465.3,338.0 H239.0 Z" fill="#4a3aa7" fill-opacity="0.28"/>
 <circle cx="470.5" cy="331.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="466.4" cy="331.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>

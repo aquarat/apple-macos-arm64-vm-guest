@@ -100,7 +100,7 @@ host GPU hangs) and one early guest panic in the worker series.
 
 The deployed build moves guest data through an intermediate buffer: guest
 pages into a heap buffer, then into Vulkan staging memory, and readbacks the
-same way back. The copy-path build (Reims e82389b59b, branch `gpu-copy`)
+same way back. The copy-path build (Reims 9abcc6e523, branch `gpu-copy`)
 copies directly between guest RAM and mapped Vulkan memory. On the unit-test
 benchmark, with runs interleaved, drain busy time fell from 148–164 s to
 115–118 s and the tranche p90 from 116–215 ms to 51–58 ms. In one 90 s perf
@@ -141,22 +141,22 @@ profiles and guest crash data.
   objects and reused its memory. The queued packet then ran on garbage: in
   one case a Core Animation compute kernel read float data as a loop count,
   ran about a billion iterations and the host GPU timed the job out. Fix:
-  hold the word until the channel reaches it (Reims 0d7da8e277).
+  hold the word until the channel reaches it (Reims 25e4dc0e32).
 - **Object ids collided across guest processes.** Each guest process
   numbered its objects from 1, and the device keyed some state on the number
   alone. Three processes with a pipeline in the same slot shared one entry,
   which caused 362 refused packets in one run. Fix: a separate number range
-  per process (Reims 0e07f1b6a9).
+  per process (Reims dcfcfadb95).
 - **The dependency graph never shrank.** Finished work was marked dead but
   never removed, so admitting each new packet walked the whole session's
   history. Twenty minutes into a UI-test session that was 30 % of the drain's
   CPU time, spent while holding QEMU's big lock. Fix: compact the graph as
-  part of admission (Reims e46efbc7eb). It no longer shows in the profile.
+  part of admission (Reims 404e58e41f). It no longer shows in the profile.
 - **The drain ran under QEMU's big lock.** The device drained in a main-loop
   bottom half, so every vCPU exit that needed the lock waited out the whole
-  tranche. Fix: drain on a worker thread (QEMU 2cd151d3b4), end a tranche at
-  the next packet when a vCPU waits for the device (Reims b624cf4fc5), and
-  take busy channels in turns of one packet (Reims a77ea84fce).
+  tranche. Fix: drain on a worker thread (QEMU 6740a49344), end a tranche at
+  the next packet when a vCPU waits for the device (Reims 75d37ac33f), and
+  take busy channels in turns of one packet (Reims 7c87a66833).
 
 Earlier fixes on the way to a stable GPU guest:
 
@@ -165,19 +165,19 @@ Earlier fixes on the way to a stable GPU guest:
   from beyond the ring and lost. The guest freed surface memory that the
   device kept writing frames into, and the guest kernel panicked with
   corrupted page tables. One fault address was a half-float pixel value in a
-  kernel pointer. Fix: Reims 94b7d1eb22.
+  kernel pointer. Fix: Reims 81c0e6a8f9.
 - **The device described itself before it existed.** The guest asks for the
   GPU's limits once per boot, before the first draw, and got the Vulkan
   floor: one sample per pixel. The iOS simulator then created 4x MSAA
   textures, Metal's validation aborted the simulator's GPU host process, and
   SpringBoard restarted in a loop. Fix: bring the device up first (Reims
-  f9904a3538).
+  6125926602).
 - **A used ring inside the available ring.** macOS 26's virtio driver
   sometimes programs a used-ring address that lies inside the available
   ring. Completions then land where the driver never looks: on the network
   control queue the guest never configures its network (the boot stall); on
   the sound control queue the sound device never registers. Fix: QEMU
-  relocates such a used ring (`x-fix-overlapping-used`, QEMU 607c56b16d).
+  relocates such a used ring (`x-fix-overlapping-used`, QEMU 6f2d0742e8).
 
 Known gaps on the deployed build:
 

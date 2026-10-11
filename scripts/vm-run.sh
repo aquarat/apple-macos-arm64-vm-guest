@@ -84,11 +84,24 @@ start)
     env | grep -E '^(CPUS|RAM|NET_DEVICE_OPTS|TAP_IF|TAP_MAC|INJECT|KVM_MMIO_PATCH|VMAPPLE_HANDOFF_PC|GFX|CONSOLE|XNU_BOOT_ARGS|CSR_CONFIG|QEMU_EXTRA_ARGS|REIMS_[A-Z_]+|VK_[A-Z_]+|MESA_[A-Z_]+|SSH_PORT|SSH_BIND|MEMFD|BALLOON[A-Z_]*|AUDIO[A-Z_]*)=' \
         > "$run/env.txt" || true
     echo "golden=$golden booter=$booter" >> "$run/env.txt"
+    # Reims keeps its Vulkan pipeline cache (one file per driver build) and its
+    # driver quarantine in TMPDIR. /tmp is wiped at every host boot, so every
+    # boot recompiled every pipeline: give QEMU a persistent TMPDIR instead
+    # (REIMS_VGPU_TMPDIR). Translation scratch directories of QEMUs that have
+    # exited (reims-vgpu-m2v-cache-<pid>) are pruned here.
+    reims_tmp="${REIMS_VGPU_TMPDIR:-${XDG_CACHE_HOME:-$HOME/.cache}/reims-vgpu}"
+    mkdir -p "$reims_tmp"
+    for d in "$reims_tmp"/reims-vgpu-m2v-cache-*; do
+        test -d "$d" || continue
+        kill -0 "${d##*-}" 2>/dev/null || rm -rf -- "$d"
+    done
+    echo "REIMS_VGPU_TMPDIR=$reims_tmp" >> "$run/env.txt"
     # Reims' failure log defaults to an uncapped file in /tmp (often RAM; ~25 MB
     # per 10 min of simulator UI tests): keep it with the run's logs, where a
     # named path gets Reims' 64 MiB cap, and leave the verbose draw log off.
     (
         cd "$repo_root"
+        TMPDIR="$reims_tmp" \
         GUEST_DIR="$run" AVPBOOTER="$booter" LOG_DIR="$run/logs" QMP_SOCKET="$qmp" \
             REIMS_VGPU_WINDOW="${REIMS_VGPU_WINDOW:-0}" CONSOLE="${CONSOLE:-none}" \
             REIMS_VGPU_FAIL_LOG="${REIMS_VGPU_FAIL_LOG:-$run/logs/reims-fail.log}" \

@@ -1,0 +1,53 @@
+asahi: narrow 16-bit flat fragment inputs from their 32-bit coefficients
+
+Varyings reach the fragment shader as 32-bit values in the coefficient
+registers: 0001 widens 16-bit vertex outputs by type before st_vary, and
+the interpolated path converts back with f2fN after interpolation. The
+flat path (load_input) only asserted that the load was 32-bit (compiled
+out in a release build) and returned the 32-bit coefficient for a
+16-bit load.
+
+A half4 varying decorated Flat (a vertex colour, translated from Metal
+[[flat]]) then compiled to a 32-bit value standing in for a 16-bit def,
+and the backend aborted the whole process when it could not pack the
+result ("Packing assertion failed ... unaligned reg"). Release Mesa
+without 0001 aborts on the same pair with a different assertion
+(value.size == AGX_SIZE_32). An abort in the driver's compiler takes
+down the process that asked for the pipeline: QEMU and its guest.
+
+Narrow the flat value by its type, f2fN for floats and u2uN
+(truncation) for integers, matching how 0001 widened it.
+
+diff --git a/src/asahi/compiler/agx_nir_lower_interpolation.c b/src/asahi/compiler/agx_nir_lower_interpolation.c
+--- a/src/asahi/compiler/agx_nir_lower_interpolation.c
++++ b/src/asahi/compiler/agx_nir_lower_interpolation.c
+@@ -129,12 +129,25 @@
+       .io_semantics = nir_intrinsic_io_semantics(load));
+ 
+    if (load->intrinsic == nir_intrinsic_load_input) {
+-      assert(load->def.bit_size == 32);
+-
+       if (nir_intrinsic_io_semantics(load).location == VARYING_SLOT_LAYER)
+-         return nir_load_layer_id(b);
++         return nir_u2uN(b, nir_load_layer_id(b), load->def.bit_size);
++
++      /* The coefficient registers hold 32-bit varyings: the vertex side
++       * widens 16-bit outputs by type before st_vary (agx_nir_lower_uvs).
++       * A 16-bit flat input (e.g. a SPIR-V Float16 varying decorated Flat)
++       * therefore reads a 32-bit value and must narrow it by its type, as
++       * the interpolated path below does with f2fN. Returning the 32-bit
++       * value for a 16-bit load left a mismatched def that the backend
++       * later failed to pack ("unaligned reg"), aborting the compile.
++       */
++      nir_def *flat = interpolate_flat(b, coefficients);
++      if (load->def.bit_size == 32)
++         return flat;
++      else if (nir_alu_type_get_base_type(nir_intrinsic_dest_type(load)) ==
++               nir_type_float)
++         return nir_f2fN(b, flat, load->def.bit_size);
+       else
+-         return interpolate_flat(b, coefficients);
++         return nir_u2uN(b, flat, load->def.bit_size);
+    } else {
+       nir_intrinsic_instr *bary = nir_src_as_intrinsic(load->src[0]);
+ 

@@ -1,25 +1,25 @@
 date,series,run,reims,qemu,metric,value,unit,source
-2026-10-10,gpu-main-compact,n1,e46efbc7eb,-,app_suite_wall,1170,s,GPU series report 2026-10-10
-2026-10-10,gpu-main-compact,n2,e46efbc7eb,-,app_suite_wall,1119,s,GPU series report 2026-10-10
+2026-10-10,gpu-main-compact,n1,404e58e41f,-,app_suite_wall,1170,s,GPU series report 2026-10-10
+2026-10-10,gpu-main-compact,n2,404e58e41f,-,app_suite_wall,1119,s,GPU series report 2026-10-10
 2026-10-09,gpu-worker-nocompact,1,-,+worker patch,app_suite_wall,920,s,GPU series report 2026-10-10
 2026-10-09,gpu-worker-nocompact,2,-,+worker patch,app_suite_wall,1044,s,GPU series report 2026-10-10
-2026-10-10,candidate,1,2a85d74105,2cd151d3b4,app_suite_wall,687,s,GPU series report 2026-10-10
-2026-10-10,candidate,2,2a85d74105,2cd151d3b4,app_suite_wall,720,s,GPU series report 2026-10-10
-2026-10-10,candidate,3,2a85d74105,2cd151d3b4,app_suite_wall,766,s,GPU series report 2026-10-10
-2026-10-10,candidate,4,2a85d74105,2cd151d3b4,app_suite_wall,711,s,GPU series report 2026-10-10
-2026-10-10,candidate,5,2a85d74105,2cd151d3b4,app_suite_wall,640,s,GPU series report 2026-10-10
-2026-10-09,none,1,-,-,probe_cold_wall,212,s,lab notes 2026-10-09; QEMU 2cd151d3b4 commit message
+2026-10-10,candidate,1,71029b4d00,6740a49344,app_suite_wall,687,s,GPU series report 2026-10-10
+2026-10-10,candidate,2,71029b4d00,6740a49344,app_suite_wall,720,s,GPU series report 2026-10-10
+2026-10-10,candidate,3,71029b4d00,6740a49344,app_suite_wall,766,s,GPU series report 2026-10-10
+2026-10-10,candidate,4,71029b4d00,6740a49344,app_suite_wall,711,s,GPU series report 2026-10-10
+2026-10-10,candidate,5,71029b4d00,6740a49344,app_suite_wall,640,s,GPU series report 2026-10-10
+2026-10-09,none,1,-,-,probe_cold_wall,212,s,lab notes 2026-10-09; QEMU 6740a49344 commit message
 2026-10-09,none,2,-,-,probe_cold_wall,223,s,lab notes 2026-10-09
-2026-10-09,gpu-main,1,-,-,probe_cold_wall,412,s,lab notes 2026-10-09; QEMU 2cd151d3b4 commit message
+2026-10-09,gpu-main,1,-,-,probe_cold_wall,412,s,lab notes 2026-10-09; QEMU 6740a49344 commit message
 2026-10-09,gpu-main,2,-,-,probe_cold_wall,430,s,lab notes 2026-10-09
-2026-10-09,none,1,-,-,probe_warm_wall,69,s,lab notes 2026-10-09; QEMU 2cd151d3b4 commit message
+2026-10-09,none,1,-,-,probe_warm_wall,69,s,lab notes 2026-10-09; QEMU 6740a49344 commit message
 2026-10-09,gpu-main,1,-,-,probe_warm_wall,75,s,lab notes 2026-10-09
 2026-10-09,gpu-main,2,-,-,probe_warm_wall,76,s,lab notes 2026-10-09
 2026-10-09,gpu-worker,1,-,+worker patch,probe_warm_wall,53,s,lab notes 2026-10-09
 2026-10-09,gpu-worker,2,-,+worker patch,probe_warm_wall,53,s,lab notes 2026-10-09
 2026-10-09,gpu-worker,3,-,+worker patch,probe_warm_wall,53,s,lab notes 2026-10-09
-2026-10-09,gpu-main-stamp,ci-1,b624cf4fc5,607c56b16d,ci_ui_job_wall,1109,s,production CI job start to end (12/14 tests passed)
-2026-10-10,candidate,ci-1,2a85d74105,2cd151d3b4,ci_ui_job_wall,948,s,production CI job start to end (14/14 passed; two test waits raised 10 s -> 30 s in that commit; host also ran an unrelated nice-19 CPU load)
-2026-10-10,gpu-copy,cp-s2-copy1,e82389b59b,2cd151d3b4,app_suite_wall,675,s,copy-path series 2026-10-10 (sustained run cp-s2-copy1; 12/14 passed)
-2026-10-10,gpu-copy,cp-s3-copy1,e82389b59b,2cd151d3b4,app_suite_wall,743,s,copy-path series 2026-10-10 (sustained run cp-s3-copy1; 12/14 passed)
-2026-10-10,gpu-copy,cp-s4-copy1,e82389b59b,2cd151d3b4,app_suite_wall,819,s,copy-path series 2026-10-10 (sustained run cp-s4-copy1; 11/14 passed)
+2026-10-09,gpu-main-stamp,ci-1,75d37ac33f,6f2d0742e8,ci_ui_job_wall,1109,s,production CI job start to end (12/14 tests passed)
+2026-10-10,candidate,ci-1,71029b4d00,6740a49344,ci_ui_job_wall,948,s,production CI job start to end (14/14 passed; two test waits raised 10 s -> 30 s in that commit; host also ran an unrelated nice-19 CPU load)
+2026-10-10,gpu-copy,cp-s2-copy1,9abcc6e523,6740a49344,app_suite_wall,675,s,copy-path series 2026-10-10 (sustained run cp-s2-copy1; 12/14 passed)
+2026-10-10,gpu-copy,cp-s3-copy1,9abcc6e523,6740a49344,app_suite_wall,743,s,copy-path series 2026-10-10 (sustained run cp-s3-copy1; 12/14 passed)
+2026-10-10,gpu-copy,cp-s4-copy1,9abcc6e523,6740a49344,app_suite_wall,819,s,copy-path series 2026-10-10 (sustained run cp-s4-copy1; 11/14 passed)

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="780" height="516" viewBox="0 0 780 516" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
 <title>macOS 26 boot reliability</title>
-<desc>Boot failure rates: PL031 clock only (boot_stall): 6/40 (15.0 %); avp,rtc clock, image without RTC offset (boot_stall): 5/60 (8.3 %); avp,rtc clock, re-baked image (v7) (boot_stall): 5/110 (4.5 %); v7 image, M1 Ultra host (boot_stall): 0/30 (0.0 %); 8 vCPU / 12 GiB, QEMU e753fed656 (boot_stall): 17/203 (8.4 %); same, with the used-ring fix (boot_stall): 0/200 (0.0 %); 8 vCPU / 12 GiB, QEMU e753fed656 (sound_missing): 8/186 (4.3 %); same, with the used-ring fix (sound_missing): 0/200 (0.0 %)</desc>
+<desc>Boot failure rates: PL031 clock only (boot_stall): 6/40 (15.0 %); avp,rtc clock, image without RTC offset (boot_stall): 5/60 (8.3 %); avp,rtc clock, re-baked image (v7) (boot_stall): 5/110 (4.5 %); v7 image, M1 Ultra host (boot_stall): 0/30 (0.0 %); 8 vCPU / 12 GiB, QEMU 8cce779f63 (boot_stall): 17/203 (8.4 %); same, with the used-ring fix (boot_stall): 0/200 (0.0 %); 8 vCPU / 12 GiB, QEMU 8cce779f63 (sound_missing): 8/186 (4.3 %); same, with the used-ring fix (sound_missing): 0/200 (0.0 %)</desc>
 <rect x="0.5" y="0.5" width="779" height="515" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
 <text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">macOS 26 boot reliability</text>
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">Tahoe guests booted repeatedly with retries off. Both faults were one macOS virtio</text>
@@ -28,7 +28,7 @@
 <text x="299.0" y="235.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">v7 image, M1 Ultra host</text>
 <circle cx="314.0" cy="231.0" r="4" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="326.0" y="235.5" font-size="12" fill="#52514e" text-anchor="start">0/30 (0.0 %)</text>
-<text x="299.0" y="269.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">8 vCPU / 12 GiB, QEMU e753fed656</text>
+<text x="299.0" y="269.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">8 vCPU / 12 GiB, QEMU 8cce779f63</text>
 <path d="M309.0,258.0 H446.1 Q450.1,258.0 450.1,262.0 V268.0 Q450.1,272.0 446.1,272.0 H309.0 Z" fill="#2a78d6"/>
 <text x="458.1" y="269.5" font-size="12" fill="#52514e" text-anchor="start">17/203 (8.4 %)</text>
 <text x="299.0" y="303.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">same, with the used-ring fix</text>
@@ -46,7 +46,7 @@
 <text x="566.7" y="474.0" font-size="11" fill="#6b6a65" text-anchor="middle">15 %</text>
 <line x1="652.6" y1="391.0" x2="652.6" y2="459.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="652.6" y="474.0" font-size="11" fill="#6b6a65" text-anchor="middle">20 %</text>
-<text x="299.0" y="412.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">8 vCPU / 12 GiB, QEMU e753fed656</text>
+<text x="299.0" y="412.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">8 vCPU / 12 GiB, QEMU 8cce779f63</text>
 <path d="M309.0,401.0 H378.9 Q382.9,401.0 382.9,405.0 V411.0 Q382.9,415.0 378.9,415.0 H309.0 Z" fill="#2a78d6"/>
 <text x="390.9" y="412.5" font-size="12" fill="#52514e" text-anchor="start">8/186 (4.3 %)</text>
 <text x="299.0" y="446.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">same, with the used-ring fix</text>

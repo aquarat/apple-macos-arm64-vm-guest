@@ -1,19 +1,19 @@
 date,series,run,reims,qemu,metric,value,unit,source
 2026-10-09,none,1,-,-,unit_test_wall,154.4,s,GPU series report 2026-10-10
 2026-10-09,none,2,-,-,unit_test_wall,160.0,s,GPU series report 2026-10-10
-2026-10-08,gpu-main-prestamp,b1,f9904a3538,-,unit_test_wall,217.0,s,lab notes 2026-10-08 (run b1)
-2026-10-09,gpu-main-prestamp,bq1,e5c793b876,607c56b16d,unit_test_wall,225.0,s,lab notes 2026-10-09 (run bq1)
-2026-10-09,gpu-main-prestamp,bq1b,e5c793b876,607c56b16d,unit_test_wall,219.9,s,lab notes 2026-10-09 (run bq1b)
-2026-10-08,gpu-worker-proto,b2,f9904a3538,+worker patch,unit_test_wall,227.6,s,lab notes 2026-10-08 (run b2)
-2026-10-09,gpu-worker-proto,bq2,e5c793b876,607c56b16d+worker patch,unit_test_wall,181.7,s,lab notes 2026-10-09 (run bq2)
-2026-10-09,gpu-worker-proto,bq2b,e5c793b876,607c56b16d+worker patch,unit_test_wall,176.8,s,lab notes 2026-10-09 (run bq2b)
-2026-10-09,gpu-main-stamp,c,b624cf4fc5,607c56b16d,unit_test_wall,196.7,s,lab notes 2026-10-09 (committed-state validation)
-2026-10-09,gpu-worker-stamp,1,b624cf4fc5,+worker patch,unit_test_wall,151.8,s,GPU series report 2026-10-10
-2026-10-09,gpu-worker-stamp,2,b624cf4fc5,+worker patch,unit_test_wall,155.2,s,GPU series report 2026-10-10
-2026-10-10,candidate,1,2a85d74105,2cd151d3b4,unit_test_wall,155.8,s,GPU series report 2026-10-10
-2026-10-10,candidate,cp-base-1,2a85d74105,2cd151d3b4,unit_test_wall,184.2,s,copy-path series 2026-10-10 (interleaved run cp-base-1)
-2026-10-10,candidate,cp-base-2,2a85d74105,2cd151d3b4,unit_test_wall,153.2,s,copy-path series 2026-10-10 (interleaved run cp-base-2)
-2026-10-10,candidate,cp-base-3,2a85d74105,2cd151d3b4,unit_test_wall,157.0,s,copy-path series 2026-10-10 (interleaved run cp-base-3)
-2026-10-10,gpu-copy,cp-copy1-1,e82389b59b,2cd151d3b4,unit_test_wall,160.8,s,copy-path series 2026-10-10 (interleaved run cp-copy1-1)
-2026-10-10,gpu-copy,cp-copy1-2,e82389b59b,2cd151d3b4,unit_test_wall,158.0,s,copy-path series 2026-10-10 (interleaved run cp-copy1-2)
-2026-10-10,gpu-copy,cp-copy1-3,e82389b59b,2cd151d3b4,unit_test_wall,161.2,s,copy-path series 2026-10-10 (interleaved run cp-copy1-3)
+2026-10-08,gpu-main-prestamp,b1,6125926602,-,unit_test_wall,217.0,s,lab notes 2026-10-08 (run b1)
+2026-10-09,gpu-main-prestamp,bq1,cd3d9aa244,6f2d0742e8,unit_test_wall,225.0,s,lab notes 2026-10-09 (run bq1)
+2026-10-09,gpu-main-prestamp,bq1b,cd3d9aa244,6f2d0742e8,unit_test_wall,219.9,s,lab notes 2026-10-09 (run bq1b)
+2026-10-08,gpu-worker-proto,b2,6125926602,+worker patch,unit_test_wall,227.6,s,lab notes 2026-10-08 (run b2)
+2026-10-09,gpu-worker-proto,bq2,cd3d9aa244,6f2d0742e8+worker patch,unit_test_wall,181.7,s,lab notes 2026-10-09 (run bq2)
+2026-10-09,gpu-worker-proto,bq2b,cd3d9aa244,6f2d0742e8+worker patch,unit_test_wall,176.8,s,lab notes 2026-10-09 (run bq2b)
+2026-10-09,gpu-main-stamp,c,75d37ac33f,6f2d0742e8,unit_test_wall,196.7,s,lab notes 2026-10-09 (committed-state validation)
+2026-10-09,gpu-worker-stamp,1,75d37ac33f,+worker patch,unit_test_wall,151.8,s,GPU series report 2026-10-10
+2026-10-09,gpu-worker-stamp,2,75d37ac33f,+worker patch,unit_test_wall,155.2,s,GPU series report 2026-10-10
+2026-10-10,candidate,1,71029b4d00,6740a49344,unit_test_wall,155.8,s,GPU series report 2026-10-10
+2026-10-10,candidate,cp-base-1,71029b4d00,6740a49344,unit_test_wall,184.2,s,copy-path series 2026-10-10 (interleaved run cp-base-1)
+2026-10-10,candidate,cp-base-2,71029b4d00,6740a49344,unit_test_wall,153.2,s,copy-path series 2026-10-10 (interleaved run cp-base-2)
+2026-10-10,candidate,cp-base-3,71029b4d00,6740a49344,unit_test_wall,157.0,s,copy-path series 2026-10-10 (interleaved run cp-base-3)
+2026-10-10,gpu-copy,cp-copy1-1,9abcc6e523,6740a49344,unit_test_wall,160.8,s,copy-path series 2026-10-10 (interleaved run cp-copy1-1)
+2026-10-10,gpu-copy,cp-copy1-2,9abcc6e523,6740a49344,unit_test_wall,158.0,s,copy-path series 2026-10-10 (interleaved run cp-copy1-2)
+2026-10-10,gpu-copy,cp-copy1-3,9abcc6e523,6740a49344,unit_test_wall,161.2,s,copy-path series 2026-10-10 (interleaved run cp-copy1-3)

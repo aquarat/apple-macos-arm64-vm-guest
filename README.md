@@ -283,15 +283,16 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
 - **Tested configurations.** Hosts: M1 Max and M1 Ultra on Fedora Asahi
   Remix 44, kernel 7.1.13. Guests: macOS 13.6 (22G120) and 26.4 (25E246),
   Xcode 26.4.1. Other combinations are untested.
-- **GPU rendering gaps.** Pipelines without a fragment function are refused,
-  so some Skia/Compose drawing is not rendered yet. Screenshots of such
-  apps can come out blank or flat colour. UI tests that drive the app
-  through accessibility pass. This is being fixed.
+- **GPU rendering gaps.** Compose/Skia apps now render their real UI, but
+  a cold app launch takes 20–40 s before the UI settles: the drain is
+  bounded by one queue submission per draw. XCTest screenshots taken early
+  in a launch can still show a splash or flat colour.
 - **GPU slot open issues** ([PERFORMANCE.md](docs/PERFORMANCE.md)):
-  `memcpy` takes 70 % of the drain's CPU time, part of it an extra copy. A
-  build that removes it halves the drain's `memcpy` cycles; it is measured
-  but not deployed yet. GPU slots need Honeykrisp Mesa built with this project's patch
-  (`scripts/build-mesa-honeykrisp.sh`), not the distribution's Mesa. llvmpipe
+  `memcpy` is still about two thirds of the drain's CPU time: Honeykrisp
+  cannot import guest RAM, so guest data is copied into and out of Vulkan
+  memory once each way. GPU slots need Honeykrisp Mesa built with this
+  project's patches (`patches/mesa/`, `scripts/build-mesa-honeykrisp.sh`),
+  not the distribution's Mesa. llvmpipe
   cannot run the iOS simulator. Only the Forgejo orchestrator has per-slot
   GPU settings.
 - **Guests without a GPU** have no Metal. Apps that need Metal cannot run

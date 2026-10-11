@@ -16,25 +16,25 @@
 <line x1="498.1" y1="131.0" x2="498.1" y2="471.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="498.1" y="486.0" font-size="11" fill="#6b6a65" text-anchor="middle">15</text>
 <text x="264.0" y="147.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Before IOSurface ring fix</text>
-<text x="264.0" y="160.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims f9904a35</text>
+<text x="264.0" y="160.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266</text>
 <rect x="274.0" y="141.0" width="13.9" height="14.0" rx="0" fill="#0ca30c"/>
 <path d="M289.9,141.0 H389.5 Q393.5,141.0 393.5,145.0 V151.0 Q393.5,155.0 389.5,155.0 H289.9 Z" fill="#d03b3b"/>
 <text x="401.5" y="152.5" font-size="12" fill="#52514e" text-anchor="start">1/8 clean · 7 guest losses or panics</text>
 <text x="264.0" y="181.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">IOSurface ring fix</text>
-<text x="264.0" y="194.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 94b7d1eb</text>
+<text x="264.0" y="194.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 81c0e6a8</text>
 <path d="M274.0,175.0 H359.6 Q363.6,175.0 363.6,179.0 V185.0 Q363.6,189.0 359.6,189.0 H274.0 Z" fill="#0ca30c"/>
 <text x="371.6" y="186.5" font-size="12" fill="#52514e" text-anchor="start">6/6 clean</text>
 <text x="264.0" y="215.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Compute samples draw residents</text>
-<text x="264.0" y="228.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e5c793b8</text>
+<text x="264.0" y="228.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims cd3d9aa2</text>
 <path d="M274.0,209.0 H314.8 Q318.8,209.0 318.8,213.0 V219.0 Q318.8,223.0 314.8,223.0 H274.0 Z" fill="#0ca30c"/>
 <text x="326.8" y="220.5" font-size="12" fill="#52514e" text-anchor="start">3/3 clean</text>
 <text x="264.0" y="249.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Worker prototype, before stamp fix</text>
-<text x="264.0" y="262.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e5c793b8</text>
+<text x="264.0" y="262.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims cd3d9aa2</text>
 <rect x="274.0" y="243.0" width="58.8" height="14.0" rx="0" fill="#0ca30c"/>
 <path d="M334.8,243.0 H359.6 Q363.6,243.0 363.6,247.0 V253.0 Q363.6,257.0 359.6,257.0 H334.8 Z" fill="#d03b3b"/>
 <text x="371.6" y="254.5" font-size="12" fill="#52514e" text-anchor="start">4/6 clean · 2 host GPU hangs</text>
 <text x="264.0" y="283.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Main loop + stamp fix</text>
-<text x="264.0" y="296.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims b624cf4f</text>
+<text x="264.0" y="296.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
 <path d="M274.0,277.0 H329.8 Q333.8,277.0 333.8,281.0 V287.0 Q333.8,291.0 329.8,291.0 H274.0 Z" fill="#0ca30c"/>
 <text x="341.8" y="288.5" font-size="12" fill="#52514e" text-anchor="start">4/4 clean</text>
 <text x="264.0" y="322.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">Worker runs since stamp fix (all)</text>
@@ -45,15 +45,15 @@
 <path d="M274.0,345.0 H449.3 Q453.3,345.0 453.3,349.0 V355.0 Q453.3,359.0 449.3,359.0 H274.0 Z" fill="#0ca30c"/>
 <text x="461.3" y="356.5" font-size="12" fill="#52514e" text-anchor="start">12/12 clean</text>
 <text x="264.0" y="385.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Main loop + compaction (fallback)</text>
-<text x="264.0" y="398.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e46efbc7</text>
+<text x="264.0" y="398.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 404e58e4</text>
 <path d="M274.0,379.0 H314.8 Q318.8,379.0 318.8,383.0 V389.0 Q318.8,393.0 314.8,393.0 H274.0 Z" fill="#0ca30c"/>
 <text x="326.8" y="390.5" font-size="12" fill="#52514e" text-anchor="start">3/3 clean</text>
 <text x="264.0" y="419.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Deployed build, sustained stress</text>
-<text x="264.0" y="432.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="264.0" y="432.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M274.0,413.0 H344.7 Q348.7,413.0 348.7,417.0 V423.0 Q348.7,427.0 344.7,427.0 H274.0 Z" fill="#0ca30c"/>
 <text x="356.7" y="424.5" font-size="12" fill="#52514e" text-anchor="start">5/5 clean</text>
 <text x="264.0" y="453.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Copy path (not deployed)</text>
-<text x="264.0" y="466.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="264.0" y="466.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M274.0,447.0 H314.8 Q318.8,447.0 318.8,451.0 V457.0 Q318.8,461.0 314.8,461.0 H274.0 Z" fill="#0ca30c"/>
 <text x="326.8" y="458.5" font-size="12" fill="#52514e" text-anchor="start">3/3 clean</text>
 <text x="386.0" y="502.0" font-size="11.5" fill="#52514e" text-anchor="middle">Sustained runs (green: clean, red: failed)</text>

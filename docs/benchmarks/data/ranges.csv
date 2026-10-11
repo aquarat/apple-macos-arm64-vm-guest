@@ -1,6 +1,6 @@
 date,series,metric,low,high,unit,note,source
 2026-10-09,gpu-main-prestamp,unit_test_wall,204,225,s,,GPU series report 2026-10-10
-2026-10-09,gpu-worker,probe_cold_wall,240,290,s,,lab notes 2026-10-09; QEMU 2cd151d3b4 commit message
+2026-10-09,gpu-worker,probe_cold_wall,240,290,s,,lab notes 2026-10-09; QEMU 6740a49344 commit message
 2026-10-10,none,app_suite_wall,,,s,cannot run: the app needs Metal,GPU series report 2026-10-10
 2026-10-09,gpu-worker-nocompact,drain_busy,1032,1200,s,,GPU series report 2026-10-10
 2026-10-10,candidate,drain_busy,499,529,s,,GPU series report 2026-10-10

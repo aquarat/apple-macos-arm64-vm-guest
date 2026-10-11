@@ -18,14 +18,14 @@
 <line x1="625.8" y1="131.0" x2="625.8" y2="199.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="625.8" y="214.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
 <text x="229.0" y="147.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, deployed build</text>
-<text x="229.0" y="160.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="229.0" y="160.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M239.0,141.0 H534.7 Q538.7,141.0 538.7,145.0 V151.0 Q538.7,155.0 534.7,155.0 H239.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="556.1" cy="148.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="534.9" cy="148.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="525.2" cy="148.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="568.1" y="152.5" font-size="12" fill="#52514e" text-anchor="start">148–164 s, 3 runs</text>
 <text x="229.0" y="181.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path (not deployed)</text>
-<text x="229.0" y="194.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="229.0" y="194.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M239.0,175.0 H461.3 Q465.3,175.0 465.3,179.0 V185.0 Q465.3,189.0 461.3,189.0 H239.0 Z" fill="#4a3aa7" fill-opacity="0.28"/>
 <circle cx="467.2" cy="182.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="461.4" cy="182.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -46,14 +46,14 @@
 <line x1="619.0" y1="274.0" x2="619.0" y2="342.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="619.0" y="357.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
 <text x="229.0" y="290.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, deployed build</text>
-<text x="229.0" y="303.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="229.0" y="303.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M239.0,284.0 H491.9 Q495.9,284.0 495.9,288.0 V294.0 Q495.9,298.0 491.9,298.0 H239.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="506.5" cy="291.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="565.8" cy="291.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="415.3" cy="291.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="577.8" y="295.5" font-size="12" fill="#52514e" text-anchor="start">116–215 ms, 3 runs</text>
 <text x="229.0" y="324.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path (not deployed)</text>
-<text x="229.0" y="337.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="229.0" y="337.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M239.0,318.0 H318.1 Q322.1,318.0 322.1,322.0 V328.0 Q322.1,332.0 318.1,332.0 H239.0 Z" fill="#4a3aa7" fill-opacity="0.28"/>
 <circle cx="327.2" cy="325.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="316.5" cy="325.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -74,12 +74,12 @@
 <line x1="652.6" y1="417.0" x2="652.6" y2="485.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="652.6" y="500.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
 <text x="229.0" y="433.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, deployed build</text>
-<text x="229.0" y="446.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="229.0" y="446.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M239.0,427.0 H628.8 Q632.8,427.0 632.8,431.0 V437.0 Q632.8,441.0 628.8,441.0 H239.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="632.8" cy="434.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="644.8" y="438.5" font-size="12" fill="#52514e" text-anchor="start">95.21 Gcycles</text>
 <text x="229.0" y="467.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path (not deployed)</text>
-<text x="229.0" y="480.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="229.0" y="480.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M239.0,461.0 H456.2 Q460.2,461.0 460.2,465.0 V471.0 Q460.2,475.0 456.2,475.0 H239.0 Z" fill="#4a3aa7" fill-opacity="0.28"/>
 <circle cx="460.2" cy="468.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="472.2" y="472.5" font-size="12" fill="#52514e" text-anchor="start">53.48 Gcycles</text>
@@ -96,12 +96,12 @@
 <line x1="652.6" y1="560.0" x2="652.6" y2="628.0" stroke="#e8e7e1" stroke-width="1"/>
 <text x="652.6" y="643.0" font-size="11" fill="#6b6a65" text-anchor="middle">80</text>
 <text x="229.0" y="576.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, deployed build</text>
-<text x="229.0" y="589.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 2a85d741</text>
+<text x="229.0" y="589.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M239.0,570.0 H576.8 Q580.8,570.0 580.8,574.0 V580.0 Q580.8,584.0 576.8,584.0 H239.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="580.8" cy="577.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="592.8" y="581.5" font-size="12" fill="#52514e" text-anchor="start">66.1 Gcycles</text>
 <text x="229.0" y="610.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path (not deployed)</text>
-<text x="229.0" y="623.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims e82389b5</text>
+<text x="229.0" y="623.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M239.0,604.0 H407.3 Q411.3,604.0 411.3,608.0 V614.0 Q411.3,618.0 407.3,618.0 H239.0 Z" fill="#4a3aa7" fill-opacity="0.28"/>
 <circle cx="411.3" cy="611.0" r="4.5" fill="#4a3aa7" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="423.3" y="615.5" font-size="12" fill="#52514e" text-anchor="start">33.32 Gcycles</text>

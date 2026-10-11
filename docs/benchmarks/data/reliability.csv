@@ -1,11 +1,11 @@
 date,label,reims,qemu,clean,total,failures,role,criterion,source
-2026-10-08,"Before IOSurface ring fix",f9904a3538,-,1,8,"7 guest losses or panics",main,"sustained UI run ends without losing the guest",lab notes runs ui11-ui18 (two were diagnostic builds)
-2026-10-09,"IOSurface ring fix",94b7d1eb22,607c56b16d,6,6,,main,"no guest panic; 154/154 loop reruns",lab notes runs fx1-fx6; Reims 94b7d1eb22
-2026-10-09,"Compute samples draw residents",e5c793b876,607c56b16d,3,3,,main,"no guest fault; 75/75 loops",lab notes runs pf1/pg1/ph1; Reims e5c793b876
-2026-10-09,"Worker prototype, before stamp fix",e5c793b876,+worker patch,4,6,"2 host GPU hangs",main,"no guest panic and no host GPU hang",lab notes runs qw1-qw3 and y1-y3
-2026-10-09,"Main loop + stamp fix",b624cf4fc5,607c56b16d,4,4,,main,"no panic, no GPU hang; 92/92 loops",lab notes runs c1-c4
+2026-10-08,"Before IOSurface ring fix",6125926602,-,1,8,"7 guest losses or panics",main,"sustained UI run ends without losing the guest",lab notes runs ui11-ui18 (two were diagnostic builds)
+2026-10-09,"IOSurface ring fix",81c0e6a8f9,6f2d0742e8,6,6,,main,"no guest panic; 154/154 loop reruns",lab notes runs fx1-fx6; Reims 81c0e6a8f9
+2026-10-09,"Compute samples draw residents",cd3d9aa244,6f2d0742e8,3,3,,main,"no guest fault; 75/75 loops",lab notes runs pf1/pg1/ph1; Reims cd3d9aa244
+2026-10-09,"Worker prototype, before stamp fix",cd3d9aa244,+worker patch,4,6,"2 host GPU hangs",main,"no guest panic and no host GPU hang",lab notes runs qw1-qw3 and y1-y3
+2026-10-09,"Main loop + stamp fix",75d37ac33f,6f2d0742e8,4,4,,main,"no panic, no GPU hang; 92/92 loops",lab notes runs c1-c4
 2026-10-10,"Worker runs since stamp fix (all)",-,+worker,14,15,"1 guest panic (early)",main,"no guest panic and no host GPU hang",GPU series report 2026-10-10
 2026-10-10,"Worker runs since round-robin",-,+worker,12,12,,main,"no guest panic and no host GPU hang",GPU series report 2026-10-10
-2026-10-10,"Main loop + compaction (fallback)",e46efbc7eb,-,3,3,,main,"no guest panic and no host GPU hang",lab notes runs n1-n3
-2026-10-10,"Deployed build, sustained stress",2a85d74105,2cd151d3b4,5,5,,highlight,"no guest panic, no host GPU hang; 183/183 UI loops",GPU series report 2026-10-10
-2026-10-10,"Copy path (not deployed)",e82389b59b,2cd151d3b4,3,3,,next,"no guest panic, no host GPU hang; 114/114 loops",copy-path series 2026-10-10 (sustained runs cp-s2..s4)
+2026-10-10,"Main loop + compaction (fallback)",404e58e41f,-,3,3,,main,"no guest panic and no host GPU hang",lab notes runs n1-n3
+2026-10-10,"Deployed build, sustained stress",71029b4d00,6740a49344,5,5,,highlight,"no guest panic, no host GPU hang; 183/183 UI loops",GPU series report 2026-10-10
+2026-10-10,"Copy path (not deployed)",9abcc6e523,6740a49344,3,3,,next,"no guest panic, no host GPU hang; 114/114 loops",copy-path series 2026-10-10 (sustained runs cp-s2..s4)

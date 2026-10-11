@@ -3,7 +3,7 @@ date,panel,label,failures,boots,role,source
 2026-10-07,boot_stall,"avp,rtc clock, image without RTC offset",5,60,main,docs/NOTES.md (Tahoe early-boot stall)
 2026-10-07,boot_stall,"avp,rtc clock, re-baked image (v7)",5,110,main,docs/NOTES.md (Tahoe early-boot stall)
 2026-10-07,boot_stall,"v7 image, M1 Ultra host",0,30,main,docs/NOTES.md (Tahoe early-boot stall)
-2026-10-08,boot_stall,"8 vCPU / 12 GiB, QEMU e753fed656",17,203,main,QEMU 607c56b16d commit message; docs/NOTES.md
-2026-10-08,boot_stall,"same, with the used-ring fix",0,200,highlight,QEMU 607c56b16d commit message; docs/NOTES.md
-2026-10-08,sound_missing,"8 vCPU / 12 GiB, QEMU e753fed656",8,186,main,QEMU 607c56b16d commit message (of the 186 boots that reached SSH)
-2026-10-08,sound_missing,"same, with the used-ring fix",0,200,highlight,QEMU 607c56b16d commit message
+2026-10-08,boot_stall,"8 vCPU / 12 GiB, QEMU 8cce779f63",17,203,main,QEMU 6f2d0742e8 commit message; docs/NOTES.md
+2026-10-08,boot_stall,"same, with the used-ring fix",0,200,highlight,QEMU 6f2d0742e8 commit message; docs/NOTES.md
+2026-10-08,sound_missing,"8 vCPU / 12 GiB, QEMU 8cce779f63",8,186,main,QEMU 6f2d0742e8 commit message (of the 186 boots that reached SSH)
+2026-10-08,sound_missing,"same, with the used-ring fix",0,200,highlight,QEMU 6f2d0742e8 commit message
