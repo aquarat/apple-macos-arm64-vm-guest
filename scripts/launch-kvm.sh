@@ -188,7 +188,9 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
         sleep 0.1
     done
     test -S "$gpu_sock" || die "GPU backend did not open $gpu_sock"
-    machine+=",gfx-device=apv-gpu-proxy"
+    # aux-ram-share puts QEMU's small auxiliary RAMs (firmware, vmapple
+    # config) in shared memfds too, so the backend can see all guest RAM.
+    machine+=",gfx-device=apv-gpu-proxy,aux-ram-share=on"
     extra_args+=(-global "apv-gpu-proxy.socket=$gpu_sock"
                  -global "apv-gpu-proxy.on-backend-loss=${GPU_BACKEND_LOSS:-stop}")
     case "$console" in
