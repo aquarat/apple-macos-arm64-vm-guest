@@ -73,8 +73,16 @@ gpu_lost() {
     grep -m1 -o 'apv-gpu-proxy: GPU backend lost: .*' "$run/logs/launcher.log" 2>/dev/null
 }
 gpu_lost_exit() {
-    local why="$1"
-    log "job failed: GPU backend lost: ${why#apv-gpu-proxy: GPU backend lost: }"
+    local why="$1" ended quarantined
+    ended="$(grep -h '^gpu backend: \(ended\|exited\)' "$run/logs/gpu-backend.log" \
+        "${GPU_BACKEND_LOG:-/dev/null}" 2>/dev/null | tail -1)"
+    if test -n "${GPU_BACKEND_BIN:-}"; then
+        # Before the guest is discarded: a breadcrumb left by a driver call
+        # that never returned goes into the host's quarantine now.
+        quarantined="$(REIMS_VGPU_BREADCRUMB_DIR="$run/logs/gpu-breadcrumbs" \
+            "$GPU_BACKEND_BIN" --fold-breadcrumbs 2>/dev/null)"
+    fi
+    log "job failed: GPU backend lost: ${why#apv-gpu-proxy: GPU backend lost: }${ended:+ ($ended)}${quarantined:+; $quarantined}"
     gpu_failed=1
     exit 120
 }

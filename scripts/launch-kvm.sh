@@ -152,7 +152,35 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     gpu_sock="${GPU_BACKEND_SOCKET:-$log_dir/gpu-backend.sock}"
     rm -f "$gpu_sock"
     gpu_log="${GPU_BACKEND_LOG:-$log_dir/gpu-backend.log}"
-    "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null &
+    # A driver call in flight leaves its breadcrumb here; vm-job folds one a
+    # dead backend left into the host's driver quarantine.
+    export REIMS_VGPU_BREADCRUMB_DIR="${REIMS_VGPU_BREADCRUMB_DIR:-$log_dir/gpu-breadcrumbs}"
+    # Supervise the backend: record how it ended, and with
+    # GPU_BACKEND_LOSS=reset start a fresh one (at most 3 times in 10 minutes)
+    # for QEMU to reconnect to when it resets the guest.
+    (
+        starts=()
+        while :; do
+            "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null
+            status=$?
+            if test $status -gt 128; then
+                echo "gpu backend: ended by signal $((status - 128)) at $(date -Is)" >> "$gpu_log"
+            else
+                echo "gpu backend: exited with status $status at $(date -Is)" >> "$gpu_log"
+            fi
+            test "${GPU_BACKEND_LOSS:-stop}" = reset || break
+            # A clean exit is QEMU going away; only a failure restarts.
+            test $status -ne 0 || break
+            now=$(date +%s); starts+=("$now")
+            recent=0; for t in "${starts[@]}"; do (( now - t < 600 )) && recent=$((recent + 1)); done
+            if (( recent > 3 )); then
+                echo "gpu backend: not restarting (more than 3 failures in 10 minutes)" >> "$gpu_log"
+                break
+            fi
+            "$GPU_BACKEND_BIN" --fold-breadcrumbs >> "$gpu_log" 2>&1
+            echo "gpu backend: restarting" >> "$gpu_log"
+        done
+    ) &
     gpu_backend_pid=$!
     for _ in $(seq 1 100); do
         test -S "$gpu_sock" && break
