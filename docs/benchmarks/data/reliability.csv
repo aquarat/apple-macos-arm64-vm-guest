@@ -7,5 +7,6 @@ date,label,reims,qemu,clean,total,failures,role,criterion,source
 2026-10-10,"Worker runs since stamp fix (all)",-,+worker,14,15,"1 guest panic (early)",main,"no guest panic and no host GPU hang",GPU series report 2026-10-10
 2026-10-10,"Worker runs since round-robin",-,+worker,12,12,,main,"no guest panic and no host GPU hang",GPU series report 2026-10-10
 2026-10-10,"Main loop + compaction (fallback)",404e58e41f,-,3,3,,main,"no guest panic and no host GPU hang",lab notes runs n1-n3
-2026-10-10,"Deployed build, sustained stress",71029b4d00,6740a49344,5,5,,highlight,"no guest panic, no host GPU hang; 183/183 UI loops",GPU series report 2026-10-10
-2026-10-10,"Copy path (not deployed)",9abcc6e523,6740a49344,3,3,,next,"no guest panic, no host GPU hang; 114/114 loops",copy-path series 2026-10-10 (sustained runs cp-s2..s4)
+2026-10-10,"2026-10-10 build, sustained stress",71029b4d00,6740a49344,5,5,,main,"no guest panic, no host GPU hang; 183/183 UI loops",GPU series report 2026-10-10
+2026-10-10,"Copy path",9abcc6e523,6740a49344,3,3,,main,"no guest panic, no host GPU hang; 114/114 loops",copy-path series 2026-10-10 (sustained runs cp-s2..s4)
+2026-10-10,"Copy path + follow-ups",d3f8007474,6740a49344,2,2,,main,"no guest panic, no host GPU hang; 85/85 loops",copy-path follow-ups 2026-10-10 (sustained runs cp-s5-fu and cp-s6-fu)

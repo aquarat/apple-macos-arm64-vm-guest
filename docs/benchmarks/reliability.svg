@@ -1,20 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="528" viewBox="0 0 780 528" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="562" viewBox="0 0 780 562" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
 <title>GPU stability under sustained iOS simulator load</title>
-<desc>Clean runs per build: Before IOSurface ring fix: 1/8 clean · 7 guest losses or panics; IOSurface ring fix: 6/6 clean; Compute samples draw residents: 3/3 clean; Worker prototype, before stamp fix: 4/6 clean · 2 host GPU hangs; Main loop + stamp fix: 4/4 clean; Worker runs since stamp fix (all): 14/15 clean · 1 guest panic (early); Worker runs since round-robin: 12/12 clean; Main loop + compaction (fallback): 3/3 clean; Deployed build, sustained stress: 5/5 clean; Copy path (not deployed): 3/3 clean</desc>
-<rect x="0.5" y="0.5" width="779" height="527" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
+<desc>Clean runs per build: Before IOSurface ring fix: 1/8 clean · 7 guest losses or panics; IOSurface ring fix: 6/6 clean; Compute samples draw residents: 3/3 clean; Worker prototype, before stamp fix: 4/6 clean · 2 host GPU hangs; Main loop + stamp fix: 4/4 clean; Worker runs since stamp fix (all): 14/15 clean · 1 guest panic (early); Worker runs since round-robin: 12/12 clean; Main loop + compaction (fallback): 3/3 clean; 2026-10-10 build, sustained stress: 5/5 clean; Copy path: 3/3 clean; Copy path + follow-ups: 2/2 clean</desc>
+<rect x="0.5" y="0.5" width="779" height="561" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
 <text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">GPU stability under sustained iOS simulator load</text>
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">Each row counts sustained runs on a macOS 26 guest: a UI test, then repeated test reruns.</text>
 <text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">Clean = no guest panic and no host GPU hang. The three worker rows overlap: the candidate's</text>
 <text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">runs are part of the round-robin series, which is part of the stamp-fix series.</text>
 <text x="22.0" y="119.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Clean runs per build, in the order they were measured</text>
-<line x1="274.0" y1="131.0" x2="274.0" y2="471.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="274.0" y="486.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="348.7" y1="131.0" x2="348.7" y2="471.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="348.7" y="486.0" font-size="11" fill="#6b6a65" text-anchor="middle">5</text>
-<line x1="423.4" y1="131.0" x2="423.4" y2="471.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="423.4" y="486.0" font-size="11" fill="#6b6a65" text-anchor="middle">10</text>
-<line x1="498.1" y1="131.0" x2="498.1" y2="471.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="498.1" y="486.0" font-size="11" fill="#6b6a65" text-anchor="middle">15</text>
+<line x1="274.0" y1="131.0" x2="274.0" y2="505.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="274.0" y="520.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="348.7" y1="131.0" x2="348.7" y2="505.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="348.7" y="520.0" font-size="11" fill="#6b6a65" text-anchor="middle">5</text>
+<line x1="423.4" y1="131.0" x2="423.4" y2="505.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="423.4" y="520.0" font-size="11" fill="#6b6a65" text-anchor="middle">10</text>
+<line x1="498.1" y1="131.0" x2="498.1" y2="505.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="498.1" y="520.0" font-size="11" fill="#6b6a65" text-anchor="middle">15</text>
 <text x="264.0" y="147.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Before IOSurface ring fix</text>
 <text x="264.0" y="160.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266</text>
 <rect x="274.0" y="141.0" width="13.9" height="14.0" rx="0" fill="#0ca30c"/>
@@ -48,13 +48,17 @@
 <text x="264.0" y="398.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 404e58e4</text>
 <path d="M274.0,379.0 H314.8 Q318.8,379.0 318.8,383.0 V389.0 Q318.8,393.0 314.8,393.0 H274.0 Z" fill="#0ca30c"/>
 <text x="326.8" y="390.5" font-size="12" fill="#52514e" text-anchor="start">3/3 clean</text>
-<text x="264.0" y="419.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Deployed build, sustained stress</text>
+<text x="264.0" y="419.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">2026-10-10 build, sustained stress</text>
 <text x="264.0" y="432.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
 <path d="M274.0,413.0 H344.7 Q348.7,413.0 348.7,417.0 V423.0 Q348.7,427.0 344.7,427.0 H274.0 Z" fill="#0ca30c"/>
 <text x="356.7" y="424.5" font-size="12" fill="#52514e" text-anchor="start">5/5 clean</text>
-<text x="264.0" y="453.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Copy path (not deployed)</text>
+<text x="264.0" y="453.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Copy path</text>
 <text x="264.0" y="466.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
 <path d="M274.0,447.0 H314.8 Q318.8,447.0 318.8,451.0 V457.0 Q318.8,461.0 314.8,461.0 H274.0 Z" fill="#0ca30c"/>
 <text x="326.8" y="458.5" font-size="12" fill="#52514e" text-anchor="start">3/3 clean</text>
-<text x="386.0" y="502.0" font-size="11.5" fill="#52514e" text-anchor="middle">Sustained runs (green: clean, red: failed)</text>
+<text x="264.0" y="487.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Copy path + follow-ups</text>
+<text x="264.0" y="500.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims d3f80074</text>
+<path d="M274.0,481.0 H299.9 Q303.9,481.0 303.9,485.0 V491.0 Q303.9,495.0 299.9,495.0 H274.0 Z" fill="#0ca30c"/>
+<text x="311.9" y="492.5" font-size="12" fill="#52514e" text-anchor="start">2/2 clean</text>
+<text x="386.0" y="536.0" font-size="11.5" fill="#52514e" text-anchor="middle">Sustained runs (green: clean, red: failed)</text>
 </svg>

@@ -16,3 +16,5 @@ bench_drain_busy,Drain busy time per unit-test benchmark run,s,"Busy time (s), l
 bench_tranche_p90,Drain tranche length during the benchmark: 90th percentile,ms,"Tranche length (ms), lower is better"
 drain_cycles,Drain thread CPU cycles in a 90 s perf window,Gcycles,"CPU cycles (billions), lower is better"
 memcpy_cycles,memcpy cycles in the same window,Gcycles,"CPU cycles (billions), lower is better"
+memset_cycles,memset cycles in the same window,Gcycles,"CPU cycles (billions), lower is better"
+siphash_cycles,Shader cache digest cycles in the same window,Gcycles,"CPU cycles (billions), lower is better"

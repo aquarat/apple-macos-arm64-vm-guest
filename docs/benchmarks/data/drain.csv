@@ -29,3 +29,13 @@ date,series,run,reims,qemu,metric,value,unit,source
 2026-10-10,gpu-copy,cp-s4-copy1,9abcc6e523,6740a49344,tranche_max,1.589,s,"copy-path series 2026-10-10 (sustained run cp-s4-copy1)"
 2026-10-10,gpu-copy,cp-s4-copy1,9abcc6e523,6740a49344,vcpu_wait_total,15.5,s,"copy-path series 2026-10-10 (sustained run cp-s4-copy1)"
 2026-10-10,gpu-copy,cp-s4-copy1,9abcc6e523,6740a49344,vcpu_wait_max,0.478,s,"copy-path series 2026-10-10 (sustained run cp-s4-copy1)"
+2026-10-10,gpu-copy-fu,cp-s5-fu,d3f8007474,6740a49344,drain_busy,419,s,copy-path follow-ups 2026-10-10 (sustained run cp-s5-fu)
+2026-10-10,gpu-copy-fu,cp-s5-fu,d3f8007474,6740a49344,tranche_p90,0.468,s,copy-path follow-ups 2026-10-10 (sustained run cp-s5-fu)
+2026-10-10,gpu-copy-fu,cp-s5-fu,d3f8007474,6740a49344,tranche_max,1.917,s,copy-path follow-ups 2026-10-10 (sustained run cp-s5-fu)
+2026-10-10,gpu-copy-fu,cp-s5-fu,d3f8007474,6740a49344,vcpu_wait_total,20.2,s,copy-path follow-ups 2026-10-10 (sustained run cp-s5-fu)
+2026-10-10,gpu-copy-fu,cp-s5-fu,d3f8007474,6740a49344,vcpu_wait_max,0.268,s,copy-path follow-ups 2026-10-10 (sustained run cp-s5-fu)
+2026-10-10,gpu-copy-fu,cp-s6-fu,d3f8007474,6740a49344,drain_busy,439,s,copy-path follow-ups 2026-10-10 (sustained run cp-s6-fu)
+2026-10-10,gpu-copy-fu,cp-s6-fu,d3f8007474,6740a49344,tranche_p90,0.502,s,copy-path follow-ups 2026-10-10 (sustained run cp-s6-fu)
+2026-10-10,gpu-copy-fu,cp-s6-fu,d3f8007474,6740a49344,tranche_max,1.402,s,copy-path follow-ups 2026-10-10 (sustained run cp-s6-fu)
+2026-10-10,gpu-copy-fu,cp-s6-fu,d3f8007474,6740a49344,vcpu_wait_total,20.2,s,copy-path follow-ups 2026-10-10 (sustained run cp-s6-fu)
+2026-10-10,gpu-copy-fu,cp-s6-fu,d3f8007474,6740a49344,vcpu_wait_max,0.393,s,copy-path follow-ups 2026-10-10 (sustained run cp-s6-fu)

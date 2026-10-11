@@ -17,3 +17,7 @@ date,series,run,reims,qemu,metric,value,unit,source
 2026-10-10,gpu-copy,cp-copy1-1,9abcc6e523,6740a49344,unit_test_wall,160.8,s,copy-path series 2026-10-10 (interleaved run cp-copy1-1)
 2026-10-10,gpu-copy,cp-copy1-2,9abcc6e523,6740a49344,unit_test_wall,158.0,s,copy-path series 2026-10-10 (interleaved run cp-copy1-2)
 2026-10-10,gpu-copy,cp-copy1-3,9abcc6e523,6740a49344,unit_test_wall,161.2,s,copy-path series 2026-10-10 (interleaved run cp-copy1-3)
+2026-10-11,prod-old,old-1,71029b4d00,6740a49344,unit_test_wall,71.9,s,post-deploy check 2026-10-11 on the production host (run old-1; cold pipeline cache)
+2026-10-11,prod-old,old-2,71029b4d00,6740a49344,unit_test_wall,71.1,s,post-deploy check 2026-10-11 on the production host (run old-2; warm pipeline cache)
+2026-10-11,release,rel-1,51c70ebe07,6740a49344,unit_test_wall,72.1,s,post-deploy check 2026-10-11 on the production host (run rel-1; cold pipeline cache)
+2026-10-11,release,rel-2,51c70ebe07,6740a49344,unit_test_wall,73.3,s,post-deploy check 2026-10-11 on the production host (run rel-2; warm pipeline cache)

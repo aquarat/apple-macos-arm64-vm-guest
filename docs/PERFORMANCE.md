@@ -1,7 +1,7 @@
 # Performance and reliability
 
 What the macOS-guest work on Asahi Linux has reached, measured. State as of
-2026-10-10. The charts are drawn from the CSV files in
+2026-10-11. The charts are drawn from the CSV files in
 [benchmarks/data/](benchmarks/data/) by
 [`scripts/plot-benchmarks.py`](../scripts/plot-benchmarks.py); see
 [How to update](#how-to-update).
@@ -32,14 +32,24 @@ driver).
 - The longest uninterrupted device drain fell from 6.2–9.7 s to 2.6–3.5 s.
   vCPU time lost waiting for the device fell from 100–135 s to 17–19 s per
   session.
-- A copy-path build, not deployed yet, copies directly between guest RAM
-  and mapped Vulkan memory. It halves the drain thread's CPU cycles
-  (95.2 G to 53.5 G in a 90 s window) and its `memcpy` cycles (66.1 G to
-  33.3 G), and cuts the sustained tranche p90 from 1.40–1.53 s to
-  157–184 ms. Test wall times do not change, because the tests are not
-  limited by the drain.
+- The 2026-10-11 release copies directly between guest RAM and mapped
+  Vulkan memory. The drain thread's CPU cycles in a 90 s window fell from
+  95.2 G to 53.5 G with the copy path and to 44.7 G with its two
+  follow-ups (no zero-filled placeholder buffers, a cheaper shader-cache
+  digest). The sustained tranche p90 fell from 1.40–1.53 s to 157–184 ms
+  on the copy path (468–502 ms in the two follow-up runs).
+  Test wall times do not change, because the tests are not limited by the
+  drain.
+- The same release renders Compose/Skia apps: the real UI shows in 14–15
+  of 22 XCTest screenshots of an app's UI tests, against 0 of 22 before
+  (render pipelines with no fragment function, packed vertex attributes in
+  metal2vulkan, and Mesa patch 0002). A cold app launch still takes
+  20–40 s before its UI settles, bounded by one queue submission per draw.
+- On the production host after the deploy, the simulator unit-test
+  benchmark took 72.1 and 73.3 s, against 71.9 and 71.1 s for the previous
+  build on the same host and image: no regression.
 - Under sustained simulator load: 12 of 12 runs clean since the round-robin
-  drain, 5 of 5 sustained stress runs on the deployed build (183 of 183 UI
+  drain, 5 of 5 sustained stress runs on the 2026-10-10 build (183 of 183 UI
   loops), no guest panic and no host GPU hang.
 - macOS 26 boots that never reached SSH: 17 of 203 before the virtio
   used-ring fix, 0 of 200 after. Boots without a sound device: 8 of 186,
@@ -56,18 +66,21 @@ driver).
 With the drain on QEMU's main loop, GPU guests took 204–225 s, well behind
 the no-GPU runs; the first drain-worker prototype took 177–228 s. The stamp
 fix brought the main-loop drain to 196.7 s. The drain worker on top of it
-brought GPU guests into the no-GPU band (shaded). The deployed build stays
+brought GPU guests into the no-GPU band (shaded). The 2026-10-10 build stays
 close to it: three of its four runs are inside or just below the band, one
 took 184.2 s. The copy-path build (158.0–161.2 s) is no faster here, because
-this benchmark does not wait on the drain.
+this benchmark does not wait on the drain. The last two rows ran on the
+production host with the production image after the 2026-10-11 deploy
+(see [Production host check](#production-host-check-2026-10-11)); they
+compare with each other, not with the rows above.
 
 ### UI tests
 
 ![UI-test wall times per build](benchmarks/ui-tests.svg)
 
-Top: the app's suite is about 1.6x faster on the deployed build than with
+Top: the app's suite is about 1.6x faster on the 2026-10-10 build than with
 the drain on the main loop. The copy-path build ran it in 675–819 s, within
-the noise of the deployed build's 640–766 s. Second: the same suite as a production CI job, one
+the noise of the 2026-10-10 build's 640–766 s. Second: the same suite as a production CI job, one
 run per build; the 2026-10-10 run passed 14 of 14 (12 of 14 before), with
 two test waits raised from 10 s to 30 s in the same commit and an unrelated
 low-priority CPU load on the host, so its time is conservative. Below: with the drain worker a small SwiftUI test is
@@ -80,11 +93,13 @@ run in a fresh image still pays for one-off simulator setup in every mode.
 
 A tranche is how long the device drains guest commands without a break. The
 main-loop build has the shortest tranches, but its vCPUs wait behind QEMU's
-big lock instead, which showed up as dropped SSH sessions. The deployed
+big lock instead, which showed up as dropped SSH sessions. The 2026-10-10
 build keeps the worker. Against the worker build without compaction it cuts
 the longest tranche by more than half and the vCPU wait by over 80 %. The
-copy-path build (violet, not deployed) cuts the tranche p90 to 157–184 ms,
-the longest tranche to 1.5–1.8 s and busy time to 393–402 s.
+copy-path build cuts the tranche p90 to 157–184 ms, the longest tranche to
+1.5–1.8 s and busy time to 393–402 s. The two follow-up runs (419–439 s
+busy, p90 468–502 ms) ran a different load mix (the app's own UI-test stage
+was skipped), so they are not a like-for-like comparison.
 
 ### Stability
 
@@ -94,11 +109,11 @@ Before the IOSurface ring fix, 7 of 8 long runs lost the guest. Every series
 since has been clean except the worker prototype before the stamp fix (two
 host GPU hangs) and one early guest panic in the worker series.
 
-### Copy path (not deployed yet)
+### Copy path
 
-![Drain busy time, tranche p90 and CPU cycles: deployed build against the copy-path build](benchmarks/copy-path.svg)
+![Drain busy time, tranche p90 and CPU cycles: the 2026-10-10 build against the copy-path builds](benchmarks/copy-path.svg)
 
-The deployed build moves guest data through an intermediate buffer: guest
+The 2026-10-10 build moved guest data through an intermediate buffer: guest
 pages into a heap buffer, then into Vulkan staging memory, and readbacks the
 same way back. The copy-path build (Reims 9abcc6e523, branch `gpu-copy`)
 copies directly between guest RAM and mapped Vulkan memory. On the unit-test
@@ -108,7 +123,48 @@ window per build, the drain thread used 53.5 G cycles instead of 95.2 G, and
 `memcpy` 33.3 G instead of 66.1 G. The benchmark's wall time did not move
 outside noise (three interleaved runs each: mean 164.8 s, range 153.2–184.2 s,
 against 160.0 s, 158.0–161.2 s), because that test is not limited by the drain. Three
-sustained runs were clean (114 of 114 loops). The build is not deployed yet.
+sustained runs were clean (114 of 114 loops).
+
+Two follow-ups (Reims d3f8007474) removed the next costs the profile showed.
+A storage binding the device already held still got a zero-filled buffer of
+the full image, used only for its length: about 7.5 % of the drain's cycles
+in `memset`. And every pipeline lookup hashed the shader's whole AIR blob
+with SipHash: 8.4 %. With both gone the drain thread used 44.7 G cycles in
+the same 90 s window instead of 52.0 G (53.5 G in the first capture),
+`memset` 0.24 G instead of 3.98 G and the digest 1.0 G instead of 4.3 G.
+`memcpy` is now about two thirds of what remains: Honeykrisp cannot import
+guest RAM, so data is still copied once each way. Two sustained runs were
+clean (85 of 85 loops). The copy path and its follow-ups are in the
+2026-10-11 release.
+
+### Rendering (2026-10-11 release)
+
+Compose and other Skia apps draw stencil passes with render pipelines that
+have no fragment function. Reims refused those pipelines, so the cover
+passes drew nothing and every XCTest screenshot of such an app came out as
+the clear colour: 0 of 22 screenshots of an app's UI tests showed its UI.
+The release builds those pipelines with an empty fragment stage, asks an
+object's type before treating it as a texture view, and takes a
+metal2vulkan fix for packed vertex attributes read through a byte pointer
+(1,746 draws a run were skipped before). That exposed a Mesa bug: a 16-bit
+flat fragment input (a Skia vertex colour) aborted the shader compiler, and
+QEMU with it. `patches/mesa/0002` fixes it, and a GPU host must run a Mesa
+built with it before it runs this Reims. With all three, 14–15 of the 22
+screenshots show the real UI. The rest are taken during a cold launch: an
+app needs 20–40 s before its UI settles, because the drain is saturated by
+the per-draw path (one queue submission per draw, about 170 µs each), not
+by the GPU or by shader compilation.
+
+### Production host check (2026-10-11)
+
+After the deploy, the unit-test benchmark ran twice on the production host
+(M1 Ultra) with the production GPU image and 4 vCPU / 8 GB, then twice with
+the previous build and previous Mesa: 72.1 and 73.3 s against 71.9 and
+71.1 s, drain busy 76–78 s against 75–76 s. The production image has the
+simulator pre-warmed, so these runs are about twice as fast as the M1 Max
+runs above and are not comparable with them. Reims' Vulkan pipeline cache
+now persists across host reboots (`~/.cache/reims-vgpu`); the second run on
+each build loaded it (5.1 MB).
 
 ### Boot reliability
 
@@ -179,13 +235,14 @@ Earlier fixes on the way to a stable GPU guest:
   the sound control queue the sound device never registers. Fix: QEMU
   relocates such a used ring (`x-fix-overlapping-used`, QEMU 6f2d0742e8).
 
-Known gaps on the deployed build:
+Known gaps on the deployed build (2026-10-11 release):
 
-- Pipelines with no fragment function are refused, so screenshots of
-  Compose/Skia apps are mostly flat colour. Being fixed.
-- After compaction, `memcpy` is 70 % of the drain's CPU time. About 44 %
-  of that is an extra copy through an intermediate buffer. The copy-path
-  build removes it (see above); it is not deployed yet.
+- A cold app launch takes 20–40 s before its UI settles: one queue
+  submission per draw bounds the drain. Screenshots taken early in a
+  launch can still show a splash screen or flat colour.
+- `memcpy` is about two thirds of the drain's CPU time. Honeykrisp cannot
+  import guest RAM, so guest data is copied into and out of Vulkan memory
+  once each way.
 
 ## Methodology
 
@@ -193,7 +250,8 @@ Known gaps on the deployed build:
   here, except the "M1 Ultra host" boot row. Fedora Asahi Remix 44, Asahi 16K
   kernel 7.1 with this repository's KVM patches, QEMU from
   aquarat/qemu-reims-vgpu, Reims from aquarat/reims-vgpu, Mesa Honeykrisp
-  with the varying fix (`scripts/build-mesa-honeykrisp.sh`).
+  with the varying fixes (`patches/mesa/`, `scripts/build-mesa-honeykrisp.sh`;
+  0002 from the 2026-10-11 release on).
 - **Guest:** macOS 26.4 (25E246), Xcode 26.4.1, iOS 26.4.1 simulator
   runtime, images built as in [IMAGES.md](IMAGES.md). Guest size per
   benchmark is given on each chart.
@@ -216,7 +274,13 @@ Known gaps on the deployed build:
   capsule spans the runs of one build.
 - **Copy path:** the unit-test benchmark run three times per build,
   alternating builds, plus one `perf` capture per build of the drain thread
-  over a 90 s window (DWARF call graphs). Sustained figures come from three
+  over a 90 s window (DWARF call graphs). The follow-ups were compared the
+  same way, one `perf` capture each.
+- **Rendering:** the 22 screenshots XCTest takes during the app's UI tests,
+  counted as showing the app's UI or not (images not published).
+- **Production host check:** the same unit-test benchmark on the M1 Ultra
+  production host, production GPU image, 4 vCPU / 8 GB, one guest at a time
+  with the runner stopped. Sustained figures come from three
   sustained runs of the copy-path build against three of the deployed
   build.
 - **Sustained runs:** a UI test followed by repeated test reruns ("loops").
