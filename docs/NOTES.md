@@ -814,7 +814,47 @@ down. `vm-job.sh` runs the job SSH session in the background with `<&0` and
     --token-url file://…`. Leftover registrations are deleted afterwards.
   - Registration-token mode: the guest runs `forgejo-runner register
     --ephemeral` with the instance/org/repo registration token, then
-    `one-job --wait`.
+    `one-job --wait`. It prints the resulting `.runner` (base64) on stdout,
+    and the slot keeps it in `RUNNER_STATE_DIR` (default
+    `~/.local/state/vmapple-runner`, mode 700) until the runner fetches a
+    job. A guest that idles out hands it to the next guest, which writes it
+    back to `~/.runner` instead of registering. This mode cannot delete a
+    registration, and before this every idle timeout left an offline
+    ephemeral runner in Forgejo: Forgejo deletes an ephemeral runner only
+    once a task assigned to it is done (at the task's end, or by the
+    `cleanup_actions` cron), never an unused one. Forgejo's
+    `cron.cleanup_offline_runners` is no substitute: it deletes every
+    offline runner in scope, persistent ones included. A credential is
+    dropped when its guest saw a job start, when the runner exits with
+    anything but the idle stop (for example a rejected credential at
+    `Declare`), or when the labels or URL change.
+- **Idle and job limits** (`vm-job.sh` `JOB_START_PATTERN`,
+  `IDLE_TIMEOUT`, `STOP_COMMAND`): the slot runs the runner's output
+  through `vm-job.sh`, which takes the runner's
+  `single task poller successfully fetched one task` line as the start of
+  the job. Until then `IDLE_TIMEOUT` (900 s) applies; from then on the job
+  limit. Either is enforced by running `pkill -TERM -f 'forgejo-runner
+  one-job'` in the guest: SIGTERM cancels the job context, so the runner
+  reports a cancelled job with its log (or ends an idle wait), and the
+  session is killed `STOP_GRACE` (60 s) later if it has not ended. Exit
+  status 123 marks an idle stop, 124 a job stopped at its limit. A job is
+  limited to `JOB_TIMEOUT` (1800 s) unless it sets `timeout-minutes`: the
+  guest runs the runner at log level debug (job logs stay at info) and an
+  awk filter on its stderr drops every debug line except act's
+  `Job.TimeoutMinutes: <v>` (at debug level the runner also copies each
+  job's output to its stdout, which is discarded through a process
+  substitution: with a pipe, zsh's MULTIOS would still feed the redirected
+  stdout into it),
+  which it turns into `vm-job: job-timeout=<s>` for `vm-job.sh`: a number
+  is honoured (×60 plus `JOB_TIMEOUT_GRACE`, 300 s, because act cancels the
+  job itself at that point and the runner must still report it), an
+  expression (which act evaluates itself) gets `JOB_MAX_TIMEOUT`
+  (10800 s), the instance's default task limit. forgejo-runner has no
+  setting for a default job timeout: `runner.timeout` is a hard cap that a
+  job's `timeout-minutes` cannot raise. Until 2026-10 `JOB_TIMEOUT`
+  (10800 s) counted from boot, idle wait included: about half of all guests
+  ended idle at 3 h, and a job picked up late in a guest's life got only
+  what was left.
   - A Forgejo on the VM host itself is reachable from guests at
     `http://10.0.2.2:<port>` (slirp); set its `ROOT_URL` accordingly.
 - **Slots and labels**: `VM_SLOTS` slots per host (at most two, the licence
@@ -841,9 +881,11 @@ down. `vm-job.sh` runs the job SSH session in the background with `<&0` and
 - `vm-job.sh` and the orchestrators use `set -uo pipefail` without `-e` on
   purpose: they must capture a failing job's status and still shut the guest
   down and clean up.
-- Known gap: a slot stopped before it gets a job (service restart, host
-  reboot) leaves its ephemeral registration offline in Forgejo until removed
-  by an admin; in API mode the orchestrator deletes it.
+- A service restart or host reboot keeps the slot's unused registration
+  (registration-token mode) in `RUNNER_STATE_DIR` for the next guest; in
+  API mode the orchestrator deletes leftover registrations. A credential
+  only leaks when it is dropped while still unused (a transient error at
+  `Declare`, changed labels); an admin can remove such runners.
 - systemd units (`systemd/`): run the script via `/usr/bin/bash`, because
   Fedora's SELinux refuses to exec `user_home_t` scripts from a service
   (203/EXEC). `vm-job.sh` ignores further INT/TERM once cleanup starts, so a

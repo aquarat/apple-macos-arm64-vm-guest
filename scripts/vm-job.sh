@@ -14,16 +14,33 @@
 # TAP_IF, QEMU_BIN, ...) pass through vm-run.sh to scripts/launch-kvm.sh.
 # Logs end up in artifacts/job-logs/<job>/.
 #
+# Waiting for work (runners that wait for a job before running it):
+# JOB_START_PATTERN (an extended regex) marks the command's stderr line that
+# says the real work has started. With it, IDLE_TIMEOUT (s, 0 = none) limits
+# the wait for that line and JOB_TIMEOUT counts from it instead of from boot.
+# The command can set its own limit by printing "vm-job: job-timeout=<s>" on
+# stderr once it knows it (capped at JOB_MAX_TIMEOUT, default JOB_TIMEOUT).
+# STOP_COMMAND, run in the guest over a second SSH session, asks the command
+# to stop on its own (e.g. so a runner reports a cancelled job) before the
+# session is killed STOP_GRACE (60 s) later. JOB_STARTED_FILE (default in the
+# run directory) is where the start time is written, for a caller that wants
+# to know afterwards whether the work had started.
+#
 # The guest is a reflink clone of the golden bundle (scripts/vm-run.sh), so a
 # job never changes the golden image, and its memory is returned to the host
 # when QEMU exits. Exit status: the command's status, or 124 for a job
-# timeout, 125 for a guest that never reached SSH.
+# timeout, 123 for an idle timeout (JOB_START_PATTERN never seen), 125 for a
+# guest that never reached SSH.
 set -uo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 key="${RUNNER_KEY:-$HOME/.ssh/vmapple_runner}"
 boot_timeout="${BOOT_TIMEOUT:-90}"
 job_timeout="${JOB_TIMEOUT:-3600}"
+job_max_timeout="${JOB_MAX_TIMEOUT:-$job_timeout}"
+idle_timeout="${IDLE_TIMEOUT:-0}"
+start_pattern="${JOB_START_PATTERN:-}"
+stop_grace="${STOP_GRACE:-60}"
 export CPUS="${CPUS:-4}" RAM="${RAM:-12G}"
 # vmapple2 host kernels emulate the no-syndrome GIC store; no GDB hand-off needed.
 export INJECT="${INJECT:-0}"
@@ -125,9 +142,65 @@ if test "${BALLOON:-0}" = 1 && test "${BALLOON_GOVERNOR:-1}" = 1; then
 fi
 # Background + wait so INT/TERM interrupt a long-running job immediately
 # (bash defers traps until a foreground command returns); <&0 keeps stdin.
-timeout "$job_timeout" ssh "${ssh_opts[@]}" "$@" <&0 &
+if test -z "$start_pattern"; then
+    timeout "$job_timeout" ssh "${ssh_opts[@]}" "$@" <&0 &
+    job_pid=$!
+    wait "$job_pid"
+    status=$?
+    log "job exit $status after $(( $(date +%s) - t1 ))s"
+    exit "$status"
+fi
+
+# JOB_START_PATTERN: pass the command's stderr through, noting (in files, as
+# the filter runs in a subshell) when the work starts and any limit it asks for.
+started_file="${JOB_STARTED_FILE:-$run/job-started}" limit_file="$run/job-limit"
+watch_stderr() {
+    local line
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^vm-job:\ job-timeout=([0-9]+)$ ]]; then
+            printf '%s\n' "${BASH_REMATCH[1]}" > "$limit_file"
+        elif ! test -e "$started_file" && [[ "$line" =~ $start_pattern ]]; then
+            date +%s > "$started_file"
+        fi
+        printf '%s\n' "$line" >&2
+    done
+}
+forced=
+stop_job() {    # stop_job <status> <reason>
+    local i
+    log "$2; stopping the job"
+    forced="$1"
+    if test -n "${STOP_COMMAND:-}"; then
+        timeout 20 ssh -n "${ssh_opts[@]}" "$STOP_COMMAND" >/dev/null 2>&1
+        for ((i = 0; i < stop_grace; i += 2)); do
+            kill -0 "$job_pid" 2>/dev/null || return
+            sleep 2
+        done
+        log "the job did not stop within ${stop_grace}s; ending its session"
+    fi
+    kill "$job_pid" 2>/dev/null
+}
+ssh "${ssh_opts[@]}" "$@" <&0 2> >(watch_stderr) &
 job_pid=$!
+while kill -0 "$job_pid" 2>/dev/null; do
+    now=$(date +%s)
+    if test -s "$started_file"; then
+        limit="$job_timeout"
+        test -s "$limit_file" && limit="$(<"$limit_file")"
+        (( limit > job_max_timeout )) && limit="$job_max_timeout"
+        if (( now - $(<"$started_file") >= limit )); then
+            stop_job 124 "job ran for ${limit}s, its limit"; break
+        fi
+    elif (( idle_timeout > 0 && now - t1 >= idle_timeout )); then
+        stop_job 123 "no job after ${idle_timeout}s"
+        # A job that started while the runner was being stopped was cut short.
+        test -e "$started_file" && forced=124
+        break
+    fi
+    sleep 5 & wait $!
+done
 wait "$job_pid"
 status=$?
-log "job exit $status after $(( $(date +%s) - t1 ))s"
+test -n "$forced" && status="$forced"
+log "job exit $status after $(( $(date +%s) - t1 ))s ($(test -e "$started_file" && echo "work started $(( $(<"$started_file") - t1 ))s in" || echo "no work started"))"
 exit "$status"

@@ -150,8 +150,9 @@ scripts/vm-run.sh status|qmp|screenshot|quit <name>
 
 `vm-job.sh` clones the golden bundle, boots it (retrying from a fresh clone
 if it never reaches SSH), runs the command over SSH, shuts the guest down and
-deletes the clone. It exits with the command's status, 124 for a job timeout
-or 125 for a guest that never booted. The guest's logs (serial console, QEMU
+deletes the clone. It exits with the command's status, 124 for a job timeout,
+123 for an idle timeout (see `JOB_START_PATTERN` in its header) or 125 for a
+guest that never booted. The guest's logs (serial console, QEMU
 launcher, Reims, balloon governor, `env.txt`) are kept in
 `artifacts/job-logs/<job>/`.
 
@@ -196,6 +197,13 @@ For production, run them as services:
   (`RUNNER_LABELS`). Before a slot takes a job it waits for the guest's
   CoreSimulatorService, and a guest-side watchdog flushes a stale negative
   DNS answer for the forge.
+- **Limits.** A guest that has had no job for `IDLE_TIMEOUT` (15 min) is
+  replaced by a fresh one. A job may run for `JOB_TIMEOUT` (30 min), counted
+  from when the runner picks it up; a job that sets `timeout-minutes` gets
+  that instead, up to `JOB_MAX_TIMEOUT` (3 h). A job over its limit is
+  cancelled through the runner, so Forgejo shows it cancelled, with its log.
+  In registration-token mode a slot hands an unused registration on to its
+  next guest, so idle guests leave no offline runners behind.
 - **Actions cache.** `systemd/vmapple-runner-cache.service` runs a persistent
   `forgejo-runner cache-server` on the host, so `actions/cache` survives the
   throwaway guests ([IMAGES.md](docs/IMAGES.md#runner-cache)).
