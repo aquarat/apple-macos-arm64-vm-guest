@@ -72,17 +72,20 @@ qemu_alive() {
 gpu_lost() {
     grep -m1 -o 'apv-gpu-proxy: GPU backend lost: .*' "$run/logs/launcher.log" 2>/dev/null
 }
-gpu_lost_exit() {
+# How the backend ended and, before the guest is discarded, the host
+# quarantine entry for a breadcrumb left by a driver call that never returned.
+gpu_loss_detail() {
     local why="$1" ended quarantined
     ended="$(grep -h '^gpu backend: \(ended\|exited\)' "$run/logs/gpu-backend.log" \
         "${GPU_BACKEND_LOG:-/dev/null}" 2>/dev/null | tail -1)"
     if test -n "${GPU_BACKEND_BIN:-}"; then
-        # Before the guest is discarded: a breadcrumb left by a driver call
-        # that never returned goes into the host's quarantine now.
         quarantined="$(REIMS_VGPU_BREADCRUMB_DIR="$run/logs/gpu-breadcrumbs" \
             "$GPU_BACKEND_BIN" --fold-breadcrumbs 2>/dev/null)"
     fi
-    log "job failed: GPU backend lost: ${why#apv-gpu-proxy: GPU backend lost: }${ended:+ ($ended)}${quarantined:+; $quarantined}"
+    printf '%s\n' "${why#apv-gpu-proxy: GPU backend lost: }${ended:+ ($ended)}${quarantined:+; $quarantined}"
+}
+gpu_lost_exit() {
+    log "job failed: GPU backend lost: $(gpu_loss_detail "$1")"
     gpu_failed=1
     exit 120
 }
@@ -248,7 +251,7 @@ test -n "$forced" && status="$forced"
 # The status of a job stopped for a timeout stays the timeout's; a backend lost
 # while it was stopping is noted, and the frozen guest is quit, not shut down.
 if test -n "$forced" && why="$(gpu_lost)"; then
-    log "GPU backend lost while the job was being stopped: ${why#apv-gpu-proxy: GPU backend lost: }"
+    log "GPU backend lost while the job was being stopped: $(gpu_loss_detail "$why")"
     gpu_failed=1
 fi
 log "job exit $status after $(( $(date +%s) - t1 ))s ($(test -e "$started_file" && echo "work started $(( $(<"$started_file") - t1 ))s in" || echo "no work started"))"
