@@ -17,6 +17,11 @@
 #   DISK_CACHE    [unsafe]; LOG_DIR [logs/]; SERIAL; QMP_SOCKET
 #   GDB_PORT, PAUSE_AT_START (on|off), CONSOLE (reims|none|gtk),
 #   REIMS_VGPU_WINDOW (0 = no host window), QEMU_EXTRA_ARGS
+#   GPU_MAX_REFRESH_HZ  the paravirtual display's refresh-rate cap, which
+#                 also paces how fast guest compositors' frames complete, so
+#                 a headless guest is paced like one with a real display
+#                 [60; 0 = uncapped, the device's native 120]. Passed to Reims
+#                 as REIMS_VGPU_MAX_REFRESH_HZ, in or out of process.
 #   GPU_BACKEND_BIN  run the GPU device model out of process: path to
 #                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
@@ -139,6 +144,9 @@ fi
 if test "$gfx" = none; then
     # No paravirtual GPU (needs a QEMU with gfx-device=none): headless only.
     machine+=",gfx-device=none"
+fi
+if test "$gfx" = reims; then
+    export REIMS_VGPU_MAX_REFRESH_HZ="${GPU_MAX_REFRESH_HZ:-${REIMS_VGPU_MAX_REFRESH_HZ:-60}}"
 fi
 if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     # The GPU device model in its own process: QEMU's apv-gpu-proxy device
