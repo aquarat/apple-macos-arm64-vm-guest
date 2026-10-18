@@ -166,6 +166,42 @@ runs above and are not comparable with them. Reims' Vulkan pipeline cache
 now persists across host reboots (`~/.cache/reims-vgpu`); the second run on
 each build loaded it (5.1 MB).
 
+### Work in progress (not deployed)
+
+Two lines of work are measured but not in production. They live on
+branches of the forks and this repository.
+
+**Reims as a separate process** (Reims `oop-backend`, QEMU `oop-proxy` and
+`oop-vmapple`, this repository `oop-launch`). Reims runs as
+`reims-vgpu-backend`, behind a small QEMU device (`apv-gpu-proxy`) that
+talks to it over a unix socket, shared memory and eventfds. QEMU then
+contains no Reims, Rust or Vulkan code. A crash in the GPU driver ends
+only the backend: the job fails with a clear reason and the guest is
+discarded, and the call that crashed is refused on later runs until the
+driver changes. `oop-vmapple` replaces the original author's QEMU KVM code
+with a rewrite. Ventura and Tahoe both boot to their desktops on it.
+
+Benchmark on the M1 Max, 4 vCPU / 8 GB, 3 pairs: 160.1–167.6 s in process
+against 177.0–190.6 s out of process (about +11 %). Each GPU operation is
+cheaper out of process (742–827 µs per compute dispatch against
+867–952 µs), and completions reach the guest at once (irq wait 1.4–1.8 s
+per run against 49–58 s). Delaying completions to in-process timing did not
+change the result. The likely cause is the guest's simulator compositor:
+it is not tied to a display refresh, because the display sleeps, so it
+spends the faster device on more frames (+45 %), taking guest CPU
+from the tests. Capping the compositor's frame rate is the next experiment.
+Two of three sustained UI-load runs were clean. The third passed the UI
+probe, but the app's UI tests could not start (the simulator's
+accessibility timeout). There were no panics and no GPU timeouts.
+
+**Draw batching** (Reims `draw-batch`). Draws in one render pass share a
+command buffer and a submit. Drain time per draw fell 27 % (584–686 µs to
+448–507 µs) and the engine's draw phase 55 %. The time to the first
+settled frame after a cold launch did not change measurably: in most of
+the 20–30 s launches the device was idle and the wait was in the guest.
+The sustained-load runs of this branch did not actually exercise the UI,
+so it is not validated under load yet.
+
 ### Boot reliability
 
 ![Boot failure rates by configuration](benchmarks/boot.svg)
