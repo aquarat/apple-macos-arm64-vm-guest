@@ -17,11 +17,14 @@
 #   DISK_CACHE    [unsafe]; LOG_DIR [logs/]; SERIAL; QMP_SOCKET
 #   GDB_PORT, PAUSE_AT_START (on|off), CONSOLE (reims|none|gtk),
 #   REIMS_VGPU_WINDOW (0 = no host window), QEMU_EXTRA_ARGS
-#   GPU_MAX_REFRESH_HZ  the paravirtual display's refresh-rate cap, which
-#                 also paces how fast guest compositors' frames complete, so
-#                 a headless guest is paced like one with a real display
-#                 [60; 0 = uncapped, the device's native 120]. Passed to Reims
-#                 as REIMS_VGPU_MAX_REFRESH_HZ, in or out of process.
+#   GPU_MAX_REFRESH_HZ  the paravirtual display's refresh-rate cap: its
+#                 modes and VBL [60; 0 = uncapped, the device's native 120].
+#                 Passed to Reims as REIMS_VGPU_MAX_REFRESH_HZ, in or out of
+#                 process.
+#   GPU_FRAME_PACING  1 = also pace guest surfaces (the iOS simulator's
+#                 screen, a sleeping display's compositor) to that cap
+#                 [0]. Saves guest CPU on unit tests; costs UI tests about
+#                 10 % (completions trail the simulator's queued frames).
 #   GPU_BACKEND_BIN  run the GPU device model out of process: path to
 #                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
@@ -147,6 +150,9 @@ if test "$gfx" = none; then
 fi
 if test "$gfx" = reims; then
     export REIMS_VGPU_MAX_REFRESH_HZ="${GPU_MAX_REFRESH_HZ:-${REIMS_VGPU_MAX_REFRESH_HZ:-60}}"
+    if test "${GPU_FRAME_PACING:-0}" = 1; then
+        export REIMS_VGPU_FRAME_PACING=on
+    fi
 fi
 if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     # The GPU device model in its own process: QEMU's apv-gpu-proxy device

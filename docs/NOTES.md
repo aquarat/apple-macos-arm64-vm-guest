@@ -69,8 +69,14 @@ call instead of crashing on it. `GPU_BACKEND_LOSS=reset` reboots the guest
 onto a fresh backend instead (interactive use).
 
 `GPU_MAX_REFRESH_HZ` (default 60, 0 = uncapped) caps the paravirtual
-display's refresh rate and how fast guest compositors' frames complete, in
-either mode ([PERFORMANCE.md](PERFORMANCE.md)).
+display's refresh rate, in either mode; `GPU_FRAME_PACING=1` also paces guest
+surfaces (the iOS simulator's screen) to it, a trade-off described in
+[PERFORMANCE.md](PERFORMANCE.md).
+
+In-process builds keep working only from Reims' `vendor/qemu` pin
+(6740a49344, the last aquarat/qemu-reims-vgpu commit with the in-process
+shims). Do not bump that submodule to qemu-reims-vgpu `master`: master is
+out-of-process only.
 
 What the QEMU fork adds on top of upstream QEMU and steelbrain's
 `vmapple`/Reims branch (details in the sections below):

@@ -121,7 +121,8 @@ export GOLDEN="${GOLDEN:-$HOME/vm-artifacts/tahoe-26.4-25E246-v7}" CPUS="${CPUS:
 # own GPU_QEMU_BIN / GPU_VK_DRIVER_FILES, and also offer GPU_LABELS (default
 # macos-26-arm64-gpu:host), so jobs that need Metal (UI tests of apps that draw
 # with Metal) can ask for one. A GPU slot also takes ordinary jobs.
-# GPU_BACKEND_BIN (Reims out of process) and GPU_MAX_REFRESH_HZ reach the GPU
+# GPU_BACKEND_BIN (Reims out of process), GPU_MAX_REFRESH_HZ and GPU_FRAME_PACING
+# reach the GPU
 # slots' launcher unchanged; slots without the GPU ignore them.
 gpu_slots=" ${GPU_SLOTS:-} "; gpu_slots="${gpu_slots//,/ }"
 gpu_labels="${GPU_LABELS:-macos-26-arm64-gpu:host}"
