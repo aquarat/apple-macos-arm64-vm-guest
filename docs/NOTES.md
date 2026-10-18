@@ -54,6 +54,24 @@ Reims and QEMU URLs and commits, the binary's SHA-256, and the build time.
 `launch-kvm.sh` and `check-host.sh` use `build/qemu-fleet` when it exists;
 `QEMU_BIN` selects another binary.
 
+`MODE=oop scripts/build-qemu.sh [OUTDIR]` (default `build/qemu-oop`) builds
+the out-of-process pair instead: QEMU on its own from aquarat/qemu-reims-vgpu
+`QEMU_REF` (default `master`), which contains no Reims, Rust or Vulkan code,
+and `reims-vgpu-backend` from aquarat/reims-vgpu `REIMS_REF`. It prints the
+`QEMU_BIN` and `GPU_BACKEND_BIN` to launch with. With `GPU_BACKEND_BIN` set,
+`launch-kvm.sh` starts the backend under a small supervisor, gives QEMU the
+`apv-gpu-proxy` device and shared, fd-backed guest RAM, and logs how the
+backend ended in `gpu-backend.log`. If the backend dies, QEMU stops the guest
+and `vm-job.sh` fails the job with status 120 and the reason (`job failed:
+GPU backend lost: ...`); a driver call that was in flight goes into the host's
+driver quarantine (`$XDG_STATE_HOME/reims-vgpu`), so later jobs refuse that
+call instead of crashing on it. `GPU_BACKEND_LOSS=reset` reboots the guest
+onto a fresh backend instead (interactive use).
+
+`GPU_MAX_REFRESH_HZ` (default 60, 0 = uncapped) caps the paravirtual
+display's refresh rate and how fast guest compositors' frames complete, in
+either mode ([PERFORMANCE.md](PERFORMANCE.md)).
+
 What the QEMU fork adds on top of upstream QEMU and steelbrain's
 `vmapple`/Reims branch (details in the sections below):
 
