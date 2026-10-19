@@ -121,9 +121,11 @@ export GOLDEN="${GOLDEN:-$HOME/vm-artifacts/tahoe-26.4-25E246-v7}" CPUS="${CPUS:
 # own GPU_QEMU_BIN / GPU_VK_DRIVER_FILES, and also offer GPU_LABELS (default
 # macos-26-arm64-gpu:host), so jobs that need Metal (UI tests of apps that draw
 # with Metal) can ask for one. A GPU slot also takes ordinary jobs.
-# GPU_BACKEND_BIN (Reims out of process), GPU_MAX_REFRESH_HZ and GPU_FRAME_PACING
-# reach the GPU
-# slots' launcher unchanged; slots without the GPU ignore them.
+# Out of process: GPU_BACKEND_BIN (reims-vgpu-backend) with GPU_OOP_QEMU_BIN (the
+# QEMU from `MODE=oop scripts/build-qemu.sh`); without GPU_BACKEND_BIN the GPU
+# slots run Reims in process from GPU_QEMU_BIN, so unsetting that one variable
+# is the fallback. GPU_MAX_REFRESH_HZ and GPU_FRAME_PACING reach the GPU slots'
+# launcher unchanged; slots without the GPU ignore all of these.
 gpu_slots=" ${GPU_SLOTS:-} "; gpu_slots="${gpu_slots//,/ }"
 gpu_labels="${GPU_LABELS:-macos-26-arm64-gpu:host}"
 label_args_for() {
@@ -143,7 +145,14 @@ slot() {
     local n="$1" name reply id uuid token labels="$labels" label_args
     if [[ "$gpu_slots" == *" $n "* ]]; then
         export GFX=reims GOLDEN="${GPU_GOLDEN:?GPU_SLOTS needs GPU_GOLDEN (an image with layer 65)}"
-        test -n "${GPU_QEMU_BIN:-}" && export QEMU_BIN="$GPU_QEMU_BIN"
+        # Out of process when GPU_BACKEND_BIN is set: that QEMU is
+        # GPU_OOP_QEMU_BIN. Unsetting GPU_BACKEND_BIN alone falls back to the
+        # in-process GPU_QEMU_BIN.
+        if test -n "${GPU_BACKEND_BIN:-}"; then
+            export QEMU_BIN="${GPU_OOP_QEMU_BIN:?GPU_BACKEND_BIN needs GPU_OOP_QEMU_BIN (a QEMU with apv-gpu-proxy)}"
+        else
+            test -n "${GPU_QEMU_BIN:-}" && export QEMU_BIN="$GPU_QEMU_BIN"
+        fi
         test -n "${GPU_VK_DRIVER_FILES:-}" && export VK_DRIVER_FILES="$GPU_VK_DRIVER_FILES"
         labels="$labels,$gpu_labels"
         echo "[slot $n] GPU slot: $GOLDEN, labels $labels" >&2
