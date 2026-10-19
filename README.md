@@ -41,12 +41,18 @@ the GPU take as long as without one (a median of 156.4 s over four runs,
 against 154.4 s and 160.0 s).
 The UI tests of an app that cannot run without a GPU run about 1.6x faster
 than on the earlier GPU build. Since the QEMU used-ring fix, no macOS 26 boot
-in 200 has stalled (17 of 203 before). Charts, method and more results:
-[docs/PERFORMANCE.md](docs/PERFORMANCE.md).
+in 200 has stalled (17 of 203 before). Since 2026-10-19 the GPU device runs
+out of process in production: a host GPU driver crash fails only that job
+(exit status 120, with the reason) instead of taking QEMU down, at about the
+same test times (app UI suite 690–801 s, simulator unit tests 157.8 and
+163.6 s against 156.8–158.6 s in process, with one unexplained 209.7 s run).
+Charts, method and more results: [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
 
 [![iOS simulator unit tests: GPU builds against no GPU](docs/benchmarks/unit-test.svg)](docs/PERFORMANCE.md#simulator-unit-tests)
 
 [![UI tests on a GPU-accelerated macOS 26 guest](docs/benchmarks/ui-tests.svg)](docs/PERFORMANCE.md#ui-tests)
+
+[![Reims in process against out of process](docs/benchmarks/oop-vs-inprocess.svg)](docs/PERFORMANCE.md#reims-out-of-process-deployed-2026-10-19)
 
 ## How it fits together
 

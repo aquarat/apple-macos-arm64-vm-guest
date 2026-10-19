@@ -25,7 +25,7 @@ date,series,run,reims,qemu,metric,value,unit,source
 2026-10-18,inproc-2026-10-18,fin-in1202,40c5bc1c38,6740a49344,unit_test_wall,156.8,s,out-of-process final series 2026-10-18 (interleaved run fin-in1202)
 2026-10-18,inproc-2026-10-18,fin-in1203,40c5bc1c38,6740a49344,unit_test_wall,158.6,s,out-of-process final series 2026-10-18 (interleaved run fin-in1203)
 2026-10-18,oop-2026-10-18,fin-finoop1,40c5bc1c38,c6d87a8406,unit_test_wall,163.6,s,out-of-process final series 2026-10-18 (interleaved run fin-finoop1)
-2026-10-18,oop-2026-10-18,fin-finoop2,40c5bc1c38,c6d87a8406,unit_test_wall,209.7,s,out-of-process final series 2026-10-18 (interleaved run fin-finoop2 (slow host draw phase, see PERFORMANCE.md))
+2026-10-18,oop-2026-10-18,fin-finoop2,40c5bc1c38,c6d87a8406,unit_test_wall,209.7,s,out-of-process final series 2026-10-18 (interleaved run fin-finoop2; one-off slow host-side draw phase, unexplained, not repeated)
 2026-10-18,oop-2026-10-18,fin-finoop3,40c5bc1c38,c6d87a8406,unit_test_wall,157.8,s,out-of-process final series 2026-10-18 (interleaved run fin-finoop3)
 2026-10-18,oop-paced-2026-10-18,fin-finoopfp1,40c5bc1c38,c6d87a8406,unit_test_wall,161.7,s,out-of-process final series 2026-10-18 (interleaved run fin-finoopfp1)
 2026-10-18,oop-paced-2026-10-18,fin-finoopfp2,40c5bc1c38,c6d87a8406,unit_test_wall,162.0,s,out-of-process final series 2026-10-18 (interleaved run fin-finoopfp2)

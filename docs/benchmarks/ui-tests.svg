@@ -6,7 +6,7 @@
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">An iOS app's offline XCUITest suite: lab runs (8 vCPU / 12 GB, 12 of 14 pass in every GPU mode),</text>
 <text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">then production CI on an M1 Ultra host (8 vCPU / 24 GB; 12/14 passed, then 14/14). Last two panels:</text>
 <text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">a small SwiftUI XCUITest, 8 vCPU / 16 GB. Dots are runs, pale bars their mean, capsules a reported range.</text>
-<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Orange: the build deployed on 2026-10-10. Violet: copy-path build, not deployed.</text>
+<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Orange: Reims out of process, deployed 2026-10-19.</text>
 <text x="22.0" y="138.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">An iOS app's offline XCUITest suite (14 tests)</text>
 <line x1="316.0" y1="150.0" x2="316.0" y2="354.0" stroke="#b9b8ae" stroke-width="1"/>
 <text x="316.0" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
@@ -49,7 +49,7 @@
 <circle cx="492.1" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="510.1" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="522.1" y="307.5" font-size="12" fill="#52514e" text-anchor="start">675–819 s, 3 runs</text>
-<text x="306.0" y="336.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process, 2026-10-18 candidate</text>
+<text x="306.0" y="336.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
 <text x="306.0" y="349.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
 <path d="M316.0,330.0 H490.1 Q494.1,330.0 494.1,334.0 V340.0 Q494.1,344.0 490.1,344.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="479.6" cy="337.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -107,7 +107,7 @@
 <text x="306.0" y="661.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker</text>
 <rect x="464.7" y="652.0" width="31.0" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
 <text x="503.7" y="661.5" font-size="12" fill="#52514e" text-anchor="start">240–290 s</text>
-<text x="306.0" y="690.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process, 2026-10-18 candidate</text>
+<text x="306.0" y="690.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
 <text x="306.0" y="703.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
 <path d="M316.0,684.0 H445.0 Q449.0,684.0 449.0,688.0 V694.0 Q449.0,698.0 445.0,698.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="449.8" cy="691.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>

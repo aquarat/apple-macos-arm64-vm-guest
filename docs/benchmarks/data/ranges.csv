@@ -20,3 +20,4 @@ date,series,metric,low,high,unit,note,source
 2026-10-09,gpu-worker-nocompact,vcpu_wait_max,1.3,2.3,s,,GPU series report 2026-10-10
 2026-10-10,candidate,vcpu_wait_max,0.34,0.65,s,,GPU series report 2026-10-10
 2026-10-10,gpu-main-compact,vcpu_wait_max,0,0,s,"0, but vCPUs wait on QEMU's big lock instead",GPU series report 2026-10-10
+2026-10-18,inproc-ab,app_suite_wall,,,s,1 more crashed,refresh-cap UI A/B 2026-10-18 (run ui5-in1: a Mesa shader-compiler abort killed QEMU; job exit 255)

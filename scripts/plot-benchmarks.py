@@ -15,6 +15,9 @@ Data layout (docs/benchmarks/data/, one row per measured run):
 - metrics.csv      metric id -> panel title, unit, axis label
 - unit-test.csv, ui-tests.csv, drain.csv, balloon.csv, copy-path.csv
                    runs: date,series,run,reims,qemu,metric,value,unit,source
+                   oop-vs-inprocess.svg takes the unit-test and UI rows of
+                   series named inproc-* and oop-*; ui-tests.svg leaves out
+                   series named *-ab (that chart's UI A/B)
 - ranges.csv       results reported only as a range (or a note):
                    date,series,metric,low,high,unit,note,source
 - reliability.csv  date,label,reims,qemu,clean,total,failures,role,criterion,source
@@ -114,8 +117,11 @@ class Data:
         m = self.metrics.get(metric)
         return (m["title"], m["unit"], m["axis"]) if m else (metric, "", metric)
 
-    def rows_for(self, runs, metric):
-        """Chart rows for one metric: runs and ranges grouped by series."""
+    def rows_for(self, runs, metric, keep=None):
+        """Chart rows for one metric: runs and ranges grouped by series.
+
+        keep, if given, is a predicate on the series id: other series are left out.
+        """
         order, by = [], {}
 
         def get(sid):
@@ -127,7 +133,7 @@ class Data:
             return by[sid]
 
         for r in runs:
-            if r["metric"] != metric:
+            if r["metric"] != metric or (keep and not keep(r["series"])):
                 continue
             row = get(r["series"])
             row["runs"].append(num(r, "value"))
@@ -135,7 +141,7 @@ class Data:
             if c not in ("-", "") and c[:10] not in row["reims"]:
                 row["reims"].append(c[:10])
         for r in self.ranges:
-            if r["metric"] != metric:
+            if r["metric"] != metric or (keep and not keep(r["series"])):
                 continue
             row = get(r["series"])
             lo, hi = num(r, "low"), num(r, "high")
@@ -242,11 +248,12 @@ def row_value_text(row, unit):
     runs = row["runs"]
     if not runs:
         return ""
+    extra = f" · {row['note']}" if row["note"] else ""  # e.g. a run that crashed
     if len(runs) == 1:
-        return f"{fmt(runs[0])}{u}"
+        return f"{fmt(runs[0])}{u}{extra}"
     lo, hi = min(runs), max(runs)
     span = f"{fmt(lo)}{u}" if lo == hi else f"{fmt(lo)}–{fmt(hi)}{u}"
-    return f"{span}, {len(runs)} runs"
+    return f"{span}, {len(runs)} runs{extra}"
 
 
 def label_width(rows):
@@ -322,12 +329,12 @@ def panel(svg, y, rows, title, unit, axis, label_w, value_w, ref=None, row_h=34,
     return y + 22
 
 
-def runs_chart(data, runs, metrics, title, subtitle, desc, ref_series=None, xmax=None):
+def runs_chart(data, runs, metrics, title, subtitle, desc, ref_series=None, xmax=None, keep=None):
     svg = Svg()
     y = header(svg, title, subtitle)
     panels = []
     for m in metrics:
-        rows = data.rows_for(runs, m)
+        rows = data.rows_for(runs, m, keep)
         if rows:
             panels.append((m, rows))
     if not panels:
@@ -471,26 +478,43 @@ def build(data):
         data, unit, ["unit_test_wall"],
         "iOS simulator unit tests: GPU builds against no GPU",
         ["macOS 26 guest, 4 vCPU / 8 GB. Dots are runs, pale bars their mean, capsules a reported range.",
-         "Orange: the build deployed on 2026-10-10. Violet: copy-path build, not deployed. Lower is better."],
+         "Orange: deployed builds. The two production-host rows (M1 Ultra, pre-warmed image) compare only",
+         "with each other; every other row ran on the M1 Max test host. Lower is better."],
         "Simulator unit-test wall time per build: " + "; ".join(
             f"{r['series']} {r['value']} s" for r in unit),
         ref_series="none")
     ui = data.runs("ui-tests.csv")
+    # Series ending in "-ab" (the in/out-of-process UI A/B on 0001-only Mesa)
+    # are drawn only in oop-vs-inprocess.svg.
     charts["ui-tests.svg"] = runs_chart(
         data, ui, ["app_suite_wall", "ci_ui_job_wall", "probe_cold_wall", "probe_warm_wall"],
         "UI tests on a GPU-accelerated macOS 26 guest",
         ["An iOS app's offline XCUITest suite: lab runs (8 vCPU / 12 GB, 12 of 14 pass in every GPU mode),",
          "then production CI on an M1 Ultra host (8 vCPU / 24 GB; 12/14 passed, then 14/14). Last two panels:",
          "a small SwiftUI XCUITest, 8 vCPU / 16 GB. Dots are runs, pale bars their mean, capsules a reported range.",
-         "Orange: the build deployed on 2026-10-10. Violet: copy-path build, not deployed."],
-        "UI test wall times: " + "; ".join(f"{r['metric']} {r['series']} {r['value']} s" for r in ui))
+         "Orange: Reims out of process, deployed 2026-10-19."],
+        "UI test wall times: " + "; ".join(
+            f"{r['metric']} {r['series']} {r['value']} s" for r in ui if not r["series"].endswith("-ab")),
+        keep=lambda s: not s.endswith("-ab"))
+    oop = lambda s: s.startswith(("inproc-", "oop-"))
+    oop_rows = [r for r in unit + ui if oop(r["series"])]
+    charts["oop-vs-inprocess.svg"] = runs_chart(
+        data, oop_rows, ["unit_test_wall", "app_suite_wall", "probe_cold_wall"],
+        "Reims in process against out of process",
+        ["M1 Max test host. Unit tests: 4 vCPU / 8 GB, Mesa 0001+0002, runs interleaved. UI tests: 8 vCPU / 12 GB;",
+         "the \"0001-only Mesa\" rows lacked Mesa patch 0002; that Mesa aborted once in process and took",
+         "QEMU with it (\"1 more crashed\"). Pacing: guest surfaces held to 60 Hz, opt-in. Orange: deployed 2026-10-19.",
+         "Dots are runs, pale bars their mean. Lower is better."],
+        "In process against out of process: " + "; ".join(
+            f"{r['metric']} {r['series']} {r['value']} s" for r in oop_rows),
+        keep=oop)
     drain = data.runs("drain.csv")
     charts["drain.svg"] = runs_chart(
         data, drain, ["tranche_p90", "tranche_max", "vcpu_wait_total", "drain_busy"],
         "Reims drain behaviour over a UI-test session",
         ["How long the device's command drain runs without a break (a tranche), how long vCPUs",
          "wait for the device lock, and total drain busy time. 8 vCPU / 12 GB. Capsules span the",
-         "reported runs of a build, dots are individual runs. Violet: copy-path build, not deployed."],
+         "reported runs of a build, dots are individual runs. The copy path is in the 2026-10-11 release."],
         "Drain per build: " + "; ".join(
             f"{r['metric']} {r['series']} {r['low']}-{r['high']} {r['unit']}"
             for r in data.ranges if r["metric"].startswith(("tranche", "vcpu", "drain")))
@@ -509,7 +533,7 @@ def build(data):
         metrics = list(dict.fromkeys(r["metric"] for r in copy))
         charts["copy-path.svg"] = runs_chart(
             data, copy, metrics, "Reims copy path: one copy instead of two",
-            ["Deployed build against the copy-path build (not deployed) on the unit-test benchmark,",
+            ["The 2026-10-10 build against the copy-path builds (in the 2026-10-11 release) on the unit-test benchmark,",
              "4 vCPU / 8 GB, runs interleaved. Cycle counts: one perf capture of the drain thread",
              "per build. Dots are runs, pale bars their mean. Lower is better."],
             "Copy-path measurements: " + "; ".join(

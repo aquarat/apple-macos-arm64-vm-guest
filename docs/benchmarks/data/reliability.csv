@@ -10,3 +10,4 @@ date,label,reims,qemu,clean,total,failures,role,criterion,source
 2026-10-10,"2026-10-10 build, sustained stress",71029b4d00,6740a49344,5,5,,main,"no guest panic, no host GPU hang; 183/183 UI loops",GPU series report 2026-10-10
 2026-10-10,"Copy path",9abcc6e523,6740a49344,3,3,,main,"no guest panic, no host GPU hang; 114/114 loops",copy-path series 2026-10-10 (sustained runs cp-s2..s4)
 2026-10-10,"Copy path + follow-ups",d3f8007474,6740a49344,2,2,,main,"no guest panic, no host GPU hang; 85/85 loops",copy-path follow-ups 2026-10-10 (sustained runs cp-s5-fu and cp-s6-fu)
+2026-10-18,"Out of process, final candidate",40c5bc1c38,c6d87a8406,3,3,,main,"no guest panic, no host GPU hang, no backend loss; 116/116 loops",out-of-process final series 2026-10-18 (sustained runs fin-ui1..fin-ui3)

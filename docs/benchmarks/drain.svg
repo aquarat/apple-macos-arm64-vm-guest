@@ -5,7 +5,7 @@
 <text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">Reims drain behaviour over a UI-test session</text>
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">How long the device's command drain runs without a break (a tranche), how long vCPUs</text>
 <text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">wait for the device lock, and total drain busy time. 8 vCPU / 12 GB. Capsules span the</text>
-<text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">reported runs of a build, dots are individual runs. Violet: copy-path build, not deployed.</text>
+<text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">reported runs of a build, dots are individual runs. The copy path is in the 2026-10-11 release.</text>
 <text x="22.0" y="119.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Drain tranche length: 90th percentile</text>
 <line x1="225.0" y1="131.0" x2="225.0" y2="301.0" stroke="#b9b8ae" stroke-width="1"/>
 <text x="225.0" y="316.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>

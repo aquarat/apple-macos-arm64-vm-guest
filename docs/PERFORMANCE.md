@@ -1,7 +1,7 @@
 # Performance and reliability
 
 What the macOS-guest work on Asahi Linux has reached, measured. State as of
-2026-10-11. The charts are drawn from the CSV files in
+2026-10-19. The charts are drawn from the CSV files in
 [benchmarks/data/](benchmarks/data/) by
 [`scripts/plot-benchmarks.py`](../scripts/plot-benchmarks.py); see
 [How to update](#how-to-update).
@@ -15,6 +15,16 @@ driver).
 
 ## Highlights
 
+- Since 2026-10-19 production runs Reims out of process: the GPU device is
+  its own program and QEMU contains no Reims, Rust or Vulkan code. A host
+  GPU driver crash now fails only the job it hit (exit status 120, with the
+  reason) and the driver call that crashed is quarantined; in process the
+  same kind of Mesa abort took QEMU down with it. On the M1 Max test host the
+  app's UI suite took 690–801 s out of process, and simulator unit tests
+  157.8 and 163.6 s against 156.8–158.6 s in process (a third out-of-process
+  run took 209.7 s: a host-side slowdown that did not repeat). Production
+  numbers for the switch are to follow; see
+  [Reims out of process](#reims-out-of-process-deployed-2026-10-19).
 - macOS 26 guests with GPU-accelerated Metal run on Linux. With the
   2026-10-10 build, CPU-bound simulator unit tests take as long with the GPU
   device as without it: a median of 156.4 s over four runs (153.2–184.2 s),
@@ -50,7 +60,8 @@ driver).
   build on the same host and image: no regression.
 - Under sustained simulator load: 12 of 12 runs clean since the round-robin
   drain, 5 of 5 sustained stress runs on the 2026-10-10 build (183 of 183 UI
-  loops), no guest panic and no host GPU hang.
+  loops), 3 of 3 out of process (116 of 116 loops, no backend loss), no
+  guest panic and no host GPU hang.
 - macOS 26 boots that never reached SSH: 17 of 203 before the virtio
   used-ring fix, 0 of 200 after. Boots without a sound device: 8 of 186,
   then 0 of 200.
@@ -69,10 +80,12 @@ fix brought the main-loop drain to 196.7 s. The drain worker on top of it
 brought GPU guests into the no-GPU band (shaded). The 2026-10-10 build stays
 close to it: three of its four runs are inside or just below the band, one
 took 184.2 s. The copy-path build (158.0–161.2 s) is no faster here, because
-this benchmark does not wait on the drain. The last two rows ran on the
-production host with the production image after the 2026-10-11 deploy
+this benchmark does not wait on the drain. The two production-host rows
+ran on the M1 Ultra with the production image after the 2026-10-11 deploy
 (see [Production host check](#production-host-check-2026-10-11)); they
-compare with each other, not with the rows above.
+compare with each other, not with the other rows. The last three rows are
+the out-of-process validation on the M1 Max
+(see [Reims out of process](#reims-out-of-process-deployed-2026-10-19)).
 
 ### UI tests
 
@@ -86,6 +99,8 @@ two test waits raised from 10 s to 30 s in the same commit and an unrelated
 low-priority CPU load on the host, so its time is conservative. Below: with the drain worker a small SwiftUI test is
 faster with the GPU than without one once the simulator is warm; the first
 run in a fresh image still pays for one-off simulator setup in every mode.
+The orange rows are the out-of-process build deployed on 2026-10-19 (three
+sustained runs on the M1 Max).
 
 ### Drain behaviour
 
@@ -166,56 +181,81 @@ runs above and are not comparable with them. Reims' Vulkan pipeline cache
 now persists across host reboots (`~/.cache/reims-vgpu`); the second run on
 each build loaded it (5.1 MB).
 
-### Work in progress (not deployed)
+### Reims out of process (deployed 2026-10-19)
 
-Two lines of work are measured but not in production. They live on
-branches of the forks and this repository.
+![Simulator unit tests, the app's UI suite and the SwiftUI UI test, in process against out of process](benchmarks/oop-vs-inprocess.svg)
 
-**Reims as a separate process** (Reims, QEMU and this repository, ready to
-merge; not deployed yet). Reims runs as `reims-vgpu-backend`, behind a small
-QEMU device (`apv-gpu-proxy`) that talks to it over a unix socket, shared
-memory and eventfds. QEMU then contains no Reims, Rust or Vulkan code. A crash
-in the GPU driver ends only the backend: the job fails with exit status 120 and
-the reason, the guest is discarded, and the driver call that crashed is refused
-on later runs until the driver changes. The QEMU fork's KVM code is rewritten,
-and the original author's macOS-host changes are reverted to upstream.
-`MODE=oop scripts/build-qemu.sh` builds the pair; in-process builds keep working
-from Reims' `vendor/qemu` pin.
+Reims runs as `reims-vgpu-backend`, behind a small QEMU device
+(`apv-gpu-proxy`) that talks to it over a unix socket, shared memory and
+eventfds. QEMU then contains no Reims, Rust or Vulkan code. A crash in the
+host GPU driver ends only the backend: the job fails with exit status 120 and
+the reason, the guest is discarded, and the driver call that crashed is
+refused on later runs until the driver changes. The QEMU fork's KVM code is
+rewritten, and the original author's macOS-host changes are reverted to
+upstream. `MODE=oop scripts/build-qemu.sh` builds the pair, and the runner
+switches a GPU slot to it with `GPU_BACKEND_BIN`; unsetting it falls back to
+the in-process build from Reims' `vendor/qemu` pin. Reims 40c5bc1c38 and
+QEMU c6d87a8406 are merged and went into production on 2026-10-19.
 
-Final candidate on the M1 Max (4 vCPU / 8 GB, Mesa with both patches,
-interleaved): simulator unit tests 156.8–158.6 s in process, 157.8 and
-163.6 s out of process, plus one 209.7 s run. In that run the drain's per-draw
-cost was 2.5 times the others' and the simulator's start-up animation ran
-159 s instead of about 110; nothing in the guest's work explains it, and none
-of the other out-of-process runs repeated it. With the device out of process
-completions reach the guest about 2 ms sooner, and the simulator's compositor,
-which is paced by nothing else, redraws its screen about 92 times a second
-instead of 67, taking guest CPU from the tests.
+**Unit tests** (M1 Max, 4 vCPU / 8 GB, Mesa with both patches, the three
+arms interleaved): 156.8–158.6 s in process; 157.8 and 163.6 s out of
+process, plus one 209.7 s run. In that run the drain's per-draw cost was 2.5
+times the others' and the simulator's start-up animation ran 159 s instead of
+about 110; nothing in the guest's work or the host's journal explains it, and
+it did not repeat. Out of process, completions reach the guest about 2 ms
+sooner, and the simulator's compositor, which is paced by nothing else,
+redraws its screen about 92 times a second instead of 67, taking guest CPU
+from the tests.
 
-Three sustained UI-load runs out of process: the SwiftUI probe in 202–226 s,
-an app's offline UI suite in 690–801 s (12/14, the two tests that also fail in
-process), 38–39 load loops each, no backend loss, no guest panic. A backend
-killed mid-job failed that job in 2 s with the reason, the next job ran, and
-idle and job timeouts still report 123 and 124 (also when the backend is lost
-while the job is being stopped).
+**UI tests** (8 vCPU / 12 GB). Three sustained UI-load runs out of process:
+the SwiftUI probe in 202–226 s, the app's offline UI suite in 690–801 s
+(12/14 each, the two tests that also fail in process), 38–39 load loops
+each, no backend loss, no guest panic. An earlier A/B on a Mesa that by
+mistake lacked patch 0002 (the "0001-only Mesa" rows) compared the modes
+directly: the probe took 186 and 229 s in process against 216 and 227 s out
+of process, and the suite 823 s in process against 690 and 709 s. The second
+in-process suite run never finished: the Mesa shader-compiler abort that
+0002 fixes killed QEMU (exit status 255) with the guest. Out of process the
+same class of abort ends the backend only: the job fails cleanly with "GPU
+backend lost" and the call is quarantined.
+
+**Lifecycle** (out of process, the final build):
+
+| Test | Result |
+|---|---|
+| Backend killed (SIGKILL) mid-job | job fails in 2 s, exit status 120, reason logged; no backend left behind |
+| The next job on the same host | runs normally (simulator boots, screenshot taken) |
+| No job arrives (idle timeout) | exit status 123, as in process |
+| Job runs too long (job timeout) | exit status 124, as in process |
+| Backend lost while a timed-out job is being stopped | stays 124; the loss is logged |
 
 **Refresh-rate cap.** `GPU_MAX_REFRESH_HZ` (default 60) caps the paravirtual
-display's modes and VBL. macOS 26 never arms that VBL, so it does not pace the
-simulator. Pacing the simulator's screen to 60 Hz is possible
-(`GPU_FRAME_PACING=1`): its compositor queues dozens of frames ahead, so the
-device has to hold their completions until its queue is full, and every
-completion on that channel then trails by up to a second. Measured: unit tests
-161.7–166.8 s; but UI tests about 10 % slower (probe 263 and 232 s against
-227 and 216 s; app suite 715 and 776 s against 690 and 709 s). It is off by
-default.
+display's modes and VBL; it is on by default. macOS 26 never arms that VBL,
+so it does not pace the simulator. Pacing the simulator's screen to 60 Hz is
+possible (`GPU_FRAME_PACING=1`): its compositor queues dozens of frames
+ahead, so the device has to hold their completions until its queue is full,
+and every completion on that channel then trails by up to a second. It
+costs UI time: on the 0001-only Mesa the probe took 263 and 232 s paced
+against 227 and 216 s unpaced, and the app's suite 715 and 776 s against
+690 and 709 s. On unit tests it makes no clear difference (161.7–166.8 s
+paced, final build). Surface pacing is therefore opt-in.
 
-**Draw batching** (Reims `draw-batch`). Draws in one render pass share a
-command buffer and a submit. Drain time per draw fell 27 % (584–686 µs to
-448–507 µs) and the engine's draw phase 55 %. The time to the first
-settled frame after a cold launch did not change measurably: in most of
-the 20–30 s launches the device was idle and the wait was in the guest.
-The sustained-load runs of this branch did not actually exercise the UI,
-so it is not validated under load yet.
+### Production switch to out of process (2026-10-19)
+
+<!-- First production numbers for the out-of-process GPU slot go here:
+     unit-test benchmark on the production host (as in the 2026-10-11
+     check) and the first UI-test CI jobs. -->
+
+Switched 2026-10-19; production numbers to follow.
+
+### Draw batching (not deployed)
+
+On Reims branch `draw-batch`, draws in one render pass share a command buffer
+and a submit. Drain time per draw fell 27 % (584–686 µs to 448–507 µs) and
+the engine's draw phase 55 %. The time to the first settled frame after a
+cold launch did not change measurably: in most of the 20–30 s launches the
+device was idle and the wait was in the guest. It has not been validated
+under load, and it is not merged.
 
 ### Boot reliability
 
@@ -286,11 +326,12 @@ Earlier fixes on the way to a stable GPU guest:
   the sound control queue the sound device never registers. Fix: QEMU
   relocates such a used ring (`x-fix-overlapping-used`, QEMU 6f2d0742e8).
 
-Known gaps on the deployed build (2026-10-11 release):
+Known gaps on the deployed build (out of process since 2026-10-19):
 
-- A cold app launch takes 20–40 s before its UI settles: one queue
-  submission per draw bounds the drain. Screenshots taken early in a
-  launch can still show a splash screen or flat colour.
+- A cold app launch takes 20–40 s before its UI settles. Screenshots taken
+  early in a launch can still show a splash screen or flat colour. Batching
+  draws (not deployed) cuts the device's per-draw cost but did not shorten
+  the launch measurably.
 - `memcpy` is about two thirds of the drain's CPU time. Honeykrisp cannot
   import guest RAM, so guest data is copied into and out of Vulkan memory
   once each way.
@@ -302,7 +343,8 @@ Known gaps on the deployed build (2026-10-11 release):
   kernel 7.1 with this repository's KVM patches, QEMU from
   aquarat/qemu-reims-vgpu, Reims from aquarat/reims-vgpu, Mesa Honeykrisp
   with the varying fixes (`patches/mesa/`, `scripts/build-mesa-honeykrisp.sh`;
-  0002 from the 2026-10-11 release on).
+  0002 from the 2026-10-11 release on, except the rows labelled "0001-only
+  Mesa").
 - **Guest:** macOS 26.4 (25E246), Xcode 26.4.1, iOS 26.4.1 simulator
   runtime, images built as in [IMAGES.md](IMAGES.md). Guest size per
   benchmark is given on each chart.
@@ -334,6 +376,10 @@ Known gaps on the deployed build (2026-10-11 release):
   with the runner stopped. Sustained figures come from three
   sustained runs of the copy-path build against three of the deployed
   build.
+- **Out of process:** the unit-test benchmark three times per arm (in
+  process, out of process, out of process with surface pacing), arms
+  interleaved, on one Reims tree built both ways. UI load: three sustained
+  runs. Lifecycle: one job per case, the backend killed with SIGKILL.
 - **Sustained runs:** a UI test followed by repeated test reruns ("loops").
   A run is clean with no guest panic and no host GPU job timeout.
 - **Boots:** [`scripts/debug/boot-reliability.sh`](../scripts/debug/boot-reliability.sh),
@@ -365,4 +411,6 @@ Known gaps on the deployed build (2026-10-11 release):
 4. Update the highlights above if a headline number changed.
 
 `copy-path.svg` is drawn from `copy-path.csv`, one panel per metric in
-the order they first appear.
+the order they first appear. `oop-vs-inprocess.svg` takes the unit-test and
+UI-test rows of the series whose id starts with `inproc-` or `oop-`;
+series whose id ends in `-ab` appear only there, not in `ui-tests.svg`.

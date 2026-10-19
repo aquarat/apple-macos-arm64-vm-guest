@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="731" viewBox="0 0 780 731" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title>Reims in process against out of process</title>
+<desc>In process against out of process: unit_test_wall inproc-2026-10-18 157.3 s; unit_test_wall inproc-2026-10-18 156.8 s; unit_test_wall inproc-2026-10-18 158.6 s; unit_test_wall oop-2026-10-18 163.6 s; unit_test_wall oop-2026-10-18 209.7 s; unit_test_wall oop-2026-10-18 157.8 s; unit_test_wall oop-paced-2026-10-18 161.7 s; unit_test_wall oop-paced-2026-10-18 162.0 s; unit_test_wall oop-paced-2026-10-18 166.8 s; probe_cold_wall oop-2026-10-18 216 s; app_suite_wall oop-2026-10-18 690 s; probe_cold_wall oop-2026-10-18 202 s; app_suite_wall oop-2026-10-18 763 s; probe_cold_wall oop-2026-10-18 226 s; app_suite_wall oop-2026-10-18 801 s; probe_cold_wall inproc-ab 229 s; probe_cold_wall inproc-ab 186 s; app_suite_wall inproc-ab 823 s; probe_cold_wall oop-ab 227 s; probe_cold_wall oop-ab 216 s; app_suite_wall oop-ab 690 s; app_suite_wall oop-ab 709 s; probe_cold_wall oop-paced-ab 263 s; probe_cold_wall oop-paced-ab 232 s; app_suite_wall oop-paced-ab 715 s; app_suite_wall oop-paced-ab 776 s</desc>
+<rect x="0.5" y="0.5" width="779" height="730" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
+<text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">Reims in process against out of process</text>
+<text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">M1 Max test host. Unit tests: 4 vCPU / 8 GB, Mesa 0001+0002, runs interleaved. UI tests: 8 vCPU / 12 GB;</text>
+<text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">the "0001-only Mesa" rows lacked Mesa patch 0002; that Mesa aborted once in process and took</text>
+<text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">QEMU with it ("1 more crashed"). Pacing: guest surfaces held to 60 Hz, opt-in. Orange: deployed 2026-10-19.</text>
+<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Dots are runs, pale bars their mean. Lower is better.</text>
+<text x="22.0" y="138.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">iOS simulator unit tests</text>
+<line x1="316.0" y1="150.0" x2="316.0" y2="252.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="372.6" y1="150.0" x2="372.6" y2="252.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="372.6" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">50</text>
+<line x1="429.2" y1="150.0" x2="429.2" y2="252.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="429.2" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
+<line x1="485.7" y1="150.0" x2="485.7" y2="252.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="485.7" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">150</text>
+<line x1="542.3" y1="150.0" x2="542.3" y2="252.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="542.3" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
+<line x1="598.9" y1="150.0" x2="598.9" y2="252.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="598.9" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
+<text x="306.0" y="166.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU in process, 2026-10-18 candidate</text>
+<text x="306.0" y="179.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,160.0 H490.3 Q494.3,160.0 494.3,164.0 V170.0 Q494.3,174.0 490.3,174.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="494.0" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="493.4" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="495.5" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="507.5" y="171.5" font-size="12" fill="#52514e" text-anchor="start">156.8–158.6 s, 3 runs</text>
+<text x="306.0" y="200.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
+<text x="306.0" y="213.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,194.0 H512.3 Q516.3,194.0 516.3,198.0 V204.0 Q516.3,208.0 512.3,208.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="501.1" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="553.3" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="494.6" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="565.3" y="205.5" font-size="12" fill="#52514e" text-anchor="start">157.8–209.7 s, 3 runs</text>
+<text x="306.0" y="234.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, surfaces paced at 60 Hz</text>
+<text x="306.0" y="247.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,228.0 H497.0 Q501.0,228.0 501.0,232.0 V238.0 Q501.0,242.0 497.0,242.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="499.0" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="499.3" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="504.7" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="516.7" y="239.5" font-size="12" fill="#52514e" text-anchor="start">161.7–166.8 s, 3 runs</text>
+<text x="457.4" y="283.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="315.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">An iOS app's offline XCUITest suite (14 tests)</text>
+<line x1="316.0" y1="327.0" x2="316.0" y2="463.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="371.2" y1="327.0" x2="371.2" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="371.2" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
+<line x1="426.5" y1="327.0" x2="426.5" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="426.5" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">400</text>
+<line x1="481.7" y1="327.0" x2="481.7" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="481.7" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">600</text>
+<line x1="536.9" y1="327.0" x2="536.9" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="536.9" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">800</text>
+<line x1="592.2" y1="327.0" x2="592.2" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="592.2" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">1000</text>
+<text x="306.0" y="348.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">In process, 0001-only Mesa</text>
+<path d="M316.0,337.0 H539.3 Q543.3,337.0 543.3,341.0 V347.0 Q543.3,351.0 539.3,351.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="543.3" cy="344.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="555.3" y="348.5" font-size="12" fill="#52514e" text-anchor="start">823 s · 1 more crashed</text>
+<text x="306.0" y="382.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, 0001-only Mesa</text>
+<path d="M316.0,371.0 H505.2 Q509.2,371.0 509.2,375.0 V381.0 Q509.2,385.0 505.2,385.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="506.6" cy="378.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="511.8" cy="378.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="523.8" y="382.5" font-size="12" fill="#52514e" text-anchor="start">690–709 s, 2 runs</text>
+<text x="306.0" y="416.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process + pacing, 0001-only Mesa</text>
+<path d="M316.0,405.0 H517.9 Q521.9,405.0 521.9,409.0 V415.0 Q521.9,419.0 517.9,419.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="513.5" cy="412.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="530.3" cy="412.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="542.3" y="416.5" font-size="12" fill="#52514e" text-anchor="start">715–776 s, 2 runs</text>
+<text x="306.0" y="445.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
+<text x="306.0" y="458.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,439.0 H519.5 Q523.5,439.0 523.5,443.0 V449.0 Q523.5,453.0 519.5,453.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="506.6" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="526.7" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="537.2" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="549.2" y="450.5" font-size="12" fill="#52514e" text-anchor="start">690–801 s, 3 runs</text>
+<text x="454.1" y="494.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="526.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">SwiftUI UI test, first run in a fresh image</text>
+<line x1="316.0" y1="538.0" x2="316.0" y2="674.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="689.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="419.3" y1="538.0" x2="419.3" y2="674.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="419.3" y="689.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
+<line x1="522.5" y1="538.0" x2="522.5" y2="674.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="522.5" y="689.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
+<line x1="625.8" y1="538.0" x2="625.8" y2="674.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="625.8" y="689.0" font-size="11" fill="#6b6a65" text-anchor="middle">300</text>
+<text x="306.0" y="559.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">In process, 0001-only Mesa</text>
+<path d="M316.0,548.0 H526.3 Q530.3,548.0 530.3,552.0 V558.0 Q530.3,562.0 526.3,562.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="552.5" cy="555.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="508.1" cy="555.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="564.5" y="559.5" font-size="12" fill="#52514e" text-anchor="start">186–229 s, 2 runs</text>
+<text x="306.0" y="593.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, 0001-only Mesa</text>
+<path d="M316.0,582.0 H540.7 Q544.7,582.0 544.7,586.0 V592.0 Q544.7,596.0 540.7,596.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="550.4" cy="589.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="539.0" cy="589.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="562.4" y="593.5" font-size="12" fill="#52514e" text-anchor="start">216–227 s, 2 runs</text>
+<text x="306.0" y="627.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process + pacing, 0001-only Mesa</text>
+<path d="M316.0,616.0 H567.6 Q571.6,616.0 571.6,620.0 V626.0 Q571.6,630.0 567.6,630.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="587.6" cy="623.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="555.5" cy="623.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="599.6" y="627.5" font-size="12" fill="#52514e" text-anchor="start">232–263 s, 2 runs</text>
+<text x="306.0" y="656.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
+<text x="306.0" y="669.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,650.0 H533.7 Q537.7,650.0 537.7,654.0 V660.0 Q537.7,664.0 533.7,664.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="539.0" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="524.6" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="549.4" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="561.4" y="661.5" font-size="12" fill="#52514e" text-anchor="start">202–226 s, 3 runs</text>
+<text x="470.9" y="705.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+</svg>
