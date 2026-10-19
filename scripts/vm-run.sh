@@ -27,6 +27,9 @@ name="${2:-}"; test -n "$name" || die "usage: $0 start|status|qmp|screenshot|qui
 [[ "$name" =~ ^[A-Za-z0-9._-]+$ ]] || die "bad run name"
 run="$runs/$name"
 qmp="$sock_dir/$name.qmp"
+# The GPU backend socket goes beside it: the run directory is too long a path
+# for a unix socket (108 bytes) on hosts with a deep checkout.
+gpu_sock="$sock_dir/$name.gpu"
 
 qmp_call() {
     printf '%s\n' '{"execute":"qmp_capabilities"}' "$1" |
@@ -103,6 +106,7 @@ start)
         cd "$repo_root"
         TMPDIR="$reims_tmp" \
         GUEST_DIR="$run" AVPBOOTER="$booter" LOG_DIR="$run/logs" QMP_SOCKET="$qmp" \
+            GPU_BACKEND_SOCKET="${GPU_BACKEND_SOCKET:-$gpu_sock}" \
             REIMS_VGPU_WINDOW="${REIMS_VGPU_WINDOW:-0}" CONSOLE="${CONSOLE:-none}" \
             REIMS_VGPU_FAIL_LOG="${REIMS_VGPU_FAIL_LOG:-$run/logs/reims-fail.log}" \
             REIMS_VGPU_DRAW_LOG_PATH="${REIMS_VGPU_DRAW_LOG_PATH:-off}" \

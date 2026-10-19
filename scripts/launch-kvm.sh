@@ -164,6 +164,8 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     test -x "$GPU_BACKEND_BIN" || die "GPU_BACKEND_BIN not executable: $GPU_BACKEND_BIN"
     mkdir -p "$log_dir"
     gpu_sock="${GPU_BACKEND_SOCKET:-$log_dir/gpu-backend.sock}"
+    # sun_path holds 107 bytes; a longer path fails to bind and QEMU exits at boot.
+    (( ${#gpu_sock} <= 107 )) || die "GPU backend socket path too long (${#gpu_sock} > 107): $gpu_sock; set GPU_BACKEND_SOCKET"
     rm -f "$gpu_sock"
     gpu_log="${GPU_BACKEND_LOG:-$log_dir/gpu-backend.log}"
     # A driver call in flight leaves its breadcrumb here; vm-job folds one a
