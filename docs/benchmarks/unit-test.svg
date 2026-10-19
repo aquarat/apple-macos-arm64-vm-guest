@@ -1,102 +1,116 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="594" viewBox="0 0 780 594" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="704" viewBox="0 0 780 704" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
 <title>iOS simulator unit tests: GPU builds against no GPU</title>
-<desc>Simulator unit-test wall time per build: none 154.4 s; none 160.0 s; gpu-main-prestamp 217.0 s; gpu-main-prestamp 225.0 s; gpu-main-prestamp 219.9 s; gpu-worker-proto 227.6 s; gpu-worker-proto 181.7 s; gpu-worker-proto 176.8 s; gpu-main-stamp 196.7 s; gpu-worker-stamp 151.8 s; gpu-worker-stamp 155.2 s; candidate 155.8 s; candidate 184.2 s; candidate 153.2 s; candidate 157.0 s; gpu-copy 160.8 s; gpu-copy 158.0 s; gpu-copy 161.2 s; prod-old 71.9 s; prod-old 71.1 s; release 72.1 s; release 73.3 s; inproc-2026-10-18 157.3 s; inproc-2026-10-18 156.8 s; inproc-2026-10-18 158.6 s; oop-2026-10-18 163.6 s; oop-2026-10-18 209.7 s; oop-2026-10-18 157.8 s; oop-paced-2026-10-18 161.7 s; oop-paced-2026-10-18 162.0 s; oop-paced-2026-10-18 166.8 s</desc>
-<rect x="0.5" y="0.5" width="779" height="593" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
+<desc>Simulator unit-test wall time per build: none 154.4 s; none 160.0 s; gpu-main-prestamp 217.0 s; gpu-main-prestamp 225.0 s; gpu-main-prestamp 219.9 s; gpu-worker-proto 227.6 s; gpu-worker-proto 181.7 s; gpu-worker-proto 176.8 s; gpu-main-stamp 196.7 s; gpu-worker-stamp 151.8 s; gpu-worker-stamp 155.2 s; candidate 155.8 s; candidate 184.2 s; candidate 153.2 s; candidate 157.0 s; gpu-copy 160.8 s; gpu-copy 158.0 s; gpu-copy 161.2 s; prod-old 71.9 s; prod-old 71.1 s; prod-release 72.1 s; prod-release 73.3 s; inproc-2026-10-18 157.3 s; inproc-2026-10-18 156.8 s; inproc-2026-10-18 158.6 s; oop-2026-10-18 163.6 s; oop-2026-10-18 209.7 s; oop-2026-10-18 157.8 s; oop-paced-2026-10-18 161.7 s; oop-paced-2026-10-18 162.0 s; oop-paced-2026-10-18 166.8 s</desc>
+<rect x="0.5" y="0.5" width="779" height="703" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
 <text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">iOS simulator unit tests: GPU builds against no GPU</text>
-<text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">macOS 26 guest, 4 vCPU / 8 GB. Dots are runs, pale bars their mean, capsules a reported range.</text>
-<text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">Orange: deployed builds. The two production-host rows (M1 Ultra, pre-warmed image) compare only</text>
-<text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">with each other; every other row ran on the M1 Max test host. Lower is better.</text>
-<rect x="490.7" y="129.0" width="6.3" height="408.0" rx="0" fill="#ecebe6"/>
-<text x="493.9" y="124.0" font-size="11" fill="#6b6a65" text-anchor="middle">shaded: no-GPU runs</text>
-<line x1="316.0" y1="129.0" x2="316.0" y2="537.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="316.0" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="372.6" y1="129.0" x2="372.6" y2="537.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="372.6" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">50</text>
-<line x1="429.2" y1="129.0" x2="429.2" y2="537.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="429.2" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
-<line x1="485.7" y1="129.0" x2="485.7" y2="537.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="485.7" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">150</text>
-<line x1="542.3" y1="129.0" x2="542.3" y2="537.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="542.3" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
-<line x1="598.9" y1="129.0" x2="598.9" y2="537.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="598.9" y="552.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
-<text x="306.0" y="150.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
-<path d="M316.0,139.0 H489.9 Q493.9,139.0 493.9,143.0 V149.0 Q493.9,153.0 489.9,153.0 H316.0 Z" fill="#8a8883" fill-opacity="0.28"/>
-<circle cx="490.7" cy="146.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="497.0" cy="146.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="509.0" y="150.5" font-size="12" fill="#52514e" text-anchor="start">154.4–160 s, 2 runs</text>
-<text x="306.0" y="179.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
-<text x="306.0" y="192.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
-<rect x="546.8" y="175.0" width="23.8" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
-<circle cx="561.5" cy="180.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="570.6" cy="180.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="564.8" cy="180.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="582.6" y="184.5" font-size="12" fill="#52514e" text-anchor="start">204–225 s</text>
-<text x="306.0" y="213.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker prototype</text>
-<text x="306.0" y="226.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
-<path d="M316.0,207.0 H533.1 Q537.1,207.0 537.1,211.0 V217.0 Q537.1,221.0 533.1,221.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="573.5" cy="214.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="521.6" cy="214.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="516.1" cy="214.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="585.5" y="218.5" font-size="12" fill="#52514e" text-anchor="start">176.8–227.6 s, 3 runs</text>
-<text x="306.0" y="247.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + stamp fix</text>
-<text x="306.0" y="260.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
-<path d="M316.0,241.0 H534.6 Q538.6,241.0 538.6,245.0 V251.0 Q538.6,255.0 534.6,255.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="538.6" cy="248.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="550.6" y="252.5" font-size="12" fill="#52514e" text-anchor="start">196.7 s</text>
-<text x="306.0" y="281.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, worker + stamp fix</text>
-<text x="306.0" y="294.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
-<path d="M316.0,275.0 H485.7 Q489.7,275.0 489.7,279.0 V285.0 Q489.7,289.0 485.7,289.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="487.8" cy="282.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="491.6" cy="282.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="503.6" y="286.5" font-size="12" fill="#52514e" text-anchor="start">151.8–155.2 s, 2 runs</text>
-<text x="306.0" y="315.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
-<text x="306.0" y="328.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
-<path d="M316.0,309.0 H495.9 Q499.9,309.0 499.9,313.0 V319.0 Q499.9,323.0 495.9,323.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="492.3" cy="316.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="524.4" cy="316.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="489.3" cy="316.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="493.6" cy="316.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="536.4" y="320.5" font-size="12" fill="#52514e" text-anchor="start">153.2–184.2 s, 4 runs</text>
-<text x="306.0" y="349.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path</text>
-<text x="306.0" y="362.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
-<path d="M316.0,343.0 H493.0 Q497.0,343.0 497.0,347.0 V353.0 Q497.0,357.0 493.0,357.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="497.9" cy="350.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="494.8" cy="350.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="498.4" cy="350.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="510.4" y="354.5" font-size="12" fill="#52514e" text-anchor="start">158–161.2 s, 3 runs</text>
-<text x="306.0" y="383.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build, production host</text>
-<text x="306.0" y="396.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
-<path d="M316.0,377.0 H392.9 Q396.9,377.0 396.9,381.0 V387.0 Q396.9,391.0 392.9,391.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="397.4" cy="384.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="396.5" cy="384.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="409.4" y="388.5" font-size="12" fill="#52514e" text-anchor="start">71.1–71.9 s, 2 runs</text>
-<text x="306.0" y="417.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-11 release, production host</text>
-<text x="306.0" y="430.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 51c70ebe</text>
-<path d="M316.0,411.0 H394.3 Q398.3,411.0 398.3,415.0 V421.0 Q398.3,425.0 394.3,425.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
-<circle cx="397.6" cy="418.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="398.9" cy="418.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="410.9" y="422.5" font-size="12" fill="#52514e" text-anchor="start">72.1–73.3 s, 2 runs</text>
-<text x="306.0" y="451.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU in process, 2026-10-18 candidate</text>
-<text x="306.0" y="464.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,445.0 H490.3 Q494.3,445.0 494.3,449.0 V455.0 Q494.3,459.0 490.3,459.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="494.0" cy="452.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="493.4" cy="452.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="495.5" cy="452.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="507.5" y="456.5" font-size="12" fill="#52514e" text-anchor="start">156.8–158.6 s, 3 runs</text>
-<text x="306.0" y="485.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
-<text x="306.0" y="498.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,479.0 H512.3 Q516.3,479.0 516.3,483.0 V489.0 Q516.3,493.0 512.3,493.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
-<circle cx="501.1" cy="486.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="553.3" cy="486.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="494.6" cy="486.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="565.3" y="490.5" font-size="12" fill="#52514e" text-anchor="start">157.8–209.7 s, 3 runs</text>
-<text x="306.0" y="519.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, surfaces paced at 60 Hz</text>
-<text x="306.0" y="532.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,513.0 H497.0 Q501.0,513.0 501.0,517.0 V523.0 Q501.0,527.0 497.0,527.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="499.0" cy="520.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="499.3" cy="520.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="504.7" cy="520.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="516.7" y="524.5" font-size="12" fill="#52514e" text-anchor="start">161.7–166.8 s, 3 runs</text>
-<text x="457.4" y="568.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">macOS 26 guest, 4 vCPU / 8 GB. Dots are runs, pale bars their median, capsules a reported range.</text>
+<text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">Orange: deployed builds. The two hosts have separate scales and do not compare: the production</text>
+<text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">image has the simulator pre-warmed. The 209.7 s out-of-process run is a one-off host-side slowdown</text>
+<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">that did not repeat; the median bar is not pulled by it. Lower is better.</text>
+<text x="22.0" y="138.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">M1 Max test host</text>
+<rect x="490.7" y="164.0" width="6.3" height="340.0" rx="0" fill="#ecebe6"/>
+<text x="493.9" y="159.0" font-size="11" fill="#6b6a65" text-anchor="middle">shaded: no-GPU runs</text>
+<line x1="316.0" y1="164.0" x2="316.0" y2="504.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="372.6" y1="164.0" x2="372.6" y2="504.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="372.6" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">50</text>
+<line x1="429.2" y1="164.0" x2="429.2" y2="504.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="429.2" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
+<line x1="485.7" y1="164.0" x2="485.7" y2="504.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="485.7" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">150</text>
+<line x1="542.3" y1="164.0" x2="542.3" y2="504.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="542.3" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
+<line x1="598.9" y1="164.0" x2="598.9" y2="504.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="598.9" y="519.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
+<text x="306.0" y="185.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
+<path d="M316.0,174.0 H489.9 Q493.9,174.0 493.9,178.0 V184.0 Q493.9,188.0 489.9,188.0 H316.0 Z" fill="#8a8883" fill-opacity="0.28"/>
+<circle cx="490.7" cy="181.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="497.0" cy="181.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="509.0" y="185.5" font-size="12" fill="#52514e" text-anchor="start">154.4–160 s, 2 runs</text>
+<text x="306.0" y="214.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
+<text x="306.0" y="227.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
+<rect x="546.8" y="210.0" width="23.8" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
+<circle cx="561.5" cy="215.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="570.6" cy="215.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="564.8" cy="215.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="582.6" y="219.5" font-size="12" fill="#52514e" text-anchor="start">204–225 s</text>
+<text x="306.0" y="248.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker prototype</text>
+<text x="306.0" y="261.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 61259266, cd3d9aa2</text>
+<path d="M316.0,242.0 H517.6 Q521.6,242.0 521.6,246.0 V252.0 Q521.6,256.0 517.6,256.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="573.5" cy="249.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="521.6" cy="249.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="516.1" cy="249.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="585.5" y="253.5" font-size="12" fill="#52514e" text-anchor="start">176.8–227.6 s, 3 runs</text>
+<text x="306.0" y="282.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + stamp fix</text>
+<text x="306.0" y="295.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
+<path d="M316.0,276.0 H534.6 Q538.6,276.0 538.6,280.0 V286.0 Q538.6,290.0 534.6,290.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="538.6" cy="283.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="550.6" y="287.5" font-size="12" fill="#52514e" text-anchor="start">196.7 s</text>
+<text x="306.0" y="316.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, worker + stamp fix</text>
+<text x="306.0" y="329.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
+<path d="M316.0,310.0 H485.7 Q489.7,310.0 489.7,314.0 V320.0 Q489.7,324.0 485.7,324.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="487.8" cy="317.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="491.6" cy="317.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="503.6" y="321.5" font-size="12" fill="#52514e" text-anchor="start">151.8–155.2 s, 2 runs</text>
+<text x="306.0" y="350.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
+<text x="306.0" y="363.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
+<path d="M316.0,344.0 H489.0 Q493.0,344.0 493.0,348.0 V354.0 Q493.0,358.0 489.0,358.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="492.3" cy="351.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="524.4" cy="351.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="489.3" cy="351.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="493.6" cy="351.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="536.4" y="355.5" font-size="12" fill="#52514e" text-anchor="start">153.2–184.2 s, 4 runs</text>
+<text x="306.0" y="384.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path</text>
+<text x="306.0" y="397.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
+<path d="M316.0,378.0 H493.9 Q497.9,378.0 497.9,382.0 V388.0 Q497.9,392.0 493.9,392.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="497.9" cy="385.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="494.8" cy="385.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="498.4" cy="385.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="510.4" y="389.5" font-size="12" fill="#52514e" text-anchor="start">158–161.2 s, 3 runs</text>
+<text x="306.0" y="418.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU in process, 2026-10-18 candidate</text>
+<text x="306.0" y="431.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,412.0 H490.0 Q494.0,412.0 494.0,416.0 V422.0 Q494.0,426.0 490.0,426.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="494.0" cy="419.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="493.4" cy="419.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="495.5" cy="419.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="507.5" y="423.5" font-size="12" fill="#52514e" text-anchor="start">156.8–158.6 s, 3 runs</text>
+<text x="306.0" y="452.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
+<text x="306.0" y="465.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,446.0 H497.1 Q501.1,446.0 501.1,450.0 V456.0 Q501.1,460.0 497.1,460.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="501.1" cy="453.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="553.3" cy="453.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="494.6" cy="453.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="565.3" y="457.5" font-size="12" fill="#52514e" text-anchor="start">157.8–209.7 s, 3 runs</text>
+<text x="306.0" y="486.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, surfaces paced at 60 Hz</text>
+<text x="306.0" y="499.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,480.0 H495.3 Q499.3,480.0 499.3,484.0 V490.0 Q499.3,494.0 495.3,494.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="499.0" cy="487.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="499.3" cy="487.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="504.7" cy="487.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="516.7" y="491.5" font-size="12" fill="#52514e" text-anchor="start">161.7–166.8 s, 3 runs</text>
+<text x="457.4" y="535.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="567.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Production host (M1 Ultra, pre-warmed image), after the 2026-10-11 deploy</text>
+<line x1="316.0" y1="579.0" x2="316.0" y2="647.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="662.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="390.1" y1="579.0" x2="390.1" y2="647.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="390.1" y="662.0" font-size="11" fill="#6b6a65" text-anchor="middle">20</text>
+<line x1="464.2" y1="579.0" x2="464.2" y2="647.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="464.2" y="662.0" font-size="11" fill="#6b6a65" text-anchor="middle">40</text>
+<line x1="538.2" y1="579.0" x2="538.2" y2="647.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="538.2" y="662.0" font-size="11" fill="#6b6a65" text-anchor="middle">60</text>
+<line x1="612.3" y1="579.0" x2="612.3" y2="647.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="612.3" y="662.0" font-size="11" fill="#6b6a65" text-anchor="middle">80</text>
+<text x="306.0" y="595.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build, production host</text>
+<text x="306.0" y="608.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
+<path d="M316.0,589.0 H576.8 Q580.8,589.0 580.8,593.0 V599.0 Q580.8,603.0 576.8,603.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="582.3" cy="596.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="579.4" cy="596.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="594.3" y="600.5" font-size="12" fill="#52514e" text-anchor="start">71.1–71.9 s, 2 runs</text>
+<text x="306.0" y="629.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-11 release, production host</text>
+<text x="306.0" y="642.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 51c70ebe</text>
+<path d="M316.0,623.0 H581.3 Q585.3,623.0 585.3,627.0 V633.0 Q585.3,637.0 581.3,637.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="583.1" cy="630.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="587.5" cy="630.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="599.5" y="634.5" font-size="12" fill="#52514e" text-anchor="start">72.1–73.3 s, 2 runs</text>
+<text x="464.2" y="678.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
 </svg>

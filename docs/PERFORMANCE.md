@@ -80,12 +80,17 @@ fix brought the main-loop drain to 196.7 s. The drain worker on top of it
 brought GPU guests into the no-GPU band (shaded). The 2026-10-10 build stays
 close to it: three of its four runs are inside or just below the band, one
 took 184.2 s. The copy-path build (158.0–161.2 s) is no faster here, because
-this benchmark does not wait on the drain. The two production-host rows
-ran on the M1 Ultra with the production image after the 2026-10-11 deploy
-(see [Production host check](#production-host-check-2026-10-11)); they
-compare with each other, not with the other rows. The last three rows are
-the out-of-process validation on the M1 Max
+this benchmark does not wait on the drain. The last three M1 Max rows are
+the out-of-process validation
 (see [Reims out of process](#reims-out-of-process-deployed-2026-10-19)).
+Pale bars are medians in every chart here, so the one-off 209.7 s
+out-of-process run shows as its own dot but does not pull its row's bar.
+
+The lower panel ran on the production host (M1 Ultra) with the production
+image after the 2026-10-11 deploy
+(see [Production host check](#production-host-check-2026-10-11)). That image
+has the simulator pre-warmed, so its runs are about twice as fast; the two
+panels have separate scales and are not comparable.
 
 ### UI tests
 
@@ -242,11 +247,20 @@ paced, final build). Surface pacing is therefore opt-in.
 
 ### Production switch to out of process (2026-10-19)
 
+The production GPU slot has run out of process since the morning of
+2026-10-19. The first attempt failed at boot and was rolled back to the
+in-process build within minutes: the runner kept the backend's socket in the
+job's run directory, and with the checkout under a long home directory that
+path was about 136 bytes, more than the 107 a unix socket path can hold. The
+backend could not bind it and QEMU exited during boot. `vm-run.sh` now puts
+the socket in the runtime directory beside the QMP socket, and
+`launch-kvm.sh` refuses a path that is too long with a clear message.
+
 <!-- First production numbers for the out-of-process GPU slot go here:
      unit-test benchmark on the production host (as in the 2026-10-11
      check) and the first UI-test CI jobs. -->
 
-Switched 2026-10-19; production numbers to follow.
+No production CI job has run on it yet; production numbers to follow.
 
 ### Draw batching (not deployed)
 
@@ -365,6 +379,8 @@ Known gaps on the deployed build (out of process since 2026-10-19):
   shutting the simulator down.
 - **Drain figures:** Reims' own counters over a UI-test session; each
   capsule spans the runs of one build.
+- **Charts:** dots are single runs and pale bars the median of a build's
+  runs (with two runs, their mean).
 - **Copy path:** the unit-test benchmark run three times per build,
   alternating builds, plus one `perf` capture per build of the drain thread
   over a 90 s window (DWARF call graphs). The follow-ups were compared the

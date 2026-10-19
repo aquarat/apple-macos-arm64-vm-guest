@@ -59,8 +59,8 @@ Charts, method and more results: [docs/PERFORMANCE.md](docs/PERFORMANCE.md).
 | Layer | What this project uses |
 | --- | --- |
 | Host kernel | Fedora Asahi `kernel-16k` 7.1.13 plus two KVM patches (`patches/linux-7.1.13-*`): Apple's pointer-authentication VM-key registers, and in-KVM emulation of a GIC store that XNU makes without an instruction syndrome. `scripts/build-host-kernel.sh` builds them into an RPM from the host's own base SRPM. |
-| QEMU | [aquarat/qemu-reims-vgpu](https://github.com/aquarat/qemu-reims-vgpu): upstream QEMU, steelbrain's `vmapple`/Reims branch, KVM support and fixes for macOS guests (list in [NOTES.md](docs/NOTES.md#qemu--reims-build)). `scripts/build-qemu.sh` builds it as Reims' `vendor/qemu`. No patch files. |
-| GPU | [aquarat/reims-vgpu](https://github.com/aquarat/reims-vgpu), a fork of [steelbrain-bot/reims-vgpu](https://github.com/steelbrain-bot/reims-vgpu). GPU slots render on Honeykrisp, Mesa's Asahi Vulkan driver, built with `patches/mesa/` by `scripts/build-mesa-honeykrisp.sh`. Other slots run without a GPU (`GFX=none`). |
+| QEMU | [aquarat/qemu-reims-vgpu](https://github.com/aquarat/qemu-reims-vgpu): upstream QEMU, steelbrain's `vmapple` branch, KVM support and fixes for macOS guests (list in [NOTES.md](docs/NOTES.md#qemu--reims-build)), and `apv-gpu-proxy`, a small device that forwards the paravirtual GPU to a separate process. `MODE=oop scripts/build-qemu.sh` builds this QEMU on its own, with no Reims, Rust or Vulkan code inside, into `build/qemu-oop`; GPU slots use it. `scripts/build-qemu.sh` builds the in-process QEMU into `build/qemu-fleet`: Reims' `vendor/qemu` pin (6740a49344, the last commit that links Reims in), used by slots without a GPU and as the GPU fallback. No patch files. |
+| GPU | [aquarat/reims-vgpu](https://github.com/aquarat/reims-vgpu), a fork of [steelbrain-bot/reims-vgpu](https://github.com/steelbrain-bot/reims-vgpu). GPU slots run it as its own program, `reims-vgpu-backend`, which `apv-gpu-proxy` talks to over a unix socket, shared memory and eventfds. A host GPU driver crash ends only the backend: the job fails with exit status 120 and the reason, and the driver call that crashed is quarantined. It renders on Honeykrisp, Mesa's Asahi Vulkan driver, built with `patches/mesa/` by `scripts/build-mesa-honeykrisp.sh`. Other slots run without a GPU (`GFX=none`). |
 | Guest images | A chain of read-only golden bundles, one layer per script in `images/` ([docs/IMAGES.md](docs/IMAGES.md)). |
 | CI | `scripts/forgejo-ephemeral-runner.sh` and `scripts/gha-ephemeral-runner.sh`: one runner registration and one throwaway guest per job. |
 
@@ -123,7 +123,9 @@ The full image recipe, with checks for every step, is
 2. **QEMU.** `scripts/build-qemu.sh` clones and builds the forks into
    `build/qemu-fleet` and writes `build/qemu-fleet/BUILD-MANIFEST` (the Reims
    and QEMU commits and the binary's hash). `scripts/check-host.sh` then checks
-   KVM access and the binary.
+   KVM access and the binary. For a GPU slot, also run
+   `MODE=oop scripts/build-qemu.sh`: it builds the out-of-process QEMU and
+   `reims-vgpu-backend` into `build/qemu-oop` and prints both paths.
 
 3. **GPU (optional).** `scripts/host-gpu-setup.sh` sets up huge pages for
    shared guest memory, builds the patched Honeykrisp driver into
@@ -238,11 +240,25 @@ GPU slot. Setup, on top of the above:
    GPU_SLOTS=2                       # slot numbers that boot with the GPU
    GPU_GOLDEN=$HOME/vm-artifacts/tahoe-26.4-25E246-v14
    GPU_VK_DRIVER_FILES=<the path host-gpu-setup.sh printed>
+   # Reims out of process (the paths MODE=oop scripts/build-qemu.sh printed):
+   GPU_OOP_QEMU_BIN=<repo>/build/qemu-oop/qemu/build/qemu-system-aarch64
+   GPU_BACKEND_BIN=<repo>/build/qemu-oop/reims/target/release/reims-vgpu-backend
    ```
+
+With `GPU_BACKEND_BIN` set, each GPU job starts its own `reims-vgpu-backend`
+and boots `GPU_OOP_QEMU_BIN` against it; the backend's socket sits in the
+runtime directory beside the QMP socket. If the backend dies, the job ends
+with exit status 120 and the reason, and the driver call that killed it is
+refused on later runs until the driver changes. Unsetting `GPU_BACKEND_BIN`
+falls back to Reims in process (`GPU_QEMU_BIN`, or `build/qemu-fleet`).
+`GPU_MAX_REFRESH_HZ` (default 60) caps the display's refresh rate;
+`GPU_FRAME_PACING=1` also paces guest surfaces, which costs UI tests about
+10 % and is off by default.
 
 A GPU slot also offers the label `macos-26-arm64-gpu` (`GPU_LABELS`) and
 takes ordinary jobs too. With the GPU on, guest RAM is a shared memfd. Reims'
-failure log is kept with the job's logs, capped at 64 MiB.
+failure log and the backend's log are kept with the job's logs, the failure
+log capped at 64 MiB.
 
 Mesa's llvmpipe (the default `VK_DRIVER_FILES`) is a software fallback. It
 renders the desktop, but booting an iOS simulator with it aborts QEMU on an
@@ -276,7 +292,8 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
 - **QEMU and Reims.** `scripts/build-qemu.sh [OUTDIR]` updates and rebuilds a
   checkout in place (`REIMS_REF` picks a branch). To test a build before
   using it, build into a new OUTDIR and run `vm-job.sh` with `QEMU_BIN` (or
-  `GPU_QEMU_BIN`) pointing at it. `scripts/sync-upstream.sh merge|build|push`
+  `GPU_QEMU_BIN`) pointing at it; for the GPU slot, `MODE=oop` builds into
+  `build/qemu-oop` and `GPU_OOP_QEMU_BIN`/`GPU_BACKEND_BIN` point at it. `scripts/sync-upstream.sh merge|build|push`
   merges upstream QEMU and Reims into the forks.
 - **Images.** Bake a new layer into a new `vN`, check it with `vm-job.sh`,
   then point `GOLDEN` or `GPU_GOLDEN` in the host profile at it and restart

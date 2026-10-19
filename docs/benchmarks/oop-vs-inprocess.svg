@@ -6,7 +6,7 @@
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">M1 Max test host. Unit tests: 4 vCPU / 8 GB, Mesa 0001+0002, runs interleaved. UI tests: 8 vCPU / 12 GB;</text>
 <text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">the "0001-only Mesa" rows lacked Mesa patch 0002; that Mesa aborted once in process and took</text>
 <text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">QEMU with it ("1 more crashed"). Pacing: guest surfaces held to 60 Hz, opt-in. Orange: deployed 2026-10-19.</text>
-<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Dots are runs, pale bars their mean. Lower is better.</text>
+<text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Dots are runs, pale bars their median: the one-off 209.7 s run does not move its bar. Lower is better.</text>
 <text x="22.0" y="138.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">iOS simulator unit tests</text>
 <line x1="316.0" y1="150.0" x2="316.0" y2="252.0" stroke="#b9b8ae" stroke-width="1"/>
 <text x="316.0" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
@@ -22,21 +22,21 @@
 <text x="598.9" y="267.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
 <text x="306.0" y="166.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU in process, 2026-10-18 candidate</text>
 <text x="306.0" y="179.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,160.0 H490.3 Q494.3,160.0 494.3,164.0 V170.0 Q494.3,174.0 490.3,174.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<path d="M316.0,160.0 H490.0 Q494.0,160.0 494.0,164.0 V170.0 Q494.0,174.0 490.0,174.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
 <circle cx="494.0" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="493.4" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="495.5" cy="167.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="507.5" y="171.5" font-size="12" fill="#52514e" text-anchor="start">156.8–158.6 s, 3 runs</text>
 <text x="306.0" y="200.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
 <text x="306.0" y="213.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,194.0 H512.3 Q516.3,194.0 516.3,198.0 V204.0 Q516.3,208.0 512.3,208.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<path d="M316.0,194.0 H497.1 Q501.1,194.0 501.1,198.0 V204.0 Q501.1,208.0 497.1,208.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="501.1" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="553.3" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="494.6" cy="201.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <text x="565.3" y="205.5" font-size="12" fill="#52514e" text-anchor="start">157.8–209.7 s, 3 runs</text>
 <text x="306.0" y="234.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">Out of process, surfaces paced at 60 Hz</text>
 <text x="306.0" y="247.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,228.0 H497.0 Q501.0,228.0 501.0,232.0 V238.0 Q501.0,242.0 497.0,242.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<path d="M316.0,228.0 H495.3 Q499.3,228.0 499.3,232.0 V238.0 Q499.3,242.0 495.3,242.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
 <circle cx="499.0" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="499.3" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="504.7" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -71,7 +71,7 @@
 <text x="542.3" y="416.5" font-size="12" fill="#52514e" text-anchor="start">715–776 s, 2 runs</text>
 <text x="306.0" y="445.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
 <text x="306.0" y="458.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,439.0 H519.5 Q523.5,439.0 523.5,443.0 V449.0 Q523.5,453.0 519.5,453.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<path d="M316.0,439.0 H522.7 Q526.7,439.0 526.7,443.0 V449.0 Q526.7,453.0 522.7,453.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="506.6" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="526.7" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="537.2" cy="446.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
@@ -103,7 +103,7 @@
 <text x="599.6" y="627.5" font-size="12" fill="#52514e" text-anchor="start">232–263 s, 2 runs</text>
 <text x="306.0" y="656.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process (deployed 2026-10-19)</text>
 <text x="306.0" y="669.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
-<path d="M316.0,650.0 H533.7 Q537.7,650.0 537.7,654.0 V660.0 Q537.7,664.0 533.7,664.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<path d="M316.0,650.0 H535.0 Q539.0,650.0 539.0,654.0 V660.0 Q539.0,664.0 535.0,664.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
 <circle cx="539.0" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="524.6" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
 <circle cx="549.4" cy="657.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>

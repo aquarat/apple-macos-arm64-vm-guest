@@ -263,7 +263,7 @@ def label_width(rows):
 def panel(svg, y, rows, title, unit, axis, label_w, value_w, ref=None, row_h=34, xmax=None):
     """One horizontal dot/bar panel. Returns the y below it.
 
-    Rows with runs: a pale bar to the mean, one dot per run.
+    Rows with runs: a pale bar to the median, one dot per run.
     Rows with a reported range: a capsule from low to high, plus any runs.
     """
     if title:
@@ -314,8 +314,8 @@ def panel(svg, y, rows, title, unit, axis, label_w, value_w, ref=None, row_h=34,
                 svg.dot(sx(hi), cy, colour)
                 right = sx(hi) + 4
         elif r["runs"]:
-            svg.bar(x0, sx(statistics.mean(r["runs"])), cy, 14, colour, opacity=0.28)
-            right = sx(statistics.mean(r["runs"]))
+            svg.bar(x0, sx(statistics.median(r["runs"])), cy, 14, colour, opacity=0.28)
+            right = sx(statistics.median(r["runs"]))
         for v in r["runs"]:
             svg.dot(sx(v), cy, colour)
             right = max(right, sx(v) + 4)
@@ -329,26 +329,31 @@ def panel(svg, y, rows, title, unit, axis, label_w, value_w, ref=None, row_h=34,
     return y + 22
 
 
-def runs_chart(data, runs, metrics, title, subtitle, desc, ref_series=None, xmax=None, keep=None):
+def runs_chart(data, runs, metrics, title, subtitle, desc, ref_series=None, xmax=None, keep=None,
+               groups=None):
+    """groups: optional [(panel title, series predicate)], one panel per group and
+    metric, each with its own scale (e.g. one host per panel)."""
     svg = Svg()
     y = header(svg, title, subtitle)
     panels = []
     for m in metrics:
-        rows = data.rows_for(runs, m, keep)
-        if rows:
-            panels.append((m, rows))
+        for gtitle, gkeep in groups or [(None, None)]:
+            k = (lambda s, gk=gkeep: (not keep or keep(s)) and (not gk or gk(s)))
+            rows = data.rows_for(runs, m, k)
+            if rows:
+                panels.append((m, rows, gtitle, k))
     if not panels:
         return None
-    label_w = max(label_width(rows) for _, rows in panels)
-    for m, rows in panels:
+    label_w = max(label_width(rows) for _, rows, _, _ in panels)
+    for m, rows, gtitle, k in panels:
         mtitle, unit, axis = data.metric_title(m)
         value_w = max(tw(row_value_text(r, unit), 12) for r in rows) + 18
         ref = None
-        if ref_series:
+        if ref_series and k(ref_series):
             vals = [num(r, "value") for r in runs if r["series"] == ref_series and r["metric"] == m]
             if vals:
                 ref = (min(vals), max(vals), "shaded: no-GPU runs")
-        y = panel(svg, y + 6, rows, mtitle if len(panels) > 1 else "", unit, axis,
+        y = panel(svg, y + 6, rows, (gtitle or mtitle) if len(panels) > 1 else "", unit, axis,
                   label_w, value_w, ref=ref,
                   xmax=xmax.get(m) if isinstance(xmax, dict) else xmax)
     return svg.render(y + 4, title, desc)
@@ -477,12 +482,16 @@ def build(data):
     charts["unit-test.svg"] = runs_chart(
         data, unit, ["unit_test_wall"],
         "iOS simulator unit tests: GPU builds against no GPU",
-        ["macOS 26 guest, 4 vCPU / 8 GB. Dots are runs, pale bars their mean, capsules a reported range.",
-         "Orange: deployed builds. The two production-host rows (M1 Ultra, pre-warmed image) compare only",
-         "with each other; every other row ran on the M1 Max test host. Lower is better."],
+        ["macOS 26 guest, 4 vCPU / 8 GB. Dots are runs, pale bars their median, capsules a reported range.",
+         "Orange: deployed builds. The two hosts have separate scales and do not compare: the production",
+         "image has the simulator pre-warmed. The 209.7 s out-of-process run is a one-off host-side slowdown",
+         "that did not repeat; the median bar is not pulled by it. Lower is better."],
         "Simulator unit-test wall time per build: " + "; ".join(
             f"{r['series']} {r['value']} s" for r in unit),
-        ref_series="none")
+        ref_series="none",
+        groups=[("M1 Max test host", lambda s: not s.startswith("prod-")),
+                ("Production host (M1 Ultra, pre-warmed image), after the 2026-10-11 deploy",
+                 lambda s: s.startswith("prod-"))])
     ui = data.runs("ui-tests.csv")
     # Series ending in "-ab" (the in/out-of-process UI A/B on 0001-only Mesa)
     # are drawn only in oop-vs-inprocess.svg.
@@ -491,7 +500,7 @@ def build(data):
         "UI tests on a GPU-accelerated macOS 26 guest",
         ["An iOS app's offline XCUITest suite: lab runs (8 vCPU / 12 GB, 12 of 14 pass in every GPU mode),",
          "then production CI on an M1 Ultra host (8 vCPU / 24 GB; 12/14 passed, then 14/14). Last two panels:",
-         "a small SwiftUI XCUITest, 8 vCPU / 16 GB. Dots are runs, pale bars their mean, capsules a reported range.",
+         "a small SwiftUI XCUITest, 8 vCPU / 16 GB. Dots are runs, pale bars their median, capsules a reported range.",
          "Orange: Reims out of process, deployed 2026-10-19."],
         "UI test wall times: " + "; ".join(
             f"{r['metric']} {r['series']} {r['value']} s" for r in ui if not r["series"].endswith("-ab")),
@@ -504,7 +513,7 @@ def build(data):
         ["M1 Max test host. Unit tests: 4 vCPU / 8 GB, Mesa 0001+0002, runs interleaved. UI tests: 8 vCPU / 12 GB;",
          "the \"0001-only Mesa\" rows lacked Mesa patch 0002; that Mesa aborted once in process and took",
          "QEMU with it (\"1 more crashed\"). Pacing: guest surfaces held to 60 Hz, opt-in. Orange: deployed 2026-10-19.",
-         "Dots are runs, pale bars their mean. Lower is better."],
+         "Dots are runs, pale bars their median: the one-off 209.7 s run does not move its bar. Lower is better."],
         "In process against out of process: " + "; ".join(
             f"{r['metric']} {r['series']} {r['value']} s" for r in oop_rows),
         keep=oop)
@@ -535,7 +544,7 @@ def build(data):
             data, copy, metrics, "Reims copy path: one copy instead of two",
             ["The 2026-10-10 build against the copy-path builds (in the 2026-10-11 release) on the unit-test benchmark,",
              "4 vCPU / 8 GB, runs interleaved. Cycle counts: one perf capture of the drain thread",
-             "per build. Dots are runs, pale bars their mean. Lower is better."],
+             "per build. Dots are runs, pale bars their median. Lower is better."],
             "Copy-path measurements: " + "; ".join(
                 f"{r['series']} {r['metric']} {r['value']} {r['unit']}" for r in copy))
     return {k: v for k, v in charts.items() if v}
