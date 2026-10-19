@@ -1,131 +1,145 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="874" viewBox="0 0 780 874" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="942" viewBox="0 0 780 942" role="img" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
 <title>UI tests on a GPU-accelerated macOS 26 guest</title>
-<desc>UI test wall times: app_suite_wall gpu-main-compact 1170 s; app_suite_wall gpu-main-compact 1119 s; app_suite_wall gpu-worker-nocompact 920 s; app_suite_wall gpu-worker-nocompact 1044 s; app_suite_wall candidate 687 s; app_suite_wall candidate 720 s; app_suite_wall candidate 766 s; app_suite_wall candidate 711 s; app_suite_wall candidate 640 s; probe_cold_wall none 212 s; probe_cold_wall none 223 s; probe_cold_wall gpu-main 412 s; probe_cold_wall gpu-main 430 s; probe_warm_wall none 69 s; probe_warm_wall gpu-main 75 s; probe_warm_wall gpu-main 76 s; probe_warm_wall gpu-worker 53 s; probe_warm_wall gpu-worker 53 s; probe_warm_wall gpu-worker 53 s; ci_ui_job_wall gpu-main-stamp 1109 s; ci_ui_job_wall candidate 948 s; app_suite_wall gpu-copy 675 s; app_suite_wall gpu-copy 743 s; app_suite_wall gpu-copy 819 s</desc>
-<rect x="0.5" y="0.5" width="779" height="873" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
+<desc>UI test wall times: app_suite_wall gpu-main-compact 1170 s; app_suite_wall gpu-main-compact 1119 s; app_suite_wall gpu-worker-nocompact 920 s; app_suite_wall gpu-worker-nocompact 1044 s; app_suite_wall candidate 687 s; app_suite_wall candidate 720 s; app_suite_wall candidate 766 s; app_suite_wall candidate 711 s; app_suite_wall candidate 640 s; probe_cold_wall none 212 s; probe_cold_wall none 223 s; probe_cold_wall gpu-main 412 s; probe_cold_wall gpu-main 430 s; probe_warm_wall none 69 s; probe_warm_wall gpu-main 75 s; probe_warm_wall gpu-main 76 s; probe_warm_wall gpu-worker 53 s; probe_warm_wall gpu-worker 53 s; probe_warm_wall gpu-worker 53 s; ci_ui_job_wall gpu-main-stamp 1109 s; ci_ui_job_wall candidate 948 s; app_suite_wall gpu-copy 675 s; app_suite_wall gpu-copy 743 s; app_suite_wall gpu-copy 819 s; probe_cold_wall oop-2026-10-18 216 s; app_suite_wall oop-2026-10-18 690 s; probe_cold_wall oop-2026-10-18 202 s; app_suite_wall oop-2026-10-18 763 s; probe_cold_wall oop-2026-10-18 226 s; app_suite_wall oop-2026-10-18 801 s</desc>
+<rect x="0.5" y="0.5" width="779" height="941" rx="10" fill="#fcfcfb" stroke="#dddcd5"/>
 <text x="22.0" y="38.0" font-size="17" fill="#0b0b0b" text-anchor="start" font-weight="600">UI tests on a GPU-accelerated macOS 26 guest</text>
 <text x="22.0" y="57.0" font-size="12.5" fill="#52514e" text-anchor="start">An iOS app's offline XCUITest suite: lab runs (8 vCPU / 12 GB, 12 of 14 pass in every GPU mode),</text>
 <text x="22.0" y="76.0" font-size="12.5" fill="#52514e" text-anchor="start">then production CI on an M1 Ultra host (8 vCPU / 24 GB; 12/14 passed, then 14/14). Last two panels:</text>
 <text x="22.0" y="95.0" font-size="12.5" fill="#52514e" text-anchor="start">a small SwiftUI XCUITest, 8 vCPU / 16 GB. Dots are runs, pale bars their mean, capsules a reported range.</text>
 <text x="22.0" y="114.0" font-size="12.5" fill="#52514e" text-anchor="start">Orange: the build deployed on 2026-10-10. Violet: copy-path build, not deployed.</text>
 <text x="22.0" y="138.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">An iOS app's offline XCUITest suite (14 tests)</text>
-<line x1="225.0" y1="150.0" x2="225.0" y2="320.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="225.0" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="302.5" y1="150.0" x2="302.5" y2="320.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="302.5" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
-<line x1="379.9" y1="150.0" x2="379.9" y2="320.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="379.9" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
-<line x1="457.4" y1="150.0" x2="457.4" y2="320.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="457.4" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">750</text>
-<line x1="534.9" y1="150.0" x2="534.9" y2="320.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="534.9" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">1000</text>
-<line x1="612.3" y1="150.0" x2="612.3" y2="320.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="612.3" y="335.0" font-size="11" fill="#6b6a65" text-anchor="middle">1250</text>
-<text x="215.0" y="171.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
-<text x="233.0" y="171.5" font-size="12" fill="#52514e" text-anchor="start" font-style="italic">cannot run: the app needs Metal</text>
-<text x="215.0" y="205.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, worker, no compaction</text>
-<path d="M225.0,194.0 H525.3 Q529.3,194.0 529.3,198.0 V204.0 Q529.3,208.0 525.3,208.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="510.1" cy="201.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="548.5" cy="201.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="560.5" y="205.5" font-size="12" fill="#52514e" text-anchor="start">920–1044 s, 2 runs</text>
-<text x="215.0" y="234.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + compaction</text>
-<text x="215.0" y="247.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 404e58e4</text>
-<path d="M225.0,228.0 H575.6 Q579.6,228.0 579.6,232.0 V238.0 Q579.6,242.0 575.6,242.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="587.5" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="571.7" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="599.5" y="239.5" font-size="12" fill="#52514e" text-anchor="start">1119–1170 s, 2 runs</text>
-<text x="215.0" y="268.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
-<text x="215.0" y="281.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
-<path d="M225.0,262.0 H439.4 Q443.4,262.0 443.4,266.0 V272.0 Q443.4,276.0 439.4,276.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="437.9" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="448.1" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="462.3" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="445.3" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="423.3" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="474.3" y="273.5" font-size="12" fill="#52514e" text-anchor="start">640–766 s, 5 runs</text>
-<text x="215.0" y="302.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path</text>
-<text x="215.0" y="315.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
-<path d="M225.0,296.0 H452.0 Q456.0,296.0 456.0,300.0 V306.0 Q456.0,310.0 452.0,310.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="434.2" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="455.2" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="478.8" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="490.8" y="307.5" font-size="12" fill="#52514e" text-anchor="start">675–819 s, 3 runs</text>
-<text x="418.7" y="351.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
-<text x="22.0" y="383.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Production CI: the same suite as a whole CI job, one run each</text>
-<line x1="225.0" y1="395.0" x2="225.0" y2="463.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="225.0" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="319.9" y1="395.0" x2="319.9" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="319.9" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
-<line x1="414.9" y1="395.0" x2="414.9" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="414.9" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
-<line x1="509.8" y1="395.0" x2="509.8" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="509.8" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">750</text>
-<line x1="604.7" y1="395.0" x2="604.7" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="604.7" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">1000</text>
-<line x1="699.7" y1="395.0" x2="699.7" y2="463.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="699.7" y="478.0" font-size="11" fill="#6b6a65" text-anchor="middle">1250</text>
-<text x="215.0" y="411.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + stamp fix</text>
-<text x="215.0" y="424.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
-<path d="M225.0,405.0 H642.1 Q646.1,405.0 646.1,409.0 V415.0 Q646.1,419.0 642.1,419.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="646.1" cy="412.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="658.1" y="416.5" font-size="12" fill="#52514e" text-anchor="start">1109 s</text>
-<text x="215.0" y="445.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
-<text x="215.0" y="458.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
-<path d="M225.0,439.0 H581.0 Q585.0,439.0 585.0,443.0 V449.0 Q585.0,453.0 581.0,453.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="585.0" cy="446.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="597.0" y="450.5" font-size="12" fill="#52514e" text-anchor="start">948 s</text>
-<text x="462.3" y="494.0" font-size="11.5" fill="#52514e" text-anchor="middle">Job wall time (s), lower is better</text>
-<text x="22.0" y="526.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">SwiftUI UI test, first run in a fresh image</text>
-<line x1="225.0" y1="538.0" x2="225.0" y2="640.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="225.0" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="305.2" y1="538.0" x2="305.2" y2="640.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="305.2" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
-<line x1="385.3" y1="538.0" x2="385.3" y2="640.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="385.3" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
-<line x1="465.5" y1="538.0" x2="465.5" y2="640.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="465.5" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">300</text>
-<line x1="545.6" y1="538.0" x2="545.6" y2="640.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="545.6" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">400</text>
-<line x1="625.8" y1="538.0" x2="625.8" y2="640.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="625.8" y="655.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
-<text x="215.0" y="559.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
-<path d="M225.0,548.0 H395.3 Q399.3,548.0 399.3,552.0 V558.0 Q399.3,562.0 395.3,562.0 H225.0 Z" fill="#8a8883" fill-opacity="0.28"/>
-<circle cx="394.9" cy="555.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="403.7" cy="555.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="415.7" y="559.5" font-size="12" fill="#52514e" text-anchor="start">212–223 s, 2 runs</text>
-<text x="215.0" y="593.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
-<path d="M225.0,582.0 H558.4 Q562.4,582.0 562.4,586.0 V592.0 Q562.4,596.0 558.4,596.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="555.2" cy="589.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="569.7" cy="589.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="581.7" y="593.5" font-size="12" fill="#52514e" text-anchor="start">412–430 s, 2 runs</text>
-<text x="215.0" y="627.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker</text>
-<rect x="417.4" y="618.0" width="40.1" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
-<text x="465.4" y="627.5" font-size="12" fill="#52514e" text-anchor="start">240–290 s</text>
-<text x="425.4" y="671.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
-<text x="22.0" y="703.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">SwiftUI UI test, second run</text>
-<line x1="225.0" y1="715.0" x2="225.0" y2="817.0" stroke="#b9b8ae" stroke-width="1"/>
-<text x="225.0" y="832.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
-<line x1="328.6" y1="715.0" x2="328.6" y2="817.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="328.6" y="832.0" font-size="11" fill="#6b6a65" text-anchor="middle">20</text>
-<line x1="432.1" y1="715.0" x2="432.1" y2="817.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="432.1" y="832.0" font-size="11" fill="#6b6a65" text-anchor="middle">40</text>
-<line x1="535.7" y1="715.0" x2="535.7" y2="817.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="535.7" y="832.0" font-size="11" fill="#6b6a65" text-anchor="middle">60</text>
-<line x1="639.2" y1="715.0" x2="639.2" y2="817.0" stroke="#e8e7e1" stroke-width="1"/>
-<text x="639.2" y="832.0" font-size="11" fill="#6b6a65" text-anchor="middle">80</text>
-<text x="215.0" y="736.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
-<path d="M225.0,725.0 H578.2 Q582.2,725.0 582.2,729.0 V735.0 Q582.2,739.0 578.2,739.0 H225.0 Z" fill="#8a8883" fill-opacity="0.28"/>
-<circle cx="582.2" cy="732.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="594.2" y="736.5" font-size="12" fill="#52514e" text-anchor="start">69 s</text>
-<text x="215.0" y="770.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
-<path d="M225.0,759.0 H611.9 Q615.9,759.0 615.9,763.0 V769.0 Q615.9,773.0 611.9,773.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="613.3" cy="766.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="618.5" cy="766.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="630.5" y="770.5" font-size="12" fill="#52514e" text-anchor="start">75–76 s, 2 runs</text>
-<text x="215.0" y="804.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker</text>
-<path d="M225.0,793.0 H495.4 Q499.4,793.0 499.4,797.0 V803.0 Q499.4,807.0 495.4,807.0 H225.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
-<circle cx="499.4" cy="800.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="499.4" cy="800.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<circle cx="499.4" cy="800.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
-<text x="511.4" y="804.5" font-size="12" fill="#52514e" text-anchor="start">53 s, 3 runs</text>
-<text x="432.1" y="848.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<line x1="316.0" y1="150.0" x2="316.0" y2="354.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="375.3" y1="150.0" x2="375.3" y2="354.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="375.3" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
+<line x1="434.5" y1="150.0" x2="434.5" y2="354.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="434.5" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
+<line x1="493.8" y1="150.0" x2="493.8" y2="354.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="493.8" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">750</text>
+<line x1="553.1" y1="150.0" x2="553.1" y2="354.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="553.1" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">1000</text>
+<line x1="612.3" y1="150.0" x2="612.3" y2="354.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="612.3" y="369.0" font-size="11" fill="#6b6a65" text-anchor="middle">1250</text>
+<text x="306.0" y="171.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
+<text x="324.0" y="171.5" font-size="12" fill="#52514e" text-anchor="start" font-style="italic">cannot run: the app needs Metal</text>
+<text x="306.0" y="205.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, worker, no compaction</text>
+<path d="M316.0,194.0 H544.8 Q548.8,194.0 548.8,198.0 V204.0 Q548.8,208.0 544.8,208.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="534.1" cy="201.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="563.5" cy="201.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="575.5" y="205.5" font-size="12" fill="#52514e" text-anchor="start">920–1044 s, 2 runs</text>
+<text x="306.0" y="234.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + compaction</text>
+<text x="306.0" y="247.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 404e58e4</text>
+<path d="M316.0,228.0 H583.3 Q587.3,228.0 587.3,232.0 V238.0 Q587.3,242.0 583.3,242.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="593.4" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="581.3" cy="235.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="605.4" y="239.5" font-size="12" fill="#52514e" text-anchor="start">1119–1170 s, 2 runs</text>
+<text x="306.0" y="268.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
+<text x="306.0" y="281.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
+<path d="M316.0,262.0 H479.1 Q483.1,262.0 483.1,266.0 V272.0 Q483.1,276.0 479.1,276.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="478.9" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="486.7" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="497.6" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="484.5" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="467.7" cy="269.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="509.6" y="273.5" font-size="12" fill="#52514e" text-anchor="start">640–766 s, 5 runs</text>
+<text x="306.0" y="302.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, copy path</text>
+<text x="306.0" y="315.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 9abcc6e5</text>
+<path d="M316.0,296.0 H488.8 Q492.8,296.0 492.8,300.0 V306.0 Q492.8,310.0 488.8,310.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="476.0" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="492.1" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="510.1" cy="303.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="522.1" y="307.5" font-size="12" fill="#52514e" text-anchor="start">675–819 s, 3 runs</text>
+<text x="306.0" y="336.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process, 2026-10-18 candidate</text>
+<text x="306.0" y="349.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,330.0 H490.1 Q494.1,330.0 494.1,334.0 V340.0 Q494.1,344.0 490.1,344.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="479.6" cy="337.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="496.9" cy="337.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="505.9" cy="337.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="517.9" y="341.5" font-size="12" fill="#52514e" text-anchor="start">690–801 s, 3 runs</text>
+<text x="464.2" y="385.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="417.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">Production CI: the same suite as a whole CI job, one run each</text>
+<line x1="316.0" y1="429.0" x2="316.0" y2="497.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="392.7" y1="429.0" x2="392.7" y2="497.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="392.7" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">250</text>
+<line x1="469.5" y1="429.0" x2="469.5" y2="497.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="469.5" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
+<line x1="546.2" y1="429.0" x2="546.2" y2="497.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="546.2" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">750</text>
+<line x1="622.9" y1="429.0" x2="622.9" y2="497.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="622.9" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">1000</text>
+<line x1="699.7" y1="429.0" x2="699.7" y2="497.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="699.7" y="512.0" font-size="11" fill="#6b6a65" text-anchor="middle">1250</text>
+<text x="306.0" y="445.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, main loop + stamp fix</text>
+<text x="306.0" y="458.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 75d37ac3</text>
+<path d="M316.0,439.0 H652.4 Q656.4,439.0 656.4,443.0 V449.0 Q656.4,453.0 652.4,453.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="656.4" cy="446.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="668.4" y="450.5" font-size="12" fill="#52514e" text-anchor="start">1109 s</text>
+<text x="306.0" y="479.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, 2026-10-10 build</text>
+<text x="306.0" y="492.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 71029b4d</text>
+<path d="M316.0,473.0 H603.0 Q607.0,473.0 607.0,477.0 V483.0 Q607.0,487.0 603.0,487.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="607.0" cy="480.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="619.0" y="484.5" font-size="12" fill="#52514e" text-anchor="start">948 s</text>
+<text x="507.8" y="528.0" font-size="11.5" fill="#52514e" text-anchor="middle">Job wall time (s), lower is better</text>
+<text x="22.0" y="560.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">SwiftUI UI test, first run in a fresh image</text>
+<line x1="316.0" y1="572.0" x2="316.0" y2="708.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="378.0" y1="572.0" x2="378.0" y2="708.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="378.0" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">100</text>
+<line x1="439.9" y1="572.0" x2="439.9" y2="708.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="439.9" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">200</text>
+<line x1="501.9" y1="572.0" x2="501.9" y2="708.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="501.9" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">300</text>
+<line x1="563.8" y1="572.0" x2="563.8" y2="708.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="563.8" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">400</text>
+<line x1="625.8" y1="572.0" x2="625.8" y2="708.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="625.8" y="723.0" font-size="11" fill="#6b6a65" text-anchor="middle">500</text>
+<text x="306.0" y="593.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
+<path d="M316.0,582.0 H446.7 Q450.7,582.0 450.7,586.0 V592.0 Q450.7,596.0 446.7,596.0 H316.0 Z" fill="#8a8883" fill-opacity="0.28"/>
+<circle cx="447.3" cy="589.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="454.2" cy="589.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="466.2" y="593.5" font-size="12" fill="#52514e" text-anchor="start">212–223 s, 2 runs</text>
+<text x="306.0" y="627.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
+<path d="M316.0,616.0 H572.8 Q576.8,616.0 576.8,620.0 V626.0 Q576.8,630.0 572.8,630.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="571.2" cy="623.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="582.4" cy="623.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="594.4" y="627.5" font-size="12" fill="#52514e" text-anchor="start">412–430 s, 2 runs</text>
+<text x="306.0" y="661.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker</text>
+<rect x="464.7" y="652.0" width="31.0" height="10.0" rx="5" fill="#2a78d6" fill-opacity="0.5"/>
+<text x="503.7" y="661.5" font-size="12" fill="#52514e" text-anchor="start">240–290 s</text>
+<text x="306.0" y="690.0" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU out of process, 2026-10-18 candidate</text>
+<text x="306.0" y="703.0" font-size="10.5" fill="#6b6a65" text-anchor="end">Reims 40c5bc1c</text>
+<path d="M316.0,684.0 H445.0 Q449.0,684.0 449.0,688.0 V694.0 Q449.0,698.0 445.0,698.0 H316.0 Z" fill="#eb6834" fill-opacity="0.28"/>
+<circle cx="449.8" cy="691.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="441.1" cy="691.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="456.0" cy="691.0" r="4.5" fill="#eb6834" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="468.0" y="695.5" font-size="12" fill="#52514e" text-anchor="start">202–226 s, 3 runs</text>
+<text x="470.9" y="739.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
+<text x="22.0" y="771.0" font-size="13.5" fill="#0b0b0b" text-anchor="start" font-weight="600">SwiftUI UI test, second run</text>
+<line x1="316.0" y1="783.0" x2="316.0" y2="885.0" stroke="#b9b8ae" stroke-width="1"/>
+<text x="316.0" y="900.0" font-size="11" fill="#6b6a65" text-anchor="middle">0</text>
+<line x1="396.8" y1="783.0" x2="396.8" y2="885.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="396.8" y="900.0" font-size="11" fill="#6b6a65" text-anchor="middle">20</text>
+<line x1="477.6" y1="783.0" x2="477.6" y2="885.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="477.6" y="900.0" font-size="11" fill="#6b6a65" text-anchor="middle">40</text>
+<line x1="558.4" y1="783.0" x2="558.4" y2="885.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="558.4" y="900.0" font-size="11" fill="#6b6a65" text-anchor="middle">60</text>
+<line x1="639.2" y1="783.0" x2="639.2" y2="885.0" stroke="#e8e7e1" stroke-width="1"/>
+<text x="639.2" y="900.0" font-size="11" fill="#6b6a65" text-anchor="middle">80</text>
+<text x="306.0" y="804.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">No GPU device (GFX=none)</text>
+<path d="M316.0,793.0 H590.8 Q594.8,793.0 594.8,797.0 V803.0 Q594.8,807.0 590.8,807.0 H316.0 Z" fill="#8a8883" fill-opacity="0.28"/>
+<circle cx="594.8" cy="800.0" r="4.5" fill="#8a8883" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="606.8" y="804.5" font-size="12" fill="#52514e" text-anchor="start">69 s</text>
+<text x="306.0" y="838.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain on main loop</text>
+<path d="M316.0,827.0 H617.0 Q621.0,827.0 621.0,831.0 V837.0 Q621.0,841.0 617.0,841.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="619.0" cy="834.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="623.0" cy="834.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="635.0" y="838.5" font-size="12" fill="#52514e" text-anchor="start">75–76 s, 2 runs</text>
+<text x="306.0" y="872.5" font-size="12.5" fill="#0b0b0b" text-anchor="end">GPU, drain worker</text>
+<path d="M316.0,861.0 H526.1 Q530.1,861.0 530.1,865.0 V871.0 Q530.1,875.0 526.1,875.0 H316.0 Z" fill="#2a78d6" fill-opacity="0.28"/>
+<circle cx="530.1" cy="868.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="530.1" cy="868.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<circle cx="530.1" cy="868.0" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="1.5"/>
+<text x="542.1" y="872.5" font-size="12" fill="#52514e" text-anchor="start">53 s, 3 runs</text>
+<text x="477.6" y="916.0" font-size="11.5" fill="#52514e" text-anchor="middle">Wall time (s), lower is better</text>
 </svg>

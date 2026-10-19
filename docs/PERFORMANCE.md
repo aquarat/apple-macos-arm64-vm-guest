@@ -171,28 +171,43 @@ each build loaded it (5.1 MB).
 Two lines of work are measured but not in production. They live on
 branches of the forks and this repository.
 
-**Reims as a separate process** (Reims `oop-backend`, QEMU `oop-proxy` and
-`oop-vmapple`, this repository `oop-launch`). Reims runs as
-`reims-vgpu-backend`, behind a small QEMU device (`apv-gpu-proxy`) that
-talks to it over a unix socket, shared memory and eventfds. QEMU then
-contains no Reims, Rust or Vulkan code. A crash in the GPU driver ends
-only the backend: the job fails with a clear reason and the guest is
-discarded, and the call that crashed is refused on later runs until the
-driver changes. `oop-vmapple` replaces the original author's QEMU KVM code
-with a rewrite. Ventura and Tahoe both boot to their desktops on it.
+**Reims as a separate process** (Reims, QEMU and this repository, ready to
+merge; not deployed yet). Reims runs as `reims-vgpu-backend`, behind a small
+QEMU device (`apv-gpu-proxy`) that talks to it over a unix socket, shared
+memory and eventfds. QEMU then contains no Reims, Rust or Vulkan code. A crash
+in the GPU driver ends only the backend: the job fails with exit status 120 and
+the reason, the guest is discarded, and the driver call that crashed is refused
+on later runs until the driver changes. The QEMU fork's KVM code is rewritten,
+and the original author's macOS-host changes are reverted to upstream.
+`MODE=oop scripts/build-qemu.sh` builds the pair; in-process builds keep working
+from Reims' `vendor/qemu` pin.
 
-Benchmark on the M1 Max, 4 vCPU / 8 GB, 3 pairs: 160.1–167.6 s in process
-against 177.0–190.6 s out of process (about +11 %). Each GPU operation is
-cheaper out of process (742–827 µs per compute dispatch against
-867–952 µs), and completions reach the guest at once (irq wait 1.4–1.8 s
-per run against 49–58 s). Delaying completions to in-process timing did not
-change the result. The likely cause is the guest's simulator compositor:
-it is not tied to a display refresh, because the display sleeps, so it
-spends the faster device on more frames (+45 %), taking guest CPU
-from the tests. Capping the compositor's frame rate is the next experiment.
-Two of three sustained UI-load runs were clean. The third passed the UI
-probe, but the app's UI tests could not start (the simulator's
-accessibility timeout). There were no panics and no GPU timeouts.
+Final candidate on the M1 Max (4 vCPU / 8 GB, Mesa with both patches,
+interleaved): simulator unit tests 156.8–158.6 s in process, 157.8 and
+163.6 s out of process, plus one 209.7 s run. In that run the drain's per-draw
+cost was 2.5 times the others' and the simulator's start-up animation ran
+159 s instead of about 110; nothing in the guest's work explains it, and none
+of the other out-of-process runs repeated it. With the device out of process
+completions reach the guest about 2 ms sooner, and the simulator's compositor,
+which is paced by nothing else, redraws its screen about 92 times a second
+instead of 67, taking guest CPU from the tests.
+
+Three sustained UI-load runs out of process: the SwiftUI probe in 202–226 s,
+an app's offline UI suite in 690–801 s (12/14, the two tests that also fail in
+process), 38–39 load loops each, no backend loss, no guest panic. A backend
+killed mid-job failed that job in 2 s with the reason, the next job ran, and
+idle and job timeouts still report 123 and 124 (also when the backend is lost
+while the job is being stopped).
+
+**Refresh-rate cap.** `GPU_MAX_REFRESH_HZ` (default 60) caps the paravirtual
+display's modes and VBL. macOS 26 never arms that VBL, so it does not pace the
+simulator. Pacing the simulator's screen to 60 Hz is possible
+(`GPU_FRAME_PACING=1`): its compositor queues dozens of frames ahead, so the
+device has to hold their completions until its queue is full, and every
+completion on that channel then trails by up to a second. Measured: unit tests
+161.7–166.8 s; but UI tests about 10 % slower (probe 263 and 232 s against
+227 and 216 s; app suite 715 and 776 s against 690 and 709 s). It is off by
+default.
 
 **Draw batching** (Reims `draw-batch`). Draws in one render pass share a
 command buffer and a submit. Drain time per draw fell 27 % (584–686 µs to
