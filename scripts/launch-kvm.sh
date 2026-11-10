@@ -25,6 +25,10 @@
 #                 screen, a sleeping display's compositor) to that cap
 #                 [0]. Saves guest CPU on unit tests; costs UI tests about
 #                 10 % (completions trail the simulator's queued frames).
+#   VIRTIO_ASCENDING_CAPS  1 = link every virtio PCI device's capability
+#                 list in address order, which macOS 27 guests reportedly need
+#                 (QEMU fork's x-ascending-capabilities; older QEMUs refuse
+#                 the option) [0]
 #   GPU_BACKEND_BIN  run the GPU device model out of process: path to
 #                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
@@ -69,6 +73,9 @@ console="${CONSOLE:-reims}"
 gfx="${GFX:-reims}"
 ssh_bind="${SSH_BIND:-127.0.0.1}"
 read -r -a extra_args <<<"${QEMU_EXTRA_ARGS:-}"
+if test "${VIRTIO_ASCENDING_CAPS:-0}" = 1; then
+    extra_args+=(-global virtio-pci.x-ascending-capabilities=on)
+fi
 # BALLOON=1: virtio balloon for scripts/balloon-governor.py (vm-job.sh starts
 # one per guest) or scripts/balloon-squeeze.sh. The macOS driver needs
 # macos-units (aquarat QEMU fork, see docs/NOTES.md "Memory balloon") and

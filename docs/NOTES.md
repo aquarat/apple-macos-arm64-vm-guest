@@ -301,6 +301,15 @@ virtio devices never start. Not tested here, since no image here runs
 macOS 27. omvm's `qemu/0006` takes only the reordering, as an
 `ascending-capabilities` switch.
 
+aquarat/qemu-reims-vgpu now has the reordering on its own, for every
+virtio PCI device: `x-ascending-capabilities`, default off, on for all
+devices with `-global virtio-pci.x-ascending-capabilities=on` (launch-kvm:
+`VIRTIO_ASCENDING_CAPS=1`). The vendor capability is not taken. With it on,
+macOS 26.4 boots and runs as with it off (two runs on, one off: 24 to 34 s
+to SSH, network, sound, both disks and data-protected files all fine).
+macOS 27 itself is untested; it also needs the 27-era AVPBooter, and
+omvm's notes say it needs the bdif backdoor-disk writes (`qemu/0005`).
+
 Tahoe's paravirtual GPU does attach: IORegistry `gfx@20200000`
 (`paravirtualizedgraphics,gpu`) with `AppleParavirtGPU`/`AppleParavirtDisplay`,
 and `MTLCreateSystemDefaultDevice()` returns "Apple Paravirtual device". A
