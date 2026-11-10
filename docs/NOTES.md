@@ -246,10 +246,17 @@ Reims now serves 16 for both (aquarat/reims-vgpu `41b6255`). A/B on macOS
 | 256 (tight, and padded) | compute read correct | compute read correct |
 | 80, 64 | process aborts (above) | compute read correct |
 
-Separate, older gap: a blit *from* a buffer-backed texture is refused by
-Reims (`blit_fail reason=view_desc_decode`) at every pitch, with either
-value, so the destination keeps its old bytes. No archived CI run had hit
-it.
+A separate, older gap: Reims refused any blit *from* a buffer-backed texture
+(`blit_fail reason=view_desc_decode`), at every pitch and with either value,
+so the destination kept its old bytes. No archived CI run had hit it. Since
+aquarat/reims-vgpu `3db7ff26`, the blit rail reads such a texture as one
+linear level over its buffer, at the guest's `bytesPerRow`. The same probe,
+blitting instead of using a compute shader, before and after (macOS 26.4,
+out of process):
+
+| row pitch | before | after |
+|---|---|---|
+| 256 (tight, and padded), 80, 64 | every byte left unwritten, 4 `view_desc_decode` refusals | exact, no refusals |
 
 ### Upstream Reims on Honeykrisp (reported, not adopted)
 
