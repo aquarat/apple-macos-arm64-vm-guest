@@ -286,6 +286,86 @@ are in [omvm](https://github.com/sapoepsilon/omvm)
 - The reports are of a desktop session. The CI images here run with no
   console user, so the desktop's icons and wallpaper do not affect jobs.
 
+#### Evaluated side by side (2026-11-10)
+
+Upstream as the reporter builds it (steelbrain/reims-vgpu `1fe0acb6` plus
+omvm's `reims-vgpu/0001`-`0003`, metal2vulkan `219f0136` plus
+`metal2vulkan/0001`-`0004`, steelbrain/qemu-reims-vgpu `1b41f5f5db` plus
+`qemu/0001`-`0007`, Mesa 26.1.8 with `patches/mesa/` and pixel interlock,
+udmabuf `list_limit` 262144 and `size_limit_mb` 4096) against this
+project's out-of-process pair (aquarat/reims-vgpu `41b62552`, QEMU
+`c6d87a8406`, Mesa 26.1.8 with `patches/mesa/`), on the same M1 Max host and
+macOS 26.4 image through `vm-job.sh`. The two codebases share no source file
+any more: upstream replaced its tree with a library over metal2vulkan's new
+runtime, so nothing can be cherry-picked; a change is ported as an idea.
+
+- **Boot and Metal.** Both boot in 23 to 24 s. The buffer-backed texture
+  probe above reads back exactly on both (upstream also blits them).
+- **Login window** (host screenshot about two minutes after boot; the
+  images here have no console user). Ours draws the date and the
+  password line on a flat grey background: no wallpaper, clock, user
+  picture, name or password field. Upstream draws all of them. (Its
+  `screendump` capture comes out green and striped, a capture problem; the
+  content is there.) What ours refuses there, from its failure log:
+  - a full-screen 1920x1080 RGBA16Float draw whose fragment shader writes a
+    storage texture (`draw_prepare_texture_access_unsupported`): the render
+    engine binds guest textures as sampled images only;
+  - draws sampling a two-plane (Y'CbCr) texture, object type 12
+    (`unsupported_object_type`), which this fork decodes and executes
+    nowhere;
+  - compute reading 512x512 IOSurface textures in pixel format 0x21e
+    (`compute_view_format`), a format this fork's table does not know.
+- **Simulator unit tests** (`perf-bench4.sh`, 4 vCPU / 8 GB, arms
+  interleaved, a kernel build running niced on the host for the first
+  round): ours 177.9 and 169.6 s, upstream 152.1 and 147.6 s, about 13 %
+  faster. This fork's in-process and out-of-process builds measured within
+  about 3 % of each other in October, so the process boundary is not the
+  difference. The likely one is the copy path: Honeykrisp has no
+  host-pointer import, so this fork copies guest data in and out of Vulkan
+  memory (memcpy is about two thirds of the drain's CPU), while upstream
+  with omvm's patches imports guest pages as udmabuf dma-bufs.
+- **Simulator UI test** (the SwiftUI probe of `uitest-load`, 8 vCPU /
+  12 GB, one run each, quiet host): ours passed in 228 s (202 to 226 s in
+  October), upstream in 190 s. The app under test draws the same on both
+  (text, button, gradient). The simulator's home screen does not: ours shows
+  the app names with no icons, an empty folder, an empty dock and a blurred
+  wallpaper; upstream draws the icons, the folder, the dock's Safari and
+  Messages and a wallpaper. Ours refused, among others, compute writes to
+  `BGRA8Unorm_sRGB` textures (`linear_tex_fmt_storage`, 243 times: Vulkan
+  has no sRGB storage images) and draws sampling two-plane textures
+  (`unsupported_object_type`).
+
+What is worth bringing into this fork, keeping Reims out of process, most
+valuable first:
+
+1. **Guest RAM as dma-bufs on Honeykrisp** (performance). The backend
+   already holds guest RAM as a shared memfd; one `UDMABUF_CREATE` per
+   imported RAMBlock chunk, imported with `VK_EXT_external_memory_dma_buf`,
+   would fit the existing per-RAMBlock import and drop the copying rails.
+   Needs udmabuf's `size_limit_mb` raised on the hosts. Larger work.
+2. **Storage textures in fragment shaders** (desktop correctness: the login
+   window's full-screen pass). Larger work in the render engine.
+3. **Two-plane Y'CbCr textures** sampled by draws and compute (the login
+   window's clock and picture, video). Format 0x21e is one of them:
+   upstream's source names 542 `MTLPixelFormatRGB8_444_2P`, a two-plane
+   4:4:4 format over an IOSurface whose samples are the raw codes (red Cr,
+   green Y, blue Cb, alpha 1), as are 540, 541 and the 10-bit 543 to 545.
+   Larger work, smaller for the CPU-staged compute path alone.
+4. **Compute writes to sRGB textures** (the simulator's home-screen icons):
+   bind a UNORM view as the storage image and encode sRGB in the translated
+   write. Medium; needs a metal2vulkan change.
+5. **A scheduler floor on the drain thread** (upstream 4101ab59): ported as
+   `REIMS_VGPU_DRAIN_UTIL_FLOOR`, off by default. With it the drain spent 20
+   to 32 % less time per draw in every pair, but the unit tests took 164.8,
+   183.6, 186.1 and 289.5 s with it against 166.3, 169.6, 177.9 and 185.9 s
+   without (four interleaved runs each way): no gain beyond the spread on
+   this benchmark. Worth measuring on a drain-bound workload.
+
+Not worth porting: KVM dirty-page tracking for re-copies (this fork already
+has it, through the dirty table QEMU fills), the `vm.max_map_count` and
+pinned-import work (x86-64 guests and other GPUs), the video devices, and
+fixes for macOS, Intel and NVIDIA hosts.
+
 The interlock patch on its own changes nothing for this project's Reims.
 Our metal2vulkan only emits interlock for fragment imageblocks, our Reims
 never enables the extension, and no archived run logged an imageblock or
