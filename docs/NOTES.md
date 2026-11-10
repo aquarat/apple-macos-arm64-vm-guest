@@ -216,6 +216,84 @@ to `advise` (so that memory can use huge pages) and khugepaged's
 `max_ptes_none` to 0 (so it does not refill balloon holes). The rest of this
 section is the earlier bring-up on llvmpipe.
 
+### Linear-texture alignment (device-info keys 13 and 40)
+
+Reims answered the guest's device-info request with 256 for
+`linearTextureAlignmentBytes` (key 13) and the minimum linear-texture
+alignment (key 40). The guest's public API still reports 16
+(`minimumLinearTextureAlignment(for:)` = 16 for BGRA8 and R8), but Metal's
+validation holds every `makeTexture(descriptor:offset:bytesPerRow:)` on a
+buffer to 256 and aborts the process:
+
+```text
+_mtlValidateStrideTextureParameters:1927: failed assertion `Texture Descriptor Validation
+Linear texture: bytesPerRow (80) must be aligned to 256 bytes
+```
+
+So a client that follows the API, or lays rows out on Apple's 16, crashes.
+Izzy Mansurov found this in
+[issue 1](https://github.com/aquarat/apple-macos-arm64-vm-guest/issues/1):
+in a desktop session, `iconservicesagent` (RenderBox) aborts this way in a
+loop, and app icons never load. Not reproduced here, because the CI images
+have no console user. Icons requested over SSH came back from a running
+`iconservicesagent` with no crash, under both values.
+Reims now serves 16 for both (aquarat/reims-vgpu `41b6255`). A/B on macOS
+26.4, out of process, one Reims build apart (a probe that makes a 20x8 or
+16x8 RGBA8 texture over a buffer and reads it back):
+
+| row pitch | Reims with 256 | Reims with 16 |
+|---|---|---|
+| 256 (tight, and padded) | compute read correct | compute read correct |
+| 80, 64 | process aborts (above) | compute read correct |
+
+Separate, older gap: a blit *from* a buffer-backed texture is refused by
+Reims (`blit_fail reason=view_desc_decode`) at every pitch, with either
+value, so the destination keeps its old bytes. No archived CI run had hit
+it.
+
+### Upstream Reims on Honeykrisp (reported, not adopted)
+
+The same issue reports a clean desktop over VNC (icons, wallpaper, no stale
+rectangles) with steelbrain/reims-vgpu `1fe0acb6` and metal2vulkan
+`219f0136` in process, this project's vmapple-on-KVM QEMU changes rebased
+onto that Reims' QEMU pin (`1b41f5f5db`), and patches for Honeykrisp; they
+are in [omvm](https://github.com/sapoepsilon/omvm)
+(`docs/graphics.md`, `patches/graphics/`). Not adopted here yet:
+
+- Our fork branched from upstream at `69a57dd6`; upstream has since split
+  the device into new crates (`reims-vgpu-core`, `-vulkan`, `-c`, ...), and
+  our metal2vulkan fork is about 860 commits behind. Our commits (the
+  out-of-process backend and driver quarantine, the copy path, the
+  refresh-rate cap) would have to be ported, not rebased.
+- Upstream links Reims into QEMU. Out of process is what lets a driver crash
+  end only the job, and what keeps QEMU free of the Apache-2.0 crates.
+- It needs host changes: udmabuf's `list_limit` and `size_limit_mb` raised
+  (Honeykrisp has no `VK_EXT_external_memory_host`, so guest RAM goes in as
+  dma-bufs), and Mesa exposing `VK_EXT_fragment_shader_interlock`.
+  metal2vulkan uses it for framebuffer fetch and asks for
+  `fragmentShaderPixelInterlock` in particular. AGX orders fragments per
+  sample: the reporter's patch exposes pixel interlock and fails 64
+  `dEQP-VK.fragment_shader_interlock` cases (`pixel_*` at 4x MSAA).
+  Exposing sample interlock instead passes them all, but upstream
+  metal2vulkan would not use it.
+- The reports are of a desktop session. The CI images here run with no
+  console user, so the desktop's icons and wallpaper do not affect jobs.
+
+The interlock patch on its own changes nothing for this project's Reims.
+Our metal2vulkan only emits interlock for fragment imageblocks, our Reims
+never enables the extension, and no archived run logged an imageblock or
+interlock refusal.
+
+The issue's third finding, steelbrain's macOS 27 virtio-blk vendor
+capability (`d235e51310`, "transport encryption disabled") breaking logins
+on existing images, does not apply here: neither aquarat/qemu-reims-vgpu
+`master` nor the in-process pin carries that commit. The same commit also
+lists the PCI capabilities in ascending address order. That commit and
+omvm's notes say macOS 27 guests need the reordering: without it, their
+virtio devices never start. Not tested here, since no image here runs
+macOS 27. omvm's `qemu/0006` takes only the reordering, as an
+`ascending-capabilities` switch.
+
 Tahoe's paravirtual GPU does attach: IORegistry `gfx@20200000`
 (`paravirtualizedgraphics,gpu`) with `AppleParavirtGPU`/`AppleParavirtDisplay`,
 and `MTLCreateSystemDefaultDevice()` returns "Apple Paravirtual device". A

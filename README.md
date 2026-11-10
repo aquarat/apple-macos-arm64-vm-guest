@@ -317,7 +317,11 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
 - **GPU rendering gaps.** Compose/Skia apps now render their real UI, but
   a cold app launch takes 20–40 s before the UI settles: the drain is
   bounded by one queue submission per draw. XCTest screenshots taken early
-  in a launch can still show a splash or flat colour.
+  in a launch can still show a splash or flat colour. A desktop session
+  (not used by the CI images) is reported to misdraw some of macOS's own UI
+  (wallpaper, some icons, stale rectangles), and a
+  blit from a texture laid over a buffer is refused
+  ([NOTES.md](docs/NOTES.md#linear-texture-alignment-device-info-keys-13-and-40)).
 - **GPU slot open issues** ([PERFORMANCE.md](docs/PERFORMANCE.md)):
   `memcpy` is still about two thirds of the drain's CPU time: Honeykrisp
   cannot import guest RAM, so guest data is copied into and out of Vulkan
