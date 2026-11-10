@@ -1,117 +1,441 @@
-diff -ru a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: aquarat <3090997+aquarat@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 15:12:15 +0000
+Subject: [PATCH] KVM: arm64: Handle Apple PAuth virtualization state under VHE
+
+macOS guests on QEMU's vmapple machine (the platform of Apple's
+Virtualization.framework) run with Apple's pointer authentication
+extension. The guest manages its keys through vendor hypercalls, which the
+VMM serves by writing the guest's key registers with KVM_SET_ONE_REG. KVM
+already handles the architectural keys, but not Apple's registers:
+
+- APCTL (control) and KERNKEYLO/HI (the kernel key) are per-vCPU EL1
+  state, reached from a VHE hypervisor through their EL12 aliases;
+- APVMKEYLO/HI_EL2 hold a VM key that the guest's effective keys depend
+  on, used when APSTS_EL12 is 1.
+
+Without them a macOS guest cannot get past its key setup.
+
+Detection: a new capability, ARM64_HAS_PAUTH_VIRT_APPLE, matches the M1
+and M2 parts (t8103, t6000/1/2, t8112, t6020/1/2) by MIDR, on every early
+CPU, with the kernel at EL2. No ID register advertises these registers, a
+probe would fault on a CPU without them, and later parts lock them: m1n1's
+per-CPU table marks the Apple system registers unlocked on M1, M2 and M3
+but not on M4 and later. The list is the M1 and M2 rows of that table (M3
+is left out until KVM runs there). The existing ACTLR virtualization
+capabilities are not used: ARM64_HAS_ACTLR_VIRT matches every Apple part
+from M2 on, including the locked ones.
+
+KVM uses it only in VHE mode and only on bare metal: a static key,
+kvm_has_apple_pauth(), is enabled at init if the capability is present,
+has_vhe() is true and there is no SMCCC conduit. A guest hypervisor under
+nested virtualization also runs at (virtual) EL2 and sees the host's MIDR,
+but there these registers UNDEF; Apple machines have no firmware below
+EL2, so finding a conduit means a hypervisor is below us. In nVHE, hVHE and
+protected mode, and on every other CPU, nothing changes: no new register
+accesses and no new registers visible to userspace.
+
+State: APCTL and KERNKEYLO/HI are new vCPU sysregs that reset to 0. Like
+the other EL1 registers under VHE they live in the CPU while the vCPU is
+loaded: __vcpu_load_switch_sysregs() writes them through the EL12 aliases
+and __vcpu_put_switch_sysregs() reads them back. They are written on every
+load, so a vCPU never runs with another vCPU's or the host's values.
+
+VM key: each VM gets a random 128-bit key from get_random_bytes() when it
+is created. Every vcpu_load writes it to APVMKEYLO/HI_EL2 and sets
+APSTS_EL12 to 1 before the guest's keys, so all vCPUs of a VM run with the
+same key for the VM's life, and no vCPU runs under another VM's key. The
+key is not exposed to userspace and is cleared when the VM is destroyed.
+The host runs at EL2 and does not use these registers, so they are not
+restored on put.
+
+Guest memory signed under one VM's key cannot be resumed in a different
+VM. On M1 Max that applies to the keys a guest writes itself while Apple
+mode (APCTL bit 0) is on, which the VM key diversifies: two VMs with
+identical guest state then sign differently, so such a guest migrated, or
+restored from a snapshot, into a new VM (with a new key) would fail
+pointer authentication. Keys set through KVM_SET_ONE_REG, which is how
+QEMU's vmapple support serves macOS's key hypercalls, and guests that
+leave APCTL at 0 (Linux) gave the same signatures in every VM. QEMU's
+vmapple machine refuses savevm (its pflash is not snapshot-capable) but
+does not block migration unless the GPU proxy device is present.
+
+Userspace: KVM_GET_ONE_REG, KVM_SET_ONE_REG and KVM_GET_REG_LIST handle
+the 64-bit registers ARM64_SYS_REG(3, 6, 15, 15, 0) (APCTL) and
+ARM64_SYS_REG(3, 6, 15, 2, 3/4) (KERNKEYLO/HI), the EL12 encodings that
+QEMU's vmapple support uses. Elsewhere they stay unknown registers.
+
+Guest accesses: HCR_EL2.TIDCP traps the guest's accesses to IMPDEF
+registers. The three registers above UNDEF through their sys_reg_descs
+entries. The EL1 forms, APSTS and the VM key have no entry and UNDEF on
+the existing path for unknown IMPDEF registers, so the guest can neither
+read nor change the VM key or APSTS.
+
+On M1 Max every guest EL1 access to these encodings (EL1 forms, EL12
+aliases, APSTS, APVMKEYLO/HI_EL2, APCTL_EL2) traps to KVM as a SYS64
+exception and gets UNDEF; guest EL0 accesses UNDEF without trapping.
+
+Anees Iqbal (steelbrain) first showed that macOS guests under KVM need
+this state
+(https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64).
+This is an independent implementation, written from m1n1's register
+definitions and a functional specification without access to that code.
+
+Tested on t6001 (M1 Max), Asahi asahi-wip (Linux 7.2.11) with Fedora's
+7.2.11-200 patch and configs: macOS 26.4 guests (4, 6 and 8 vCPUs; the
+simulator unit-test workload), a macOS 13.6 guest, a macOS 26 and a macOS
+13 guest at once on the same four CPUs, a Linux guest's own pointer
+authentication and the host's pointer authentication.
+
+Signed-off-by: aquarat <3090997+aquarat@users.noreply.github.com>
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ arch/arm64/include/asm/apple_cpufeature.h | 19 ++++++++++
+ arch/arm64/include/asm/kvm_host.h         | 23 ++++++++++++
+ arch/arm64/kernel/cpufeature_impdef.c     | 36 +++++++++++++++++++
+ arch/arm64/kvm/arm.c                      | 28 +++++++++++++++
+ arch/arm64/kvm/hyp/vhe/sysreg-sr.c        | 43 +++++++++++++++++++++++
+ arch/arm64/kvm/sys_regs.c                 | 21 +++++++++++
+ arch/arm64/tools/cpucaps                  |  1 +
+ 7 files changed, 171 insertions(+)
+
+diff --git a/arch/arm64/include/asm/apple_cpufeature.h b/arch/arm64/include/asm/apple_cpufeature.h
+index 4370d91ff..f24907db7 100644
+--- a/arch/arm64/include/asm/apple_cpufeature.h
++++ b/arch/arm64/include/asm/apple_cpufeature.h
+@@ -12,4 +12,23 @@
+ #define ACTLR_APPLE_TSO_SHIFT	1
+ #define ACTLR_APPLE_TSO		BIT(1)
+ 
++/*
++ * Apple pointer authentication extension (M1/M2), encodings as in m1n1.
++ * EL1 registers, and their EL12 aliases for a VHE hypervisor:
++ */
++#define SYS_IMP_APL_APCTL_EL1		sys_reg(3, 4, 15, 0, 4)
++#define SYS_IMP_APL_KERNKEYLO_EL1	sys_reg(3, 4, 15, 1, 0)
++#define SYS_IMP_APL_KERNKEYHI_EL1	sys_reg(3, 4, 15, 1, 1)
++#define SYS_IMP_APL_APSTS_EL1		sys_reg(3, 6, 15, 12, 4)
++#define SYS_IMP_APL_APCTL_EL12		sys_reg(3, 6, 15, 15, 0)
++#define SYS_IMP_APL_KERNKEYLO_EL12	sys_reg(3, 6, 15, 2, 3)
++#define SYS_IMP_APL_KERNKEYHI_EL12	sys_reg(3, 6, 15, 2, 4)
++#define SYS_IMP_APL_APSTS_EL12		sys_reg(3, 6, 15, 14, 7)
++/* EL2 only: the VM key, which a guest's effective keys depend on */
++#define SYS_IMP_APL_APVMKEYLO_EL2	sys_reg(3, 6, 15, 14, 4)
++#define SYS_IMP_APL_APVMKEYHI_EL2	sys_reg(3, 6, 15, 14, 5)
++
++/* APSTS_EL12: select the virtualized PAuth state for the guest */
++#define APSTS_APPLE_VM_KEY		BIT(0)
++
+ #endif
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+index a49042bfa..2e9362d10 100644
 --- a/arch/arm64/include/asm/kvm_host.h
 +++ b/arch/arm64/include/asm/kvm_host.h
-@@ -490,6 +490,11 @@
+@@ -414,6 +414,12 @@ struct kvm_arch {
+ 	/* Count the number of VNCR_EL2 currently mapped */
+ 	atomic_t vncr_map_count;
+ 
++	/*
++	 * Apple PAuth VM key (APVMKEYLO/HI_EL2), random per VM, used by all
++	 * vCPUs for the VM's life. Only set if kvm_has_apple_pauth().
++	 */
++	u64 apple_vmkey[2];
++
+ 	/*
+ 	 * For an untrusted host VM, 'pkvm.handle' is used to lookup
+ 	 * the associated pKVM instance in the hypervisor.
+@@ -490,6 +496,11 @@ enum vcpu_sysreg {
  	APGAKEYLO_EL1,
  	APGAKEYHI_EL1,
  
-+	/* Apple implementation-defined PAuth virtualization state. */
-+	APCTL_EL1,
-+	KERNKEYLO_EL1,
-+	KERNKEYHI_EL1,
++	/* Apple IMPDEF pointer authentication (kvm_has_apple_pauth()) */
++	APPLE_APCTL_EL1,	/* PAuth control */
++	APPLE_KERNKEYLO_EL1,	/* Kernel key, low */
++	APPLE_KERNKEYHI_EL1,	/* Kernel key, high */
 +
  	/* Memory Tagging Extension registers */
  	RGSR_EL1,	/* Random Allocation Tag Seed Register */
  	GCR_EL1,	/* Tag Control Register */
-Only in a/arch/arm64/include/asm: kvm_host.h.orig
-diff -ru a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
---- a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
-@@ -17,6 +17,12 @@
- #include <asm/kvm_mmu.h>
- 
- #define SYS_IMP_APL_ACTLR_EL12		sys_reg(3, 6, 15, 14, 6)
-+#define SYS_IMP_APL_APVMKEYLO_EL2	sys_reg(3, 6, 15, 14, 4)
-+#define SYS_IMP_APL_APVMKEYHI_EL2	sys_reg(3, 6, 15, 14, 5)
-+#define SYS_IMP_APL_APSTS_EL12		sys_reg(3, 6, 15, 14, 7)
-+#define SYS_IMP_APL_APCTL_EL12		sys_reg(3, 6, 15, 15, 0)
-+#define SYS_IMP_APL_KERNKEYLO_EL12	sys_reg(3, 6, 15, 2, 3)
-+#define SYS_IMP_APL_KERNKEYHI_EL12	sys_reg(3, 6, 15, 2, 4)
- #define SYS_ACTLR_EL12			sys_reg(3, 5, 1, 0, 1)
- 
- static inline bool ctxt_has_s1poe(struct kvm_cpu_context *ctxt);
-@@ -182,6 +188,17 @@
- 		else if (alternative_has_cap_unlikely(ARM64_HAS_ACTLR_VIRT_APPLE))
- 			ctxt_sys_reg(ctxt, ACTLR_EL1)	= read_sysreg_s(SYS_IMP_APL_ACTLR_EL12);
- 	}
-+
-+	if (ctxt_is_guest(ctxt) &&
-+	    (alternative_has_cap_unlikely(ARM64_HAS_ACTLR_VIRT) ||
-+	     alternative_has_cap_unlikely(ARM64_HAS_ACTLR_VIRT_APPLE))) {
-+		ctxt_sys_reg(ctxt, APCTL_EL1) =
-+			read_sysreg_s(SYS_IMP_APL_APCTL_EL12);
-+		ctxt_sys_reg(ctxt, KERNKEYLO_EL1) =
-+			read_sysreg_s(SYS_IMP_APL_KERNKEYLO_EL12);
-+		ctxt_sys_reg(ctxt, KERNKEYHI_EL1) =
-+			read_sysreg_s(SYS_IMP_APL_KERNKEYHI_EL12);
-+	}
+@@ -1443,6 +1454,18 @@ static inline bool kvm_system_needs_idmapped_vectors(void)
+ 	return cpus_have_final_cap(ARM64_SPECTRE_V3A);
  }
  
- static inline void __sysreg_save_el2_return_state(struct kvm_cpu_context *ctxt)
-@@ -224,6 +241,30 @@
- 	write_sysreg(midr,				vpidr_el2);
- 	write_sysreg(mpidr,				vmpidr_el2);
- 
-+	/*
-+	 * Apple's PAuth virtualization derives the guest key space from a
-+	 * hypervisor-owned VM key.  APSTS_EL12 selects that virtualized state.
-+	 * m1n1 performs the same initialization before entering its guest.
-+	 *
-+	 * This is deliberately limited to Apple CPUs and guest contexts: the
-+	 * host kernel's PAuth state must remain unchanged.
-+	 */
-+	if (ctxt_is_guest(ctxt) &&
-+	    (alternative_has_cap_unlikely(ARM64_HAS_ACTLR_VIRT) ||
-+	     alternative_has_cap_unlikely(ARM64_HAS_ACTLR_VIRT_APPLE))) {
-+		write_sysreg_s(0x4e7672476f6e6147ULL,
-+			       SYS_IMP_APL_APVMKEYLO_EL2);
-+		write_sysreg_s(0x697665596f755570ULL,
-+			       SYS_IMP_APL_APVMKEYHI_EL2);
-+		write_sysreg_s(1, SYS_IMP_APL_APSTS_EL12);
-+		write_sysreg_s(ctxt_sys_reg(ctxt, APCTL_EL1),
-+			       SYS_IMP_APL_APCTL_EL12);
-+		write_sysreg_s(ctxt_sys_reg(ctxt, KERNKEYLO_EL1),
-+			       SYS_IMP_APL_KERNKEYLO_EL12);
-+		write_sysreg_s(ctxt_sys_reg(ctxt, KERNKEYHI_EL1),
-+			       SYS_IMP_APL_KERNKEYHI_EL12);
-+	}
++/*
++ * Apple's PAuth state is only handled under VHE on bare metal, where KVM
++ * owns EL2 and reaches the guest's copy through the EL12 encodings. nVHE,
++ * hVHE and protected mode never see it. Set once at init.
++ */
++DECLARE_STATIC_KEY_FALSE(kvm_apple_pauth);
 +
- 	if (has_vhe() ||
- 	    !cpus_have_final_cap(ARM64_WORKAROUND_SPECULATIVE_AT)) {
- 		write_sysreg_el1(ctxt_sys_reg(ctxt, SCTLR_EL1),	SYS_SCTLR);
-diff -ru a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1517,6 +1517,17 @@
- 	return vcpu_has_ptrauth(vcpu) ? 0 : REG_HIDDEN;
- }
- 
-+#define SYS_IMP_APL_KERNKEYLO_EL12	sys_reg(3, 6, 15, 2, 3)
-+#define SYS_IMP_APL_KERNKEYHI_EL12	sys_reg(3, 6, 15, 2, 4)
-+#define SYS_IMP_APL_APCTL_EL12		sys_reg(3, 6, 15, 15, 0)
-+
-+static unsigned int vmapple_pac_visibility(const struct kvm_vcpu *vcpu,
-+					   const struct sys_reg_desc *rd)
++static inline bool kvm_has_apple_pauth(void)
 +{
-+	return (cpus_have_final_cap(ARM64_HAS_ACTLR_VIRT) ||
-+		cpus_have_final_cap(ARM64_HAS_ACTLR_VIRT_APPLE)) ? 0 : REG_HIDDEN;
++	return static_branch_unlikely(&kvm_apple_pauth);
 +}
 +
- /*
-  * If we land here on a PtrAuth access, that is because we didn't
-  * fixup the access on exit by allowing the PtrAuth sysregs. The only
-@@ -3880,6 +3891,13 @@
+ void kvm_init_host_debug_data(void);
+ void kvm_debug_init_vhe(void);
+ void kvm_vcpu_load_debug(struct kvm_vcpu *vcpu);
+diff --git a/arch/arm64/kernel/cpufeature_impdef.c b/arch/arm64/kernel/cpufeature_impdef.c
+index aee7571fb..5f9cf8f0a 100644
+--- a/arch/arm64/kernel/cpufeature_impdef.c
++++ b/arch/arm64/kernel/cpufeature_impdef.c
+@@ -7,6 +7,7 @@
+ 
+ #include <asm/cpufeature.h>
+ #include <asm/apple_cpufeature.h>
++#include <asm/virt.h>
+ #include <linux/irqflags.h>
+ #include <linux/preempt.h>
+ #include <linux/printk.h>
+@@ -76,6 +77,35 @@ static bool has_apple_actlr_virt(const struct arm64_cpu_capabilities *entry, int
+ 	return midr >= MIDR_APPLE_M2_BLIZZARD && midr <= MIDR_CPU_MODEL(ARM_CPU_IMP_APPLE, 0xfff);
+ }
+ 
++/*
++ * The Apple pointer authentication registers that a hypervisor needs to
++ * run guests (APCTL, KERNKEY, APSTS, APVMKEY) are accessible at EL2 on M1
++ * and M2. No ID register advertises them, so match the parts by MIDR.
++ * This is the M1 and M2 part of m1n1's table of CPUs whose Apple system
++ * registers are unlocked; t6002 and t6022 report t6001 and t6021 parts.
++ */
++static const struct midr_range apple_pauth_virt_cpus[] = {
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_ICESTORM),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_FIRESTORM),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_ICESTORM_PRO),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_FIRESTORM_PRO),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_ICESTORM_MAX),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M1_FIRESTORM_MAX),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_BLIZZARD),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_AVALANCHE),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_BLIZZARD_PRO),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_AVALANCHE_PRO),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_BLIZZARD_MAX),
++	MIDR_ALL_VERSIONS(MIDR_APPLE_M2_AVALANCHE_MAX),
++	{},
++};
++
++static bool has_apple_pauth_virt(const struct arm64_cpu_capabilities *entry, int scope)
++{
++	return is_kernel_in_hyp_mode() &&
++	       is_midr_in_range_list(apple_pauth_virt_cpus);
++}
++
+ static const struct arm64_cpu_capabilities arm64_impdef_features[] = {
+ #ifdef CONFIG_ARM64_MEMORY_MODEL_CONTROL
+ 	{
+@@ -108,6 +138,12 @@ static const struct arm64_cpu_capabilities arm64_impdef_features[] = {
+ 		.type = ARM64_CPUCAP_EARLY_LOCAL_CPU_FEATURE,
+ 		.matches = has_apple_actlr_virt,
+ 	},
++	{
++		.desc = "PAuth virtualization (IMPDEF, Apple)",
++		.capability = ARM64_HAS_PAUTH_VIRT_APPLE,
++		.type = ARM64_CPUCAP_EARLY_LOCAL_CPU_FEATURE,
++		.matches = has_apple_pauth_virt,
++	},
+ 	{},
+ };
+ 
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index 00df8783c..b19afe51e 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -21,6 +21,8 @@
+ #include <linux/irqbypass.h>
+ #include <linux/sched/stat.h>
+ #include <linux/psci.h>
++#include <linux/random.h>
++#include <linux/string.h>
+ #include <trace/events/kvm.h>
+ 
+ #define CREATE_TRACE_POINTS
+@@ -275,6 +277,10 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 
+ 	bitmap_zero(kvm->arch.vcpu_features, KVM_VCPU_MAX_FEATURES);
+ 
++	if (kvm_has_apple_pauth())
++		get_random_bytes(kvm->arch.apple_vmkey,
++				 sizeof(kvm->arch.apple_vmkey));
++
+ 	return 0;
+ 
+ err_uninit_mmu:
+@@ -337,6 +343,8 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 	kvm_unshare_hyp(kvm, kvm + 1);
+ 
+ 	kvm_arm_teardown_hypercalls(kvm);
++
++	memzero_explicit(kvm->arch.apple_vmkey, sizeof(kvm->arch.apple_vmkey));
+ }
+ 
+ static bool kvm_has_full_ptr_auth(void)
+@@ -2993,6 +3001,24 @@ void kvm_arch_irq_bypass_start(struct irq_bypass_consumer *cons)
+ 	kvm_arm_resume_guest(irqfd->kvm);
+ }
+ 
++DEFINE_STATIC_KEY_FALSE(kvm_apple_pauth);
++
++static void __init kvm_apple_pauth_init(void)
++{
++	/*
++	 * The capability matches the CPU by MIDR at EL2, which a guest
++	 * hypervisor (nested virt) also sees, but there these registers UNDEF.
++	 * Apple machines have no firmware below EL2, so bare metal has no
++	 * SMCCC conduit, while a hypervisor below us provides one.
++	 */
++	if (!has_vhe() || !cpus_have_final_cap(ARM64_HAS_PAUTH_VIRT_APPLE) ||
++	    arm_smccc_1_1_get_conduit() != SMCCC_CONDUIT_NONE)
++		return;
++
++	static_branch_enable(&kvm_apple_pauth);
++	kvm_info("Apple PAuth virtualization state enabled\n");
++}
++
+ /* Initialize Hyp-mode and memory mappings on all CPUs */
+ static __init int kvm_arm_init(void)
+ {
+@@ -3052,6 +3078,8 @@ static __init int kvm_arm_init(void)
+ 	if (err)
+ 		goto out_hyp;
+ 
++	kvm_apple_pauth_init();
++
+ 	kvm_info("%s%sVHE%s mode initialized successfully\n",
+ 		 in_hyp_mode ? "" : (is_protected_kvm_enabled() ?
+ 				     "Protected " : "Hyp "),
+diff --git a/arch/arm64/kvm/hyp/vhe/sysreg-sr.c b/arch/arm64/kvm/hyp/vhe/sysreg-sr.c
+index be685b63e..02a5929cc 100644
+--- a/arch/arm64/kvm/hyp/vhe/sysreg-sr.c
++++ b/arch/arm64/kvm/hyp/vhe/sysreg-sr.c
+@@ -9,6 +9,7 @@
+ #include <linux/compiler.h>
+ #include <linux/kvm_host.h>
+ 
++#include <asm/apple_cpufeature.h>
+ #include <asm/kprobes.h>
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_emulate.h>
+@@ -198,6 +199,44 @@ static inline void __mpam_guest_load(void)
+ 	}
+ }
+ 
++/*
++ * Apple PAuth: the guest's APCTL and kernel key live in the CPU while the
++ * vcpu is loaded, like its other EL1 registers. The VM key and APSTS are
++ * not guest state: they are written on every load, before the guest's
++ * keys, so that a CPU never runs a vcpu under another VM's key. The host
++ * runs at EL2 and doesn't use any of them, so nothing is restored on put.
++ */
++static void __apple_pauth_load(struct kvm_vcpu *vcpu)
++{
++	struct kvm_cpu_context *ctxt = &vcpu->arch.ctxt;
++	const u64 *vmkey = vcpu->kvm->arch.apple_vmkey;
++
++	if (!kvm_has_apple_pauth())
++		return;
++
++	write_sysreg_s(vmkey[0], SYS_IMP_APL_APVMKEYLO_EL2);
++	write_sysreg_s(vmkey[1], SYS_IMP_APL_APVMKEYHI_EL2);
++	write_sysreg_s(APSTS_APPLE_VM_KEY, SYS_IMP_APL_APSTS_EL12);
++	/* Their effect on the key registers isn't documented: order them */
++	isb();
++
++	write_sysreg_s(ctxt_sys_reg(ctxt, APPLE_APCTL_EL1), SYS_IMP_APL_APCTL_EL12);
++	write_sysreg_s(ctxt_sys_reg(ctxt, APPLE_KERNKEYLO_EL1), SYS_IMP_APL_KERNKEYLO_EL12);
++	write_sysreg_s(ctxt_sys_reg(ctxt, APPLE_KERNKEYHI_EL1), SYS_IMP_APL_KERNKEYHI_EL12);
++}
++
++static void __apple_pauth_save(struct kvm_vcpu *vcpu)
++{
++	struct kvm_cpu_context *ctxt = &vcpu->arch.ctxt;
++
++	if (!kvm_has_apple_pauth())
++		return;
++
++	ctxt_sys_reg(ctxt, APPLE_APCTL_EL1) = read_sysreg_s(SYS_IMP_APL_APCTL_EL12);
++	ctxt_sys_reg(ctxt, APPLE_KERNKEYLO_EL1) = read_sysreg_s(SYS_IMP_APL_KERNKEYLO_EL12);
++	ctxt_sys_reg(ctxt, APPLE_KERNKEYHI_EL1) = read_sysreg_s(SYS_IMP_APL_KERNKEYHI_EL12);
++}
++
+ /**
+  * __vcpu_load_switch_sysregs - Load guest system registers to the physical CPU
+  *
+@@ -257,6 +296,8 @@ void __vcpu_load_switch_sysregs(struct kvm_vcpu *vcpu)
+ 		__sysreg_restore_el1_state(guest_ctxt, midr, mpidr);
+ 	}
+ 
++	__apple_pauth_load(vcpu);
++
+ 	vcpu_set_flag(vcpu, SYSREGS_ON_CPU);
+ }
+ 
+@@ -283,6 +324,8 @@ void __vcpu_put_switch_sysregs(struct kvm_vcpu *vcpu)
+ 	else
+ 		__sysreg_save_el1_state(guest_ctxt);
+ 
++	__apple_pauth_save(vcpu);
++
+ 	__sysreg_save_user_state(guest_ctxt);
+ 	__sysreg32_save_state(vcpu);
+ 
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index fa5c93c7a..6f660e98b 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -19,6 +19,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/irqchip/arm-gic-v3.h>
+ 
++#include <asm/apple_cpufeature.h>
+ #include <asm/arm_pmuv3.h>
+ #include <asm/cacheflush.h>
+ #include <asm/cputype.h>
+@@ -1531,6 +1532,22 @@ static unsigned int ptrauth_visibility(const struct kvm_vcpu *vcpu,
+ 	__PTRAUTH_KEY(k ## KEYLO_EL1),					\
+ 	__PTRAUTH_KEY(k ## KEYHI_EL1)
+ 
++static unsigned int apple_pauth_visibility(const struct kvm_vcpu *vcpu,
++					   const struct sys_reg_desc *rd)
++{
++	return kvm_has_apple_pauth() ? 0 : REG_HIDDEN;
++}
++
++/*
++ * The guest's Apple PAuth state, for userspace: a VMM serves the guest's
++ * key management hypercalls with KVM_SET_ONE_REG on the EL12 encodings.
++ * The guest itself can't access it: if its access traps, it UNDEFs, as
++ * do the EL1 forms, APSTS and the VM key, which have no entry here.
++ */
++#define APPLE_PAUTH_REG(enc, r)						\
++	{ SYS_DESC(SYS_IMP_APL_ ## enc), undef_access, reset_val, r, 0,	\
++	  .visibility = apple_pauth_visibility }
++
+ static bool access_arch_timer(struct kvm_vcpu *vcpu,
+ 			      struct sys_reg_params *p,
+ 			      const struct sys_reg_desc *r)
+@@ -3880,6 +3897,10 @@ static const struct sys_reg_desc sys_reg_descs[] = {
  	{ SYS_DESC(SYS_CNTV_CVAL_EL02), access_arch_timer },
  
  	EL2_REG(SP_EL2, NULL, reset_unknown, 0),
 +
-+	{ SYS_DESC(SYS_IMP_APL_KERNKEYLO_EL12), undef_access, reset_val,
-+	  KERNKEYLO_EL1, 0, .visibility = vmapple_pac_visibility },
-+	{ SYS_DESC(SYS_IMP_APL_KERNKEYHI_EL12), undef_access, reset_val,
-+	  KERNKEYHI_EL1, 0, .visibility = vmapple_pac_visibility },
-+	{ SYS_DESC(SYS_IMP_APL_APCTL_EL12), undef_access, reset_val,
-+	  APCTL_EL1, 0, .visibility = vmapple_pac_visibility },
++	APPLE_PAUTH_REG(KERNKEYLO_EL12, APPLE_KERNKEYLO_EL1),
++	APPLE_PAUTH_REG(KERNKEYHI_EL12, APPLE_KERNKEYHI_EL1),
++	APPLE_PAUTH_REG(APCTL_EL12, APPLE_APCTL_EL1),
  };
  
  static bool handle_at_s1e01(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
-Only in a/arch/arm64/kvm: sys_regs.c.orig
+diff --git a/arch/arm64/tools/cpucaps b/arch/arm64/tools/cpucaps
+index de92d63fd..3f6a90705 100644
+--- a/arch/arm64/tools/cpucaps
++++ b/arch/arm64/tools/cpucaps
+@@ -55,6 +55,7 @@ HAS_MOPS
+ HAS_NESTED_VIRT
+ HAS_BBML2_NOABORT
+ HAS_PAN
++HAS_PAUTH_VIRT_APPLE
+ HAS_PMUV3
+ HAS_S1PIE
+ HAS_S1POE
+-- 
+2.56.0
+

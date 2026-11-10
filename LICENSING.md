@@ -24,7 +24,6 @@ His work is in these files, taken unchanged from the bootstrap commit
 - `scripts/provision-on-macos.sh`
 - `scripts/restore-info.sh`
 - `scripts/vmapple-usbip.py`
-- `patches/linux-6.19-vmapple-pac-vmkey.patch`
 - `patches/reims-qemu-linux-arm64.patch`
 - `patches/reims-rust-linux-arm64.patch`
 - `patches/vmapple-usb-chardev.patch`
@@ -38,9 +37,6 @@ project. Only the later changes are under `GPL-2.0-or-later`:
 - `scripts/launch-gui-kvm.sh`
 - `scripts/launch-kvm.sh`
 - `README.md`, `AGENTS.md`
-- `patches/linux-7.1.13-vmapple-pac-vmkey.patch`: his
-  `linux-6.19-vmapple-pac-vmkey.patch` rebased to Linux 7.1.13; the code
-  changes are his.
 
 Most of these belong to the legacy bring-up flow
 ([docs/LEGACY-BRINGUP.md](docs/LEGACY-BRINGUP.md)). The current flow still
@@ -49,6 +45,14 @@ uses `scripts/launch-kvm.sh`, `scripts/extract-ecid.py` (called by
 `images/host/macos-restore.sh`). If the original author asks, his work will be
 rewritten or removed.
 
+His Linux 6.19 PAuth patch (`patches/linux-6.19-vmapple-pac-vmkey.patch`)
+and its rebase to 7.1.13 are no longer in this repository. The legacy
+flow points to his copy upstream. `patches/linux-7.1.13-vmapple-pac-vmkey.patch`
+is now an independent implementation by this project, written clean-room
+style from m1n1's register definitions and a functional specification
+([provenance](https://github.com/aquarat/apple-silicon-kernel-plus/blob/main/docs/kvm-pauth-provenance.md)).
+It is offered under Linux's licence (below).
+
 ## Patches to other projects
 
 A patch is a change to another project, so it is offered under that
@@ -56,7 +60,7 @@ project's licence:
 
 | Patch | Licence |
 | --- | --- |
-| `patches/linux-7.1.13-kvm-nisv-ldst.patch` | GPL-2.0 (Linux) |
+| `patches/linux-7.1.13-kvm-nisv-ldst.patch`, `patches/linux-7.1.13-vmapple-pac-vmkey.patch` | GPL-2.0 (Linux) |
 | `patches/qemu-*.patch` | GPL-2.0-or-later (QEMU) |
 | `patches/mesa/*.patch` | MIT (Mesa) |
 | `patches/macosvm-hwmodel-override.patch` | macosvm's licence |

@@ -13,13 +13,21 @@ Stock Fedora Asahi `kernel-16k` (7.1.13) plus two patches, built with
 `SOURCES/linux-kernel-test.patch`, a private rpmbuild topdir, a distinct
 `buildid` such as `.vmapple2`).
 
-- **`patches/linux-7.1.13-vmapple-pac-vmkey.patch`**: the 6.19 PAuth patch
-  regenerated against 7.1.13 (applies with offsets only). It saves/restores
-  Apple's implementation-defined `APCTL_EL1`, `KERNKEYLO_EL1` and
-  `KERNKEYHI_EL1` in `__sysreg_save/restore_el1_state` and exposes them as
-  one-reg descriptors (kept sorted at the end of `sys_reg_descs`). M1 takes the
-  `ACTLR_VIRT_APPLE` path; a working host logs
-  `ACTLR virtualization (IMPDEF, Apple)` and VHE.
+- **`patches/linux-7.1.13-vmapple-pac-vmkey.patch`**: Apple's PAuth
+  virtualization state. Since 2026-11-10 it is this project's independent
+  implementation, which replaces the rebase of steelbrain's 6.19 patch
+  ([provenance](https://github.com/aquarat/apple-silicon-kernel-plus/blob/main/docs/kvm-pauth-provenance.md)):
+  - **Per-vCPU state:** `APCTL`, `KERNKEYLO` and `KERNKEYHI` are per-vCPU
+    sysregs. They are written and read through their EL12 aliases at vcpu
+    load/put, and exposed to QEMU as the same one-register IDs as before.
+  - **VM key:** each VM gets a random VM key (`APVMKEYLO/HI_EL2`, with
+    `APSTS_EL12` = 1).
+  - **Where it applies:** M1/M2 CPUs (by MIDR), under VHE on bare metal.
+    A working host logs `PAuth virtualization (IMPDEF, Apple)` and
+    `kvm [1]: Apple PAuth virtualization state enabled`.
+  - **Testing:** this 7.1.13 variant is compile-checked. The same code was
+    tested booted as the 7.2.11 kernel in apple-silicon-kernel-plus
+    (`plus4`).
 - **`patches/linux-7.1.13-kvm-nisv-ldst.patch`**: XNU's GIC redistributor
   setup uses a pre-indexed store (`str w9, [x8, #128]!`) whose stage-2 abort
   has no valid instruction syndrome (ESR `0x96000010`), which KVM normally

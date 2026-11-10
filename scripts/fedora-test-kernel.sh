@@ -37,7 +37,10 @@ install)
     sudo cp -a /etc/sysconfig/kernel /etc/sysconfig/kernel.pre-test-kernel
     trap 'sudo cp -a /etc/sysconfig/kernel.pre-test-kernel /etc/sysconfig/kernel' EXIT
     sudo sed -i 's/^UPDATEDEFAULT=yes/UPDATEDEFAULT=no/' /etc/sysconfig/kernel
-    sudo dnf install -y --setopt=install_weak_deps=False "${pkgs[@]}"
+    # installonly_limit=0: never let dnf remove an older installed kernel to
+    # make room for the test kernel.
+    sudo dnf install -y --setopt=install_weak_deps=False \
+        --setopt=installonly_limit=0 "${pkgs[@]}"
     after="$(sudo grubby --default-kernel)"
     if test "$after" != "$before"; then
         echo "default changed to $after; restoring $before"

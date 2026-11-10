@@ -11,7 +11,7 @@ What differs from the current flow:
 | Layer | Legacy flow (this page) | Current flow |
 | --- | --- | --- |
 | Host | M2 Pro, Fedora 42, kernel `6.19.14-vmapple2` | M1 Max / M1 Ultra, Fedora Asahi Remix 44, kernel-16k 7.1.13 |
-| Host kernel | `patches/linux-6.19-vmapple-pac-vmkey.patch`, built by hand | `patches/linux-7.1.13-*` (PAuth context plus in-KVM emulation of the GIC store), built by `scripts/build-host-kernel.sh` |
+| Host kernel | steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch), built by hand | `patches/linux-7.1.13-*` (PAuth context plus in-KVM emulation of the GIC store), built by `scripts/build-host-kernel.sh` |
 | XNU hand-off | GDB rewrites XNU's GIC store at hand-off (`scripts/inject-xnu-kvm.gdb`) | Emulated in KVM; `INJECT=0`, no GDB (GDB is used only for the single-user account step) |
 | QEMU / Reims | Reims pinned at `2844274c`, with `patches/reims-*.patch`, built by `scripts/build-gui-qemu.sh` | The aquarat Reims and QEMU forks, built by `scripts/build-qemu.sh`; no patch files |
 | Renderer | Mesa llvmpipe, in a host window | Honeykrisp (patched Mesa) on GPU slots, `GFX=none` elsewhere, headless |
@@ -51,7 +51,7 @@ and the QEMU and Reims changes now live in the forks.
 
 The relevant files are:
 
-- [`patches/linux-6.19-vmapple-pac-vmkey.patch`](../patches/linux-6.19-vmapple-pac-vmkey.patch)
+- steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch) (not in this repository: it has no licence)
 - [`patches/reims-qemu-linux-arm64.patch`](../patches/reims-qemu-linux-arm64.patch)
 - [`patches/reims-rust-linux-arm64.patch`](../patches/reims-rust-linux-arm64.patch)
 - [`scripts/inject-xnu-kvm.gdb`](../scripts/inject-xnu-kvm.gdb)
@@ -131,11 +131,12 @@ newer combination. (The current flow does this step with
 ## 3. Build and boot the patched Asahi kernel
 
 Apply the kernel patch after preparing the matching Fedora Asahi
-`6.19.14-400.asahi.fc42` source tree:
+`6.19.14-400.asahi.fc42` source tree. The patch is steelbrain's, from his
+repository at `657bb24`; it has no licence and is not in this one:
 
 ```sh
-patch -d /path/to/linux-tree -p1 \
-  < patches/linux-6.19-vmapple-pac-vmkey.patch
+curl -LO https://raw.githubusercontent.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch
+patch -d /path/to/linux-tree -p1 < linux-6.19-vmapple-pac-vmkey.patch
 ```
 
 Use the installed 16 KiB kernel configuration, build `Image`, `modules`,
