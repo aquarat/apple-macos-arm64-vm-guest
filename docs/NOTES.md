@@ -370,7 +370,7 @@ valuable first:
    without (four interleaved runs each way): no gain beyond the spread on
    this benchmark. Worth measuring on a drain-bound workload.
 
-#### Guest RAM as dma-bufs (2026-11-11, opt-in)
+#### Guest RAM as dma-bufs (2026-11-11)
 
 Port 1 above, with Reims kept out of process. QEMU opens `/dev/udmabuf` and
 passes the fd to `reims-vgpu-backend` over the existing socket
@@ -382,17 +382,18 @@ makes udmabufs from the guest-RAM memfds it already holds, 64 MiB at a time
 (the stock `size_limit_mb`), as GPU work first touches each chunk, and
 imports them with `VK_EXT_external_memory_dma_buf`. It opens no device
 node and gains no privilege: the fd only reaches memory it already maps.
+The offer is off by default (`apv-gpu-proxy` `udmabuf=on`; `launch-kvm.sh`:
+`GPU_UDMABUF=1`).
 
 An object that crosses a chunk boundary is split there. One piece binds in
-place; several are gathered by the GPU (one `vkCmdCopyBuffer` region per
-piece), so nothing reads past a chunk. A unit test forces the split, and a
-guest probe copying three 192 MiB buffers (blit and compute, 3 rounds) was
-exact.
+place; several are gathered by the GPU into one buffer, so nothing reads
+past a chunk. A unit test forces the split, and a guest probe copying three
+192 MiB buffers (blit and compute, 3 rounds) was exact.
 
 QEMU logs one line for each way the rail stays off; each was run with the
 pitch probe, 8 of 8 cases exact. The cases:
 
-- `udmabuf=off`, the default (`launch-kvm.sh`: `GPU_UDMABUF=1` turns it on).
+- `udmabuf=off`, the default.
 - A balloon is present (pinned pages would go stale).
 - `/dev/udmabuf` cannot be opened, or its limits cannot be read.
 - The backend does not take it: an old backend, or `REIMS_VGPU_UDMABUF=off`.
@@ -403,45 +404,85 @@ savevm and migrate on a running GPU guest are refused by the existing
 apv-gpu-proxy migration blocker ("the GPU's state lives in its backend
 process"), so nothing snapshots pinned, GPU-written RAM.
 
-Measured on an M1 Max test host (Honeykrisp, stock limits 1024 / 64 MiB unless
-stated):
+##### The UI-test hang, and its fix
 
-| run | rail | result |
+The first build of the rail made the 12 GB SwiftUI UI test fail in 3 of 3
+runs, and in 2 of 2 runs of a diagnostic build with some read paths off.
+Each time the backend's drain sat in `vkWaitForFences` until the
+guest's SSH session closed or QEMU's 30 s request timeout fired. It was not
+a deadlock. The GPU was oversubscribed, by the backend's own writes into
+guest pages:
+
+- With the rail on, compute outputs and render targets are written into
+  guest pages by the GPU instead of being read back and copied by the CPU.
+- A guest surface with padded rows (every iPhone-sized simulator surface:
+  1206 texels in a 4864-byte pitch) was planned as image-copy rectangles,
+  up to three per 16 KiB page run: about 3 000 per frame.
+- Honeykrisp runs each `VkBufferImageCopy` region as its own compute dispatch
+  with its own image view. On the M1 Max one such frame cost 12.7 ms of GPU
+  time and 4.1 ms of recording, against 0.23 ms for the same bytes as one
+  region (a micro-benchmark of that copy alone).
+- Per-run GPU time from the backend's timestamp spans: 48 to 76 s busy, 37
+  to 60 s of it in compute submissions, with one-second windows carrying up
+  to 4.6 s of queued GPU work. The copying rail: 13.6 s busy, 2.6 s compute,
+  never saturated.
+
+Passing runs of the diagnostic build that switched read paths off were
+just as saturated. The writeback was not behind any of its switches, so
+whether a run survived depended on where the backlog landed, not on which
+paths were on.
+
+reims-vgpu 0e4be59f detiles a padded frame once, at the guest's pitch, into
+scratch memory and scatters only the texel bytes with the existing scatter
+kernel: one dispatch per destination chunk, about 20 per frame.
+
+##### Measured after the fix
+
+On an M1 Max test host (Honeykrisp), stock limits 1024 / 64 MiB:
+
+| run | copy rail (master) | dma-buf rail |
 | --- | --- | --- |
-| unit tests, 4 vCPU / 8 GB, interleaved | copy (master) | 165.2, 178.5 s |
-| | dma-buf | 136.8, 137.6 s |
-| | upstream, limits 262144 / 4096 | 133.6, 135.9 s |
-| SwiftUI UI test, 8 vCPU / 12 GB | copy (master) | OK in 276 s |
-| | upstream, raised limits | OK in 175 s |
-| | dma-buf, all arms | hung, 3 of 3 |
-| | dma-buf, two or more read arms (diagnostic build) | hung, 2 of 2 |
-| | dma-buf, one read arm (diagnostic build) | OK in 216, 230 and 192 s |
+| SwiftUI UI test, 8 vCPU / 12 GB | 213 s | 211, 178, 193 s, one failure, then 216 and 222 s |
+| GPU busy per UI run | 13.8 s | 20.0, 20.2, 22.4 s, never saturated |
+| unit tests, 4 vCPU / 8 GB, interleaved | 170.8, 173.4 s | 161.6, 155.8 s |
+| drain busy in the unit tests | 131.1, 124.4 s | 107.6, 99.8 s |
 
-The hung runs stop with the backend's drain thread waiting on a GPU fence
-(sampled stacks: `quiesce_guest_writes` → `retire_all` → `vkWaitForFences`).
-Then either the guest's SSH session closes or QEMU's 30 s request timeout
-fires. The host kernel logged no GPU fault, and the cause is not found:
+The one failure among the six runs was the probe's own assertion: the
+second tap did not register (`"Taps: 1"` is not equal to `"Taps: 2"`). An
+out-of-process run on the copy rail failed the same way on 2026-10-18. That
+run's GPU was not saturated (18.5 s busy).
 
-- GPU copies through an import run at the speed of plain memory (64 MiB in
-  1.4 to 2.9 ms either way, against 1.5 to 1.6 ms).
-- 200 extra imports do not slow a submission.
-- Each read arm on its own passes.
-
-Until the cause is found the offer stays off by default and no runner
-should enable it.
+The unit-test gain measured before the fix (136.8 and 137.6 s) was not
+real. The saturated GPU throttled the simulator's compositor: it ran 16 000
+to 17 000 compute dispatches per run, against about 80 000 with the copy
+rail. With the fix it runs 57 000 to 63 000, at 716 to 736 µs each against
+811 to 815 µs.
 
 Pinned memory grows with what the guest's GPU work touches. It reached the
 whole 12 GiB of guest RAM (192 chunks) in every 12 GB UI-test run and all
-8 GiB in the unit tests. Killing the backend released its udmabufs within
-0.5 s while QEMU was still running: 576 MiB in 10 buffers before, none of
-the guest's after.
+8 GiB in the unit tests. Killing the backend releases them:
 
-Rollout, once the hang is fixed:
+- With the default `on-backend-loss=stop`, at the end of a 12 GB UI test,
+  12 288 MiB in 192 udmabufs went to none within 0.5 s.
+- With `reset`, on a guest started by `vm-run.sh` (not `vm-job.sh`, which
+  discards a guest whose backend was lost), 512 MiB went to none within
+  0.5 s. QEMU kept its PID and kept running, the launcher started a new
+  backend, and QEMU reconnected, offered udmabufs again and reset the guest,
+  which imported 576 MiB again within 30 s.
+- `launch-kvm.sh` passes `-no-reboot`, which turns the reset that
+  `on-backend-loss=reset` requests into a shutdown. The run above lifted it
+  over QMP (`set-action` `reboot=reset`).
+
+Upstream with omvm's patches, for comparison (limits raised to 262144 /
+4096): unit tests 133.6 and 135.9 s, UI test 175 s.
+
+Rollout:
 
 - Hosts: the fleet kernel has `CONFIG_UDMABUF=y`, and a udev rule makes
   `/dev/udmabuf` 0660 group `kvm`. The user QEMU runs as must be in group
   `kvm`, which is not implied by `/dev/kvm` being world-accessible. Check
-  each runner host before enabling.
+  each runner host before enabling. Without access QEMU logs it and the
+  backend copies.
 - Limits: none to change. Stock `size_limit_mb` 64 and `list_limit` 1024
   suffice, because this rail makes one 64 MiB udmabuf per chunk. Upstream's
   per-object imports are what need 262144 / 4096, and this rail does not

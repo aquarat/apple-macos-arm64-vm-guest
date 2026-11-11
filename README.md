@@ -324,10 +324,10 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
 - **GPU slot open issues** ([PERFORMANCE.md](docs/PERFORMANCE.md)):
   `memcpy` is still about two thirds of the drain's CPU time: Honeykrisp
   cannot import guest RAM as host pointers, so guest data is copied into and
-  out of Vulkan memory once each way. Importing it as udmabufs
-  (`GPU_UDMABUF=1`) cuts the simulator unit tests by about a fifth, but it
-  hangs the SwiftUI UI test, so it stays off
-  ([NOTES.md](docs/NOTES.md#guest-ram-as-dma-bufs-2026-11-11-opt-in)). GPU slots need Honeykrisp Mesa built with this
+  out of Vulkan memory once each way, unless the slot imports it as
+  udmabufs (`GPU_UDMABUF=1`, off by default; it pins all guest RAM): about
+  8 % off the simulator unit tests and 19 % off the drain's time
+  ([NOTES.md](docs/NOTES.md#guest-ram-as-dma-bufs-2026-11-11)). GPU slots need Honeykrisp Mesa built with this
   project's patches (`patches/mesa/`, `scripts/build-mesa-honeykrisp.sh`),
   not the distribution's Mesa. llvmpipe
   cannot run the iOS simulator. Only the Forgejo orchestrator has per-slot
