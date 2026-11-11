@@ -361,9 +361,10 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
   logs. `.gitignore` covers the expected locations and formats.
 - This project is licensed under GPL-2.0-or-later ([LICENSE](LICENSE)).
   Exceptions are listed in [LICENSING.md](LICENSING.md): files by the
-  original upstream author, Anees Iqbal (steelbrain), which remain his and
-  are not licensed, and the patches in `patches/`, which follow the licence
-  of the project they patch.
+  original upstream author, Anees Iqbal (steelbrain), whose scripts remain
+  his and are not licensed and whose patches he released into the public
+  domain, and the other patches in `patches/`, which follow the licence of
+  the project they patch.
 - The QEMU and Reims changes live in the forks, which keep their upstream
   licences.
 
