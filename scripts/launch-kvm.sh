@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Launch one macOS guest with KVM in QEMU's vmapple machine (foreground).
 # Usually called through scripts/vm-run.sh / vm-job.sh, or
 # scripts/launch-gui-kvm.sh (GDB hand-off; INJECT=0 skips it).
@@ -34,26 +35,37 @@
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
 #                 GPU_BACKEND_LOSS stop | reset | shutdown [stop],
 #                 GPU_BACKEND_LOG [LOG_DIR/gpu-backend.log]
+#
+# More: SERIAL [file:LOG_DIR/serial-<time>.log] is passed to -serial as is;
+# QMP_SOCKET [LOG_DIR/qmp-<time>.sock]; GDB_PORT [none] opens QEMU's gdbstub
+# on 127.0.0.1; GUEST_MAC [52:54:00:76:61:70]; QEMU_VMAPPLE_KVM_HVC [1] lets
+# the QEMU fork serve Apple's PAuth hypercalls. QEMU replaces this shell
+# (exec), so the launcher's PID is QEMU's.
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-fleet_qemu="$repo_root/build/qemu-fleet/vendor/qemu/build/qemu-system-aarch64"
-gui_qemu="$repo_root/build/reims-linux-product/vendor/qemu/build/qemu-system-aarch64"
-development_gui_qemu="$repo_root/build/reims-linux/vendor/qemu/build/qemu-system-aarch64"
-headless_qemu="$repo_root/build/experiment-macOS-arm64-on-linux-x86/build/qemu-system-aarch64"
-if test -n "${QEMU_BIN:-}"; then
-    qemu="$QEMU_BIN"
-elif test -x "$fleet_qemu"; then
-    qemu="$fleet_qemu"
-elif test -x "$gui_qemu"; then
-    qemu="$gui_qemu"
-elif test -x "$development_gui_qemu"; then
-    qemu="$development_gui_qemu"
-else
-    qemu="$headless_qemu"
-fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(dirname "$script_dir")"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# Remove a socket left behind by an earlier run; refuse to remove anything
+# else that happens to be at that path.
+remove_stale_socket() {
+    if test -S "$1"; then
+        rm -f -- "$1"
+    elif test -e "$1" || test -L "$1"; then
+        die "$1 exists and is not a socket; not removing it"
+    fi
+}
+
+# shellcheck source=lib/qemu-select.sh
+. "$script_dir/lib/qemu-select.sh"
+qemu="$(select_qemu "$repo_root")"
+
+command -v python3 >/dev/null 2>&1 || die "missing command: python3 (reads the guest ECID)"
+
 guest_dir="${GUEST_DIR:-$repo_root/artifacts/guest}"
-booter="${AVPBOOTER:-$HOME/Downloads/AVPBooter.vmapple2.bin}"
+avpbooter="${AVPBOOTER:-${HOME:?HOME is not set}/Downloads/AVPBooter.vmapple2.bin}"
 ram="${RAM:-8G}"
 cpus="${CPUS:-8}"
 cpu_model="${CPU_MODEL:-host}"
@@ -65,11 +77,26 @@ guest_mac="${GUEST_MAC:-52:54:00:76:61:70}"
 # DISK_CACHE=writeback honours guest flushes.
 disk_cache="${DISK_CACHE:-unsafe}"
 log_dir="${LOG_DIR:-$repo_root/logs}"
-serial="${SERIAL:-}"
-qmp_socket_override="${QMP_SOCKET:-}"
 gdb_port="${GDB_PORT:-}"
 pause_at_start="${PAUSE_AT_START:-off}"
 console="${CONSOLE:-reims}"
+# The QEMU fork answers Apple's PAuth hypercalls only with this set; a value
+# from the caller wins.
+export QEMU_VMAPPLE_KVM_HVC="${QEMU_VMAPPLE_KVM_HVC:-1}"
+
+# Host, firmware and guest bundle. check-host.sh is given the QEMU chosen
+# here so both look at the same binary; its summary is not wanted here.
+QEMU_BIN="$qemu" "$script_dir/check-host.sh" > /dev/null
+test -f "$avpbooter" || die "AVPBooter not found: $avpbooter (copy it from macOS, or set AVPBOOTER)"
+for f in aux.img.trimmed disk.img vm.json; do
+    test -f "$guest_dir/$f" || die "guest bundle incomplete: missing $guest_dir/$f"
+done
+
+# The guest's ECID becomes the vmapple machine's uuid.
+ecid="$(python3 "$script_dir/extract-ecid.py" "$guest_dir/vm.json")" ||
+    die "could not read the guest ECID from $guest_dir/vm.json"
+machine="vmapple,uuid=$ecid,accel=kvm"
+
 gfx="${GFX:-reims}"
 ssh_bind="${SSH_BIND:-127.0.0.1}"
 read -r -a extra_args <<<"${QEMU_EXTRA_ARGS:-}"
@@ -85,7 +112,7 @@ if test "${BALLOON:-0}" = 1; then
     extra_args+=(-device "virtio-balloon-pci,id=balloon0,macos-units=on,guest-stats-polling-interval=5${BALLOON_OPTS:+,$BALLOON_OPTS}")
     balloon_qmp="${BALLOON_QMP:-${QMP_SOCKET:+${QMP_SOCKET%.qmp}.balloon.qmp}}"
     if test -n "$balloon_qmp"; then
-        rm -f "$balloon_qmp"
+        remove_stale_socket "$balloon_qmp"
         extra_args+=(-qmp "unix:$balloon_qmp,server=on,wait=off")
     fi
 fi
@@ -99,39 +126,38 @@ if test -n "$tap_if"; then
                  -device "virtio-net-pci,netdev=net1,mac=$tap_mac")
 fi
 
-# The patched KVM QEMU forwards Apple's private VMApple PAuth HVC range and
-# implements it in userspace. Keep the opt-in explicit in QEMU itself while
-# making this repository's dedicated launcher select the required contract.
-export QEMU_VMAPPLE_KVM_HVC="${QEMU_VMAPPLE_KVM_HVC:-1}"
-
-die() { echo "error: $*" >&2; exit 1; }
-
-"$repo_root/scripts/check-host.sh" >/dev/null
-test -f "$booter" || die "AVPBooter not found: $booter"
-test -f "$guest_dir/aux.img.trimmed" || die "missing $guest_dir/aux.img.trimmed"
-test -f "$guest_dir/disk.img" || die "missing $guest_dir/disk.img"
-test -f "$guest_dir/vm.json" || die "missing $guest_dir/vm.json"
-
-ecid="$("$repo_root/scripts/extract-ecid.py" "$guest_dir/vm.json")"
 mkdir -p "$log_dir"
 stamp="$(date +%Y%m%d-%H%M%S)"
 serial_log="$log_dir/serial-$stamp.log"
-qmp_socket="${qmp_socket_override:-$log_dir/qmp-$stamp.sock}"
-if test -z "$serial"; then
-    serial="file:$serial_log"
-fi
-machine="vmapple,uuid=$ecid,accel=kvm"
-display_args=(-display none)
+serial="${SERIAL:-file:$serial_log}"
+qmp_socket="${QMP_SOCKET:-$log_dir/qmp-$stamp.sock}"
+
+# Debugging: QEMU's gdbstub on loopback, and/or start with the CPUs stopped.
 debug_args=()
 if test -n "$gdb_port"; then
-    [[ "$gdb_port" =~ ^[0-9]+$ ]] || die "GDB_PORT must be numeric"
+    [[ "$gdb_port" =~ ^[0-9]+$ ]] || die "GDB_PORT must be a port number (digits only), not '$gdb_port'"
     debug_args+=(-gdb "tcp:127.0.0.1:$gdb_port")
 fi
-if test "$pause_at_start" = on; then
-    debug_args+=(-S)
-elif test "$pause_at_start" != off; then
-    die "PAUSE_AT_START must be on or off"
-fi
+case "$pause_at_start" in
+    on) debug_args+=(-S) ;;
+    off) ;;
+    *) die "PAUSE_AT_START must be on or off, not '$pause_at_start'" ;;
+esac
+
+# QEMU's own display: none, unless a GPU device model is in use and
+# CONSOLE=gtk asks for QEMU's GTK window (choose_display, GPU branches only).
+display_args=(-display none)
+choose_display() {
+    case "$console" in
+        reims|none) ;;
+        gtk)
+            display_args=(-display "gtk,zoom-to-fit=on")
+            export GDK_BACKEND=wayland
+            ;;
+        *) die "CONSOLE must be reims, none, or gtk" ;;
+    esac
+}
+
 device_help="$({ "$qemu" -device reims-vgpu-mmio,help 2>&1 || true; })"
 proxy_help="$({ "$qemu" -device apv-gpu-proxy,help 2>&1 || true; })"
 # Guest RAM on a shared memfd (MEMFD=1; the default with the GPU or the
@@ -173,7 +199,7 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     gpu_sock="${GPU_BACKEND_SOCKET:-$log_dir/gpu-backend.sock}"
     # sun_path holds 107 bytes; a longer path fails to bind and QEMU exits at boot.
     (( ${#gpu_sock} <= 107 )) || die "GPU backend socket path too long (${#gpu_sock} > 107): $gpu_sock; set GPU_BACKEND_SOCKET"
-    rm -f "$gpu_sock"
+    remove_stale_socket "$gpu_sock"
     gpu_log="${GPU_BACKEND_LOG:-$log_dir/gpu-backend.log}"
     # A driver call in flight leaves its breadcrumb here; vm-job folds one a
     # dead backend left into the host's driver quarantine.
@@ -181,26 +207,34 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     # Supervise the backend: record how it ended, and with
     # GPU_BACKEND_LOSS=reset start a fresh one (at most 3 times in 10 minutes)
     # for QEMU to reconnect to when it resets the guest.
+    # The subshell must not inherit errexit: a failing backend is exactly
+    # what it is there to report. Every status is handled explicitly below.
+    # scripts/vm-job.sh parses the "gpu backend: ..." lines; keep their format.
     (
+        set +e
         starts=()
         while :; do
-            "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null
-            status=$?
-            if test $status -gt 128; then
+            status=0
+            "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null || status=$?
+            if test "$status" -gt 128; then
                 echo "gpu backend: ended by signal $((status - 128)) at $(date -Is)" >> "$gpu_log"
             else
                 echo "gpu backend: exited with status $status at $(date -Is)" >> "$gpu_log"
             fi
             test "${GPU_BACKEND_LOSS:-stop}" = reset || break
             # A clean exit is QEMU going away; only a failure restarts.
-            test $status -ne 0 || break
-            now=$(date +%s); starts+=("$now")
-            recent=0; for t in "${starts[@]}"; do (( now - t < 600 )) && recent=$((recent + 1)); done
+            test "$status" -ne 0 || break
+            now="$(date +%s)"
+            starts+=("$now")
+            recent=0
+            for t in "${starts[@]}"; do
+                if (( now - t < 600 )); then recent=$((recent + 1)); fi
+            done
             if (( recent > 3 )); then
                 echo "gpu backend: not restarting (more than 3 failures in 10 minutes)" >> "$gpu_log"
                 break
             fi
-            "$GPU_BACKEND_BIN" --fold-breadcrumbs >> "$gpu_log" 2>&1
+            "$GPU_BACKEND_BIN" --fold-breadcrumbs >> "$gpu_log" 2>&1 < /dev/null || true
             echo "gpu backend: restarting" >> "$gpu_log"
         done
     ) &
@@ -216,33 +250,25 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     machine+=",gfx-device=apv-gpu-proxy,aux-ram-share=on"
     extra_args+=(-global "apv-gpu-proxy.socket=$gpu_sock"
                  -global "apv-gpu-proxy.on-backend-loss=${GPU_BACKEND_LOSS:-stop}")
-    case "$console" in
-        reims|none) ;;
-        gtk)
-            display_args=(-display gtk,zoom-to-fit=on)
-            export GDK_BACKEND=wayland
-            ;;
-        *) die "CONSOLE must be reims, none, or gtk" ;;
-    esac
+    choose_display
 elif test "$gfx" = reims && grep -q '^reims-vgpu-mmio options:' <<<"$device_help"; then
+    # The GPU device model inside QEMU (MMIO device).
     machine+=",gfx-device=reims-vgpu-mmio"
     if test "${REIMS_VGPU_WINDOW:-1}" = 0; then
         # The MMIO device always tries to open its host window and only
         # falls back to the QEMU console (screendump/VNC) when that fails.
         unset WAYLAND_DISPLAY DISPLAY
     elif test -z "${WAYLAND_DISPLAY:-}" && \
-            test -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wayland-0"; then
+         test -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/wayland-0"; then
+        # Started outside the desktop session (ssh, a service): use the
+        # session's compositor if there is one, so the window can open.
         export WAYLAND_DISPLAY=wayland-0
     fi
-    case "$console" in
-        reims|none) ;;
-        gtk)
-            display_args=(-display gtk,zoom-to-fit=on)
-            export GDK_BACKEND=wayland
-            ;;
-        *) die "CONSOLE must be reims, none, or gtk" ;;
-    esac
+    choose_display
 fi
+# Without a GPU device model (GFX=none, a QEMU without the Reims device, or a
+# GFX value this script does not know) CONSOLE is ignored, not validated:
+# such guests are headless and keep -display none.
 
 # AUDIO=virtio|usb|none: a sound card with a discarding backend (audiodev
 # none), so CoreAudio has a default output and playback in the guest and its
@@ -266,17 +292,22 @@ case "${AUDIO:-virtio}" in
     *) die "AUDIO must be virtio, usb, or none" ;;
 esac
 
-echo "launching VMApple with KVM (guest ECID loaded from vm.json)"
+echo "starting the vmapple guest under KVM (ECID from $guest_dir/vm.json)"
 echo "QEMU: $qemu"
-echo "serial: $serial_log"
-echo "SSH after guest setup: localhost:$ssh_port"
+if test -z "${SERIAL:-}"; then
+    echo "serial log: $serial_log"
+else
+    echo "serial: $serial"
+fi
+echo "SSH forward (once the guest runs sshd): localhost:$ssh_port"
 
+# The device order fixes the guest's PCI addresses: keep it.
 exec "$qemu" \
     -machine "$machine" \
     -cpu "$cpu_model" \
     -smp "$cpus" \
     -m "$ram" \
-    -bios "$booter" \
+    -bios "$avpbooter" \
     -drive "if=pflash,format=raw,file.filename=$guest_dir/aux.img.trimmed,file.locking=off" \
     -drive "if=pflash,format=raw,file.filename=$guest_dir/disk.img,file.locking=off" \
     -drive "if=none,format=raw,file.filename=$guest_dir/aux.img.trimmed,file.locking=off,cache=$disk_cache,id=aux" \

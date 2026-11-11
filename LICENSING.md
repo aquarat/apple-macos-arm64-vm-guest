@@ -26,31 +26,32 @@ Patches, public domain since 2026-11-11:
 
 Scripts, not licensed:
 
-- `scripts/apple_device_tree.py`
-- `scripts/extract-ecid.py`
-- `scripts/inject-xnu-kvm.sh`
 - `scripts/launch-dfu.sh`
 - `scripts/probe-vmapple-usb.py`
-- `scripts/provision-on-macos.sh`
 - `scripts/restore-info.sh`
 - `scripts/vmapple-usbip.py`
 
-These files contain his work together with later changes made in this
+This file contains his work together with later changes made in this
 project. Only the later changes are under `GPL-2.0-or-later`:
 
 - `scripts/build-gui-qemu.sh`
-- `scripts/check-host.sh`
-- `scripts/inject-xnu-kvm.gdb`
-- `scripts/launch-gui-kvm.sh`
-- `scripts/launch-kvm.sh`
-- `README.md`, `AGENTS.md`
 
-Most of these belong to the legacy bring-up flow
-([docs/LEGACY-BRINGUP.md](docs/LEGACY-BRINGUP.md)). The current flow still
-uses `scripts/launch-kvm.sh`, `scripts/extract-ecid.py` (called by
-`launch-kvm.sh`) and `scripts/provision-on-macos.sh` (the restore step of
-`images/host/macos-restore.sh`). If the original author asks, his work will be
-rewritten or removed.
+All five belong to the legacy bring-up flow
+([docs/LEGACY-BRINGUP.md](docs/LEGACY-BRINGUP.md)); the current flow does
+not use them. If the original author asks, they will be rewritten or
+removed.
+
+The current flow used to contain more of his work. On 2026-11-11 that was
+replaced by an independent rewrite under `GPL-2.0-or-later`, written from a
+functional specification by someone who had not seen his files
+([provenance](docs/SCRIPTS-PROVENANCE.md)):
+`scripts/launch-kvm.sh`, `scripts/launch-gui-kvm.sh`,
+`scripts/check-host.sh`, `scripts/extract-ecid.py`,
+`scripts/provision-on-macos.sh`, `scripts/inject-xnu-kvm.sh` and
+`scripts/lib/`, together with the passages of `AGENTS.md` and `README.md`
+that were his. `scripts/inject-xnu-kvm.gdb` and
+`scripts/apple_device_tree.py` were removed; `scripts/lib/xnu_handoff.py`
+does their job.
 
 His Linux 6.19 PAuth patch (`patches/linux-6.19-vmapple-pac-vmkey.patch`)
 and its rebase to 7.1.13 are no longer in this repository (the 6.19 patch

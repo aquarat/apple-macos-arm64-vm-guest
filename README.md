@@ -361,9 +361,9 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
   logs. `.gitignore` covers the expected locations and formats.
 - This project is licensed under GPL-2.0-or-later ([LICENSE](LICENSE)).
   Exceptions are listed in [LICENSING.md](LICENSING.md): files by the
-  original upstream author, Anees Iqbal (steelbrain), whose scripts remain
-  his and are not licensed and whose patches he released into the public
-  domain, and the other patches in `patches/`, which follow the licence of
+  original upstream author, Anees Iqbal (steelbrain), whose legacy-flow
+  scripts remain his and are not licensed and whose patches he released
+  into the public domain, and the other patches in `patches/`, which follow the licence of
   the project they patch.
 - The QEMU and Reims changes live in the forks, which keep their upstream
   licences.
@@ -389,6 +389,10 @@ are welcome.
 - [Reims](https://github.com/steelbrain-bot/reims-vgpu), the QEMU
   `vmapple`/Reims branch and [metal2vulkan](https://github.com/steelbrain/metal2vulkan)
   by steelbrain. This project's GPU support is built on them.
+- steelbrain's original experiment, which first booted macOS under KVM on
+  Asahi Linux. This project started as its fork; its launcher and
+  provisioning scripts have since been rewritten independently
+  ([provenance](docs/SCRIPTS-PROVENANCE.md)).
 - QEMU and its `vmapple` machine, the [Asahi Linux](https://asahilinux.org/)
   project, and Mesa's Honeykrisp driver.
 - [macosvm](https://github.com/s-u/macosvm) for restores on macOS.

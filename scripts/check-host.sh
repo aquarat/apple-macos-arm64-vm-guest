@@ -1,41 +1,42 @@
 #!/usr/bin/env bash
-# Check the host: AArch64, /dev/kvm access, and a QEMU with the vmapple
-# machine (QEMU_BIN, else build/qemu-fleet from scripts/build-qemu.sh).
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Check that this host can run a macOS guest with KVM in QEMU's vmapple
+# machine: an aarch64 host, read/write access to /dev/kvm, and a QEMU (chosen
+# like scripts/launch-kvm.sh does: QEMU_BIN, else build/qemu-fleet and the
+# older build directories) that has the vmapple machine.
+#
+#   scripts/check-host.sh
+#
+# Prints a short summary and exits 0 when everything is in place; otherwise
+# prints "error: ..." on stderr and exits non-zero. launch-kvm.sh runs it
+# before every launch and discards its stdout.
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-fleet_qemu="$repo_root/build/qemu-fleet/vendor/qemu/build/qemu-system-aarch64"
-gui_qemu="$repo_root/build/reims-linux-product/vendor/qemu/build/qemu-system-aarch64"
-development_gui_qemu="$repo_root/build/reims-linux/vendor/qemu/build/qemu-system-aarch64"
-headless_qemu="$repo_root/build/experiment-macOS-arm64-on-linux-x86/build/qemu-system-aarch64"
-if test -n "${QEMU_BIN:-}"; then
-    qemu="$QEMU_BIN"
-elif test -x "$fleet_qemu"; then
-    qemu="$fleet_qemu"
-elif test -x "$gui_qemu"; then
-    qemu="$gui_qemu"
-elif test -x "$development_gui_qemu"; then
-    qemu="$development_gui_qemu"
-else
-    qemu="$headless_qemu"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(dirname "$script_dir")"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+# shellcheck source=lib/qemu-select.sh
+. "$script_dir/lib/qemu-select.sh"
+
+arch="$(uname -m)"
+test "$arch" = aarch64 || die "this host is $arch; vmapple guests need an aarch64 (Apple Silicon) host"
+
+if ! { test -r /dev/kvm && test -w /dev/kvm; }; then
+    die "/dev/kvm is not readable and writable by $(id -un) (KVM missing, or not in the kvm group?)"
 fi
 
-test "$(uname -m)" = aarch64 || {
-    echo "error: this flow requires an AArch64 host" >&2
-    exit 1
-}
-test -r /dev/kvm && test -w /dev/kvm || {
-    echo "error: current user cannot access /dev/kvm" >&2
-    exit 1
-}
-test -x "$qemu" || {
-    echo "error: patched QEMU not found at $qemu" >&2
-    exit 1
-}
-"$qemu" -machine help | grep -q '^vmapple '
+qemu="$(select_qemu "$repo_root")"
+if ! { test -f "$qemu" && test -x "$qemu"; }; then
+    die "no executable QEMU at $qemu (build one with scripts/build-qemu.sh, or set QEMU_BIN)"
+fi
 
-printf 'architecture: %s\n' "$(uname -m)"
-printf 'kernel: %s\n' "$(uname -r)"
-printf 'KVM: accessible\n'
-printf 'QEMU: %s\n' "$qemu"
-printf 'VMApple KVM host check: PASS\n'
+machines="$("$qemu" -machine help 2>&1)" || die "$qemu -machine help failed: $machines"
+grep -q '^vmapple ' <<<"$machines" || die "$qemu has no vmapple machine (not a vmapple-capable QEMU build)"
+
+echo "architecture: $arch"
+echo "kernel: $(uname -r)"
+echo "KVM: /dev/kvm accessible"
+echo "QEMU: $qemu"
+echo "host check passed"

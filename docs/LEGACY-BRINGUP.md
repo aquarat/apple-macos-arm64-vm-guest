@@ -12,7 +12,7 @@ What differs from the current flow:
 | --- | --- | --- |
 | Host | M2 Pro, Fedora 42, kernel `6.19.14-vmapple2` | M1 Max / M1 Ultra, Fedora Asahi Remix 44, kernel-16k 7.1.13 |
 | Host kernel | steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch), built by hand | `patches/linux-7.1.13-*` (PAuth context plus in-KVM emulation of the GIC store), built by `scripts/build-host-kernel.sh` |
-| XNU hand-off | GDB rewrites XNU's GIC store at hand-off (`scripts/inject-xnu-kvm.gdb`) | Emulated in KVM; `INJECT=0`, no GDB (GDB is used only for the single-user account step) |
+| XNU hand-off | GDB rewrites XNU's GIC store at hand-off (`scripts/inject-xnu-kvm.sh`; originally steelbrain's `inject-xnu-kvm.gdb`) | Emulated in KVM; `INJECT=0`, no GDB (GDB is used only for the single-user account step) |
 | QEMU / Reims | Reims pinned at `2844274c`, with `patches/reims-*.patch`, built by `scripts/build-gui-qemu.sh` | The aquarat Reims and QEMU forks, built by `scripts/build-qemu.sh`; no patch files |
 | Renderer | Mesa llvmpipe, in a host window | Honeykrisp (patched Mesa) on GPU slots, `GFX=none` elsewhere, headless |
 | Guest | macOS 13.6 Ventura, provisioned by hand on macOS | macOS 13.6 and 26.4 golden image chains ([IMAGES.md](IMAGES.md)) |
@@ -54,7 +54,10 @@ The relevant files are:
 - steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch) (not in this repository; public domain since 2026-11-11, see [LICENSING.md](../LICENSING.md))
 - [`patches/reims-qemu-linux-arm64.patch`](../patches/reims-qemu-linux-arm64.patch)
 - [`patches/reims-rust-linux-arm64.patch`](../patches/reims-rust-linux-arm64.patch)
-- [`scripts/inject-xnu-kvm.gdb`](../scripts/inject-xnu-kvm.gdb)
+- [`scripts/inject-xnu-kvm.sh`](../scripts/inject-xnu-kvm.sh) and
+  [`scripts/lib/xnu_handoff.py`](../scripts/lib/xnu_handoff.py), this project's
+  2026-11-11 rewrite of steelbrain's
+  [`inject-xnu-kvm.gdb`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/scripts/inject-xnu-kvm.gdb)
 
 [`patches/vmapple-usb-chardev.patch`](../patches/vmapple-usb-chardev.patch) and
 the USB/IP scripts belong to the separate Linux restore experiment (below).

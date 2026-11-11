@@ -1,4 +1,5 @@
-# Repository working agreement
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+# Working agreement for this repository
 
 ## Objective
 
@@ -24,24 +25,25 @@ production CI: changes must not break a working runner host.
   guests count; stop the service before baking or testing on a runner host
   (`vm-run.sh` otherwise waits for a free slot). Stopping it discards the
   jobs in flight.
-- Never commit Apple firmware, IPSWs, restore images, VM disks, machine
-  identifiers, or other large/proprietary artifacts. Keep them under `artifacts/`
-  or outside the repository; `.gitignore` must cover them.
-- Standing authorization: autonomously execute actions reasonably required to
-  reach the repository objective without requesting further approval. This
-  includes downloads, sparse-disk allocation, package changes, kernel-module
-  operations, task-scoped permission changes, and restarting experiment
-  processes. Continue reporting material sizes, purposes, and host mutations
-  before or as they occur so the work remains auditable.
-- Keep host changes narrowly scoped to this objective and avoid irreversible or
-  unrelated destructive actions even under the standing authorization.
-- Scripts must use `set -euo pipefail`, quote paths, validate prerequisites, and
+- Nothing large or proprietary goes into git: no Apple firmware, IPSWs or
+  other restore images, VM disks, machine identifiers (`vm.json`) or similar
+  artefacts. They belong under the ignored `artifacts/` directory or outside
+  the repository, and `.gitignore` must keep covering them.
+- Anything reasonably needed for the objective is authorised in advance:
+  downloads, sparse disk allocation, package installs and removals,
+  kernel-module operations, permission changes scoped to the task, and
+  restarting experiment processes. Say what you are doing as you go: sizes,
+  purposes and every change to the host.
+- Keep host changes narrow. Nothing irreversible, and nothing unrelated to
+  the task at hand.
+- Scripts use `set -euo pipefail`, quote paths, check their prerequisites
+  before doing any work and
   default to non-destructive behavior. Exception: `vm-job.sh`,
   `balloon-squeeze.sh`, `debug/boot-reliability.sh` and the runner
   orchestrators use `set -uo pipefail` on purpose, so they can capture a
   failing job's status and still shut the guest down and clean up.
-- Capture upstream URLs and commit IDs for QEMU or provisioning code. Pin known
-  working revisions instead of silently tracking a moving branch.
+- For QEMU and provisioning code, record the upstream URL and commit ID, and
+  pin a known-good revision rather than following a moving branch.
 - Preserve failed approaches in the notes; they are useful evidence.
 
 ## Definition of done
