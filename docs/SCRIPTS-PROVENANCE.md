@@ -79,8 +79,10 @@ alone.
   - shellcheck.
 
 Not tested: `provision-on-macos.sh` on real macOS, the injector without a
-QMP socket against a real guest, `GPU_BACKEND_LOSS=reset` with a real
-backend, and `CONSOLE=gtk` on a real display.
+QMP socket against a real guest, and `CONSOLE=gtk` on a real display.
+`GPU_BACKEND_LOSS=reset` with a real backend was tested afterwards, with the
+supervisor change that followed this rewrite (see NOTES.md, "QEMU / Reims
+build").
 
 ## Differences from the old scripts
 

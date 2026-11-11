@@ -33,7 +33,11 @@
 #   GPU_BACKEND_BIN  run the GPU device model out of process: path to
 #                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
-#                 GPU_BACKEND_LOSS stop | reset | shutdown [stop],
+#                 GPU_BACKEND_LOSS stop | reset | shutdown [stop]: what
+#                 QEMU does when the backend dies; reset starts a new backend
+#                 and resets the guest onto it (needs a QEMU fork with
+#                 qemu-reims-vgpu a9a1faa97b; an older one shuts down
+#                 instead, because of -no-reboot),
 #                 GPU_BACKEND_LOG [LOG_DIR/gpu-backend.log],
 #                 GPU_UDMABUF 1 = QEMU hands the backend /dev/udmabuf and the
 #                 GPU reads and writes guest RAM in place (64 MiB dma-bufs)
@@ -210,15 +214,69 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     # Supervise the backend: record how it ended, and with
     # GPU_BACKEND_LOSS=reset start a fresh one (at most 3 times in 10 minutes)
     # for QEMU to reconnect to when it resets the guest.
+    #
+    # The supervisor never outlives QEMU. QEMU replaces this shell (exec), so
+    # this subshell's parent is the launcher until then and QEMU after it;
+    # once that parent is gone the subshell has been reparented, which is a
+    # test no reused PID can pass. From then on nothing is restarted, and a
+    # backend still running 5 s later (one QEMU never reached, or a restarted
+    # one QEMU never reconnected to) is stopped by the PID this subshell got
+    # when it started it.
+    #
     # The subshell must not inherit errexit: a failing backend is exactly
     # what it is there to report. Every status is handled explicitly below.
     # scripts/vm-job.sh parses the "gpu backend: ..." lines; keep their format.
+    launcher_pid=$$
     (
         set +e
+        self=$BASHPID
+        # Whether this subshell's parent is still the launcher (QEMU, after
+        # the exec). Field 4 of /proc/<pid>/stat, read after the command name,
+        # which may itself contain spaces or parentheses.
+        qemu_running() {
+            local stat
+            read -r stat < "/proc/$self/stat" || return 1
+            stat="${stat##*) }"
+            # shellcheck disable=SC2086  # split into fields on purpose
+            set -- $stat
+            test "$2" = "$launcher_pid"
+        }
+        # Wait for the backend, or for QEMU to go and then up to 5 s more;
+        # a backend still there after that gets SIGTERM, and SIGKILL 5 s on.
+        # Sets $status the way `$?` of a foreground backend would have.
+        wait_backend() {
+            local backend=$1 watch timer done_pid
+            ( while qemu_running; do sleep 1; done ) &
+            watch=$!
+            wait -n -p done_pid "$backend" "$watch"
+            status=$?
+            if test "$done_pid" = "$backend"; then
+                kill "$watch" 2>/dev/null
+                wait "$watch" 2>/dev/null
+                return
+            fi
+            for signal in none TERM KILL; do
+                if test "$signal" != none; then
+                    echo "gpu backend: QEMU has exited; sending SIG$signal to $backend" >> "$gpu_log"
+                    kill "-$signal" "$backend" 2>/dev/null
+                fi
+                sleep 5 &
+                timer=$!
+                wait -n -p done_pid "$backend" "$timer"
+                status=$?
+                if test "$done_pid" = "$backend"; then
+                    kill "$timer" 2>/dev/null
+                    wait "$timer" 2>/dev/null
+                    return
+                fi
+            done
+            wait "$backend"
+            status=$?
+        }
         starts=()
         while :; do
-            status=0
-            "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null || status=$?
+            "$GPU_BACKEND_BIN" --socket "$gpu_sock" >> "$gpu_log" 2>&1 < /dev/null &
+            wait_backend $!
             if test "$status" -gt 128; then
                 echo "gpu backend: ended by signal $((status - 128)) at $(date -Is)" >> "$gpu_log"
             else
@@ -227,6 +285,10 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
             test "${GPU_BACKEND_LOSS:-stop}" = reset || break
             # A clean exit is QEMU going away; only a failure restarts.
             test "$status" -ne 0 || break
+            if ! qemu_running; then
+                echo "gpu backend: not restarting (QEMU has exited)" >> "$gpu_log"
+                break
+            fi
             now="$(date +%s)"
             starts+=("$now")
             recent=0

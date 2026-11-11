@@ -74,7 +74,14 @@ and `vm-job.sh` fails the job with status 120 and the reason (`job failed:
 GPU backend lost: ...`); a driver call that was in flight goes into the host's
 driver quarantine (`$XDG_STATE_HOME/reims-vgpu`), so later jobs refuse that
 call instead of crashing on it. `GPU_BACKEND_LOSS=reset` reboots the guest
-onto a fresh backend instead (interactive use).
+onto a fresh backend instead (interactive use): the supervisor starts a new
+backend, QEMU reconnects to it and resets the guest, and keeps its PID. QEMU
+requests that reset as a subsystem reset (qemu-reims-vgpu a9a1faa97b), the
+one kind `-no-reboot` does not turn into a shutdown, so a reboot the guest
+asks for still ends the VM. `vm-job.sh` still fails a job whose backend was
+lost, in either mode. The supervisor never outlives QEMU: once QEMU has gone
+it restarts nothing, and a backend still running 5 s later (one QEMU never
+reached, or a restarted one it never reconnected to) is stopped by PID.
 
 `GPU_MAX_REFRESH_HZ` (default 60, 0 = uncapped) caps the paravirtual
 display's refresh rate, in either mode; `GPU_FRAME_PACING=1` also paces guest
@@ -469,9 +476,10 @@ whole 12 GiB of guest RAM (192 chunks) in every 12 GB UI-test run and all
   0.5 s. QEMU kept its PID and kept running, the launcher started a new
   backend, and QEMU reconnected, offered udmabufs again and reset the guest,
   which imported 576 MiB again within 30 s.
-- `launch-kvm.sh` passes `-no-reboot`, which turns the reset that
-  `on-backend-loss=reset` requests into a shutdown. The run above lifted it
-  over QMP (`set-action` `reboot=reset`).
+- `launch-kvm.sh` passes `-no-reboot`, which turned the reset that
+  `on-backend-loss=reset` requested into a shutdown. The run above lifted it
+  over QMP (`set-action` `reboot=reset`); since qemu-reims-vgpu a9a1faa97b
+  the reset is a subsystem reset and needs nothing lifted.
 
 Upstream with omvm's patches, for comparison (limits raised to 262144 /
 4096): unit tests 133.6 and 135.9 s, UI test 175 s.
