@@ -5,16 +5,26 @@ This project is licensed under the GNU General Public License, version 2 or
 [LICENSE](LICENSE). The exceptions below are files that are not this
 project's own work, or that patch other projects.
 
-## Work by the original author (not licensed)
+## Work by the original author
 
 This repository started as a fork of
 [steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64)
-by Anees Iqbal (steelbrain). That repository has no licence, so his work
-remains his, all rights reserved. It is included here as published upstream,
-with credit, and this project grants no licence to it.
+by Anees Iqbal (steelbrain). That repository had no licence. On 2026-11-11
+he released the patches in it into the public domain
+([comment](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/issues/1#issuecomment-6789795685)). His statement names the patches only, so his other
+files here remain his, all rights reserved: they are included as published
+upstream, with credit, and this project grants no licence to them.
 
 His work is in these files, taken unchanged from the bootstrap commit
-(`657bb24`):
+(`657bb24`).
+
+Patches, public domain since 2026-11-11:
+
+- `patches/reims-qemu-linux-arm64.patch`
+- `patches/reims-rust-linux-arm64.patch`
+- `patches/vmapple-usb-chardev.patch`
+
+Scripts, not licensed:
 
 - `scripts/apple_device_tree.py`
 - `scripts/extract-ecid.py`
@@ -24,9 +34,6 @@ His work is in these files, taken unchanged from the bootstrap commit
 - `scripts/provision-on-macos.sh`
 - `scripts/restore-info.sh`
 - `scripts/vmapple-usbip.py`
-- `patches/reims-qemu-linux-arm64.patch`
-- `patches/reims-rust-linux-arm64.patch`
-- `patches/vmapple-usb-chardev.patch`
 
 These files contain his work together with later changes made in this
 project. Only the later changes are under `GPL-2.0-or-later`:
@@ -46,8 +53,8 @@ uses `scripts/launch-kvm.sh`, `scripts/extract-ecid.py` (called by
 rewritten or removed.
 
 His Linux 6.19 PAuth patch (`patches/linux-6.19-vmapple-pac-vmkey.patch`)
-and its rebase to 7.1.13 are no longer in this repository. The legacy
-flow points to his copy upstream. `patches/linux-7.1.13-vmapple-pac-vmkey.patch`
+and its rebase to 7.1.13 are no longer in this repository (the 6.19 patch
+is public domain now too). The legacy flow points to his copy upstream. `patches/linux-7.1.13-vmapple-pac-vmkey.patch`
 is now an independent implementation by this project, written clean-room
 style from m1n1's register definitions and a functional specification
 ([provenance](https://github.com/aquarat/apple-silicon-kernel-plus/blob/main/docs/kvm-pauth-provenance.md)).

@@ -51,7 +51,7 @@ and the QEMU and Reims changes now live in the forks.
 
 The relevant files are:
 
-- steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch) (not in this repository: it has no licence)
+- steelbrain's [`linux-6.19-vmapple-pac-vmkey.patch`](https://github.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/blob/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch) (not in this repository; public domain since 2026-11-11, see [LICENSING.md](../LICENSING.md))
 - [`patches/reims-qemu-linux-arm64.patch`](../patches/reims-qemu-linux-arm64.patch)
 - [`patches/reims-rust-linux-arm64.patch`](../patches/reims-rust-linux-arm64.patch)
 - [`scripts/inject-xnu-kvm.gdb`](../scripts/inject-xnu-kvm.gdb)
@@ -132,7 +132,8 @@ newer combination. (The current flow does this step with
 
 Apply the kernel patch after preparing the matching Fedora Asahi
 `6.19.14-400.asahi.fc42` source tree. The patch is steelbrain's, from his
-repository at `657bb24`; it has no licence and is not in this one:
+repository at `657bb24`, which he released into the public domain on
+2026-11-11; it is not in this one:
 
 ```sh
 curl -LO https://raw.githubusercontent.com/steelbrain/experiment-macOS-arm64-on-asahi-linux-arm64/657bb24/patches/linux-6.19-vmapple-pac-vmkey.patch
