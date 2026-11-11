@@ -34,7 +34,10 @@
 #                 reims-vgpu-backend, for a QEMU with the apv-gpu-proxy device.
 #                 GPU_BACKEND_SOCKET [LOG_DIR/gpu-backend.sock],
 #                 GPU_BACKEND_LOSS stop | reset | shutdown [stop],
-#                 GPU_BACKEND_LOG [LOG_DIR/gpu-backend.log]
+#                 GPU_BACKEND_LOG [LOG_DIR/gpu-backend.log],
+#                 GPU_UDMABUF 1 = QEMU hands the backend /dev/udmabuf and the
+#                 GPU reads and writes guest RAM in place (64 MiB dma-bufs)
+#                 rather than through copies [0]
 #
 # More: SERIAL [file:LOG_DIR/serial-<time>.log] is passed to -serial as is;
 # QMP_SOCKET [LOG_DIR/qmp-<time>.sock]; GDB_PORT [none] opens QEMU's gdbstub
@@ -250,6 +253,9 @@ if test "$gfx" = reims && test -n "${GPU_BACKEND_BIN:-}"; then
     machine+=",gfx-device=apv-gpu-proxy,aux-ram-share=on"
     extra_args+=(-global "apv-gpu-proxy.socket=$gpu_sock"
                  -global "apv-gpu-proxy.on-backend-loss=${GPU_BACKEND_LOSS:-stop}")
+    if test "${GPU_UDMABUF:-0}" = 1; then
+        extra_args+=(-global apv-gpu-proxy.udmabuf=on)
+    fi
     choose_display
 elif test "$gfx" = reims && grep -q '^reims-vgpu-mmio options:' <<<"$device_help"; then
     # The GPU device model inside QEMU (MMIO device).

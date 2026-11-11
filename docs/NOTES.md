@@ -350,7 +350,8 @@ valuable first:
    already holds guest RAM as a shared memfd; one `UDMABUF_CREATE` per
    imported RAMBlock chunk, imported with `VK_EXT_external_memory_dma_buf`,
    would fit the existing per-RAMBlock import and drop the copying rails.
-   Needs udmabuf's `size_limit_mb` raised on the hosts. Larger work.
+   Done, opt-in: see "Guest RAM as dma-bufs" below. Stock udmabuf limits
+   are enough.
 2. **Storage textures in fragment shaders** (desktop correctness: the login
    window's full-screen pass). Larger work in the render engine.
 3. **Two-plane Y'CbCr textures** sampled by draws and compute (the login
@@ -368,6 +369,86 @@ valuable first:
    183.6, 186.1 and 289.5 s with it against 166.3, 169.6, 177.9 and 185.9 s
    without (four interleaved runs each way): no gain beyond the spread on
    this benchmark. Worth measuring on a drain-bound workload.
+
+#### Guest RAM as dma-bufs (2026-11-11, opt-in)
+
+Port 1 above, with Reims kept out of process. QEMU opens `/dev/udmabuf` and
+passes the fd to `reims-vgpu-backend` over the existing socket
+(`APV_PROXY_UDMABUF`, request 7), only when the backend sets feature bit
+`APV_PROXY_FEAT_UDMABUF` in its HELLO reply. The payload carries udmabuf's
+`size_limit_mb` and `list_limit`. The protocol version stays 1: an old backend
+never sets the bit and an old QEMU never sends the request. The backend
+makes udmabufs from the guest-RAM memfds it already holds, 64 MiB at a time
+(the stock `size_limit_mb`), as GPU work first touches each chunk, and
+imports them with `VK_EXT_external_memory_dma_buf`. It opens no device
+node and gains no privilege: the fd only reaches memory it already maps.
+
+An object that crosses a chunk boundary is split there. One piece binds in
+place; several are gathered by the GPU (one `vkCmdCopyBuffer` region per
+piece), so nothing reads past a chunk. A unit test forces the split, and a
+guest probe copying three 192 MiB buffers (blit and compute, 3 rounds) was
+exact.
+
+QEMU logs one line for each way the rail stays off; each was run with the
+pitch probe, 8 of 8 cases exact. The cases:
+
+- `udmabuf=off`, the default (`launch-kvm.sh`: `GPU_UDMABUF=1` turns it on).
+- A balloon is present (pinned pages would go stale).
+- `/dev/udmabuf` cannot be opened, or its limits cannot be read.
+- The backend does not take it: an old backend, or `REIMS_VGPU_UDMABUF=off`.
+
+In each case the backend copies guest RAM as before.
+
+savevm and migrate on a running GPU guest are refused by the existing
+apv-gpu-proxy migration blocker ("the GPU's state lives in its backend
+process"), so nothing snapshots pinned, GPU-written RAM.
+
+Measured on an M1 Max test host (Honeykrisp, stock limits 1024 / 64 MiB unless
+stated):
+
+| run | rail | result |
+| --- | --- | --- |
+| unit tests, 4 vCPU / 8 GB, interleaved | copy (master) | 165.2, 178.5 s |
+| | dma-buf | 136.8, 137.6 s |
+| | upstream, limits 262144 / 4096 | 133.6, 135.9 s |
+| SwiftUI UI test, 8 vCPU / 12 GB | copy (master) | OK in 276 s |
+| | upstream, raised limits | OK in 175 s |
+| | dma-buf, all arms | hung, 3 of 3 |
+| | dma-buf, two or more read arms (diagnostic build) | hung, 2 of 2 |
+| | dma-buf, one read arm (diagnostic build) | OK in 216, 230 and 192 s |
+
+The hung runs stop with the backend's drain thread waiting on a GPU fence
+(sampled stacks: `quiesce_guest_writes` → `retire_all` → `vkWaitForFences`).
+Then either the guest's SSH session closes or QEMU's 30 s request timeout
+fires. The host kernel logged no GPU fault, and the cause is not found:
+
+- GPU copies through an import run at the speed of plain memory (64 MiB in
+  1.4 to 2.9 ms either way, against 1.5 to 1.6 ms).
+- 200 extra imports do not slow a submission.
+- Each read arm on its own passes.
+
+Until the cause is found the offer stays off by default and no runner
+should enable it.
+
+Pinned memory grows with what the guest's GPU work touches. It reached the
+whole 12 GiB of guest RAM (192 chunks) in every 12 GB UI-test run and all
+8 GiB in the unit tests. Killing the backend released its udmabufs within
+0.5 s while QEMU was still running: 576 MiB in 10 buffers before, none of
+the guest's after.
+
+Rollout, once the hang is fixed:
+
+- Hosts: the fleet kernel has `CONFIG_UDMABUF=y`, and a udev rule makes
+  `/dev/udmabuf` 0660 group `kvm`. The user QEMU runs as must be in group
+  `kvm`, which is not implied by `/dev/kvm` being world-accessible. Check
+  each runner host before enabling.
+- Limits: none to change. Stock `size_limit_mb` 64 and `list_limit` 1024
+  suffice, because this rail makes one 64 MiB udmabuf per chunk. Upstream's
+  per-object imports are what need 262144 / 4096, and this rail does not
+  use them.
+- Memory: budget the full guest RAM as pinned (unswappable) for each GPU
+  slot. Keep the balloon off on GPU slots; QEMU refuses the offer with one.
+- Enable per slot with `GPU_UDMABUF=1`, one GPU slot first.
 
 Not worth porting: KVM dirty-page tracking for re-copies (this fork already
 has it, through the dirty table QEMU fills), the `vm.max_map_count` and
