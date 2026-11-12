@@ -118,6 +118,13 @@ cleanup() {
         kill -TERM -- "-$(cat "$run/launcher.pid")" 2>/dev/null
         sleep 3
     fi
+    # The GPU backend leaves its socket behind (vm-run.sh puts it beside the
+    # QMP socket, which QEMU removes itself); job names are never reused, so
+    # nothing else would ever remove it.
+    gpu_sock="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/vmapple/$name.gpu"
+    if test -z "${GPU_BACKEND_SOCKET:-}" && ! qemu_alive && test -S "$gpu_sock"; then
+        rm -f -- "$gpu_sock"
+    fi
     if test "${KEEP:-0}" != 1; then
         mkdir -p "$repo_root/artifacts/job-logs"
         mv "$run/logs" "$repo_root/artifacts/job-logs/$name" 2>/dev/null
