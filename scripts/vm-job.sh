@@ -118,6 +118,13 @@ cleanup() {
         kill -TERM -- "-$(cat "$run/launcher.pid")" 2>/dev/null
         sleep 3
     fi
+    # The launcher's GPU backend supervisor can outlive QEMU by up to 10 s
+    # (SIGTERM, then SIGKILL, for a backend that does not exit) and writes its
+    # last lines to the logs: let it finish before the logs are moved.
+    if test -s "$run/launcher.pid"; then
+        launcher_pgid="$(cat "$run/launcher.pid")"
+        for _ in $(seq 1 15); do pgrep -g "$launcher_pgid" >/dev/null || break; sleep 1; done
+    fi
     # The GPU backend leaves its socket behind (vm-run.sh puts it beside the
     # QMP socket, which QEMU removes itself); job names are never reused, so
     # nothing else would ever remove it.
