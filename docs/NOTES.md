@@ -498,6 +498,24 @@ Rollout:
 - Memory: budget the full guest RAM as pinned (unswappable) for each GPU
   slot. Keep the balloon off on GPU slots; QEMU refuses the offer with one.
 - Enable per slot with `GPU_UDMABUF=1`, one GPU slot first.
+- Kernel: not on Asahi `asahi-wip` kernels from before 2026-11-02 (for
+  example 7.2.11 at `e09c62843a8e`). Their Rust GEM shmem layer creates
+  imported dma-bufs as plain C shmem objects, not as driver objects. Closing
+  an import's handle then leaves its GPU mapping in place, and Mesa reuses
+  the address. The first test on a 7.2.11 runner host (2026-11-12) failed
+  this way: the backend's second import of one chunk got `EALREADY` from
+  `DRM_IOCTL_ASAHI_VM_BIND`. Upstream fixed this layer on 2026-11-02 ("rust:
+  drm: gem: shmem: implement gem_create_object for prime imports", plus
+  `create_imported` in the Asahi driver). The 7.3.1 fleet kernel's base has
+  the fix; the 7.1.13 kernel the rail was first measured on did not fail.
+- Since then a failed import costs nothing. Honeykrisp returned an error
+  for a failed allocation, but `agx_bo_import` called `abort()` on a failed
+  bind. `patches/mesa/0003` makes it return an error, and the backend copies
+  that chunk instead. The backend also leaves guest RAM out of core dumps:
+  a crash dumping the whole guest took 44 s, longer than QEMU's 30 s request
+  timeout. Tested 2026-11-15 by failing every import bind in userspace (an
+  `LD_PRELOAD` shim that never reached the kernel): no abort, the Metal check
+  was exact, and a SIGABRT'd backend was gone in 1.3 s with a 16 MB core.
 
 Not worth porting: KVM dirty-page tracking for re-copies (this fork already
 has it, through the dirty table QEMU fills), the `vm.max_map_count` and
