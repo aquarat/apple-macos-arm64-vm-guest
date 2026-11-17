@@ -498,16 +498,22 @@ Rollout:
 - Memory: budget the full guest RAM as pinned (unswappable) for each GPU
   slot. Keep the balloon off on GPU slots; QEMU refuses the offer with one.
 - Enable per slot with `GPU_UDMABUF=1`, one GPU slot first.
-- Kernel: not on Asahi `asahi-wip` kernels from before 2026-11-02 (for
-  example 7.2.11 at `e09c62843a8e`). Their Rust GEM shmem layer creates
-  imported dma-bufs as plain C shmem objects, not as driver objects. Closing
-  an import's handle then leaves its GPU mapping in place, and Mesa reuses
-  the address. The first test on a 7.2.11 runner host (2026-11-12) failed
-  this way: the backend's second import of one chunk got `EALREADY` from
-  `DRM_IOCTL_ASAHI_VM_BIND`. Upstream fixed this layer on 2026-11-02 ("rust:
-  drm: gem: shmem: implement gem_create_object for prime imports", plus
-  `create_imported` in the Asahi driver). The 7.3.1 fleet kernel's base has
-  the fix; the 7.1.13 kernel the rail was first measured on did not fail.
+- Kernel: needs the GEM shmem PRIME-import fix, which Asahi `asahi-wip`
+  has from 2026-11-02 ("rust: drm: gem: shmem: implement gem_create_object
+  for prime imports", plus `create_imported` in the Asahi driver). Kernels
+  on the `asahi-wip` 7.3.1 base (`c2e6784b008c`) have it and work, for
+  example [apple-silicon-kernel-plus](https://github.com/aquarat/apple-silicon-kernel-plus)
+  7.3.1 `plus3` (`7.3.1-900.asahiwip.plus3`): on a runner host on that
+  kernel (2026-11-17), a GPU job with `GPU_UDMABUF=1` passed the Metal
+  check with nothing wrong and no `EALREADY`.
+  Not on `asahi-wip` kernels from before 2026-11-02 (for example 7.2.11 at
+  `e09c62843a8e`, which every kernel-plus 7.2.11 build uses). Their Rust GEM
+  shmem layer creates imported dma-bufs as plain C shmem objects, not as
+  driver objects. Closing an import's handle then leaves its GPU mapping in
+  place, and Mesa reuses the address. The first test on a 7.2.11 runner host
+  (2026-11-12) failed this way: the backend's second import of one chunk got
+  `EALREADY` from `DRM_IOCTL_ASAHI_VM_BIND`. The 7.1.13 kernel the rail was
+  first measured on did not fail.
 - Since then a failed import costs nothing. Honeykrisp returned an error
   for a failed allocation, but `agx_bo_import` called `abort()` on a failed
   bind. `patches/mesa/0003` makes it return an error, and the backend copies
