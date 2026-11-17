@@ -325,7 +325,9 @@ moving bundles between hosts: [docs/IMAGES.md](docs/IMAGES.md).
   `memcpy` is still about two thirds of the drain's CPU time: Honeykrisp
   cannot import guest RAM as host pointers, so guest data is copied into and
   out of Vulkan memory once each way, unless the slot imports it as
-  udmabufs (`GPU_UDMABUF=1`, off by default; it pins all guest RAM): about
+  udmabufs (`GPU_UDMABUF=1`, off by default; it pins all guest RAM and
+  needs a kernel with the GEM PRIME-import fix, such as kernel-plus 7.3.1
+  `plus3`, not a 7.2.11 one): about
   8 % off the simulator unit tests and 19 % off the drain's time
   ([NOTES.md](docs/NOTES.md#guest-ram-as-dma-bufs-2026-11-11)). GPU slots need Honeykrisp Mesa built with this
   project's patches (`patches/mesa/`, `scripts/build-mesa-honeykrisp.sh`),
